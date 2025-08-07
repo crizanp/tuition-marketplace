@@ -117,6 +117,13 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        
+        'tutors' => [
+            'provider' => 'tutors',
+            'table' => 'tutor_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     /*

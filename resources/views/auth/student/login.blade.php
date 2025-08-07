@@ -33,6 +33,12 @@
             <h3 class="text-center fw-bold text-black mb-3">Student Login</h3>
             <p class="text-muted text-center mb-4">Use your email to sign into your account</p>
 
+            @if (session('message'))
+                <div class="alert alert-success">
+                    {{ session('message') }}
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger">
                     @foreach ($errors->all() as $error)
@@ -60,6 +66,10 @@
 
                 <button type="submit" class="btn bg-orange-500 btn-lg w-100 shadow-sm">Log In</button>
             </form>
+
+            <div class="text-center mt-3">
+                <a href="/student/forgot-password" class="text-orange-500 text-decoration-none small">Forgot your password?</a>
+            </div>
 
             <div class="text-center mt-4">
                 <span class="text-secondary">Don't have an account?</span>

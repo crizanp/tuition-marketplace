@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\TutorResetPasswordNotification;
+use App\Notifications\TutorEmailVerificationNotification;
 
-class Tutor extends Authenticatable
+class Tutor extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -31,4 +34,25 @@ class Tutor extends Authenticatable
         'password' => 'hashed',
         'subjects' => 'array',
     ];
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new TutorResetPasswordNotification($token));
+    }
+
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new TutorEmailVerificationNotification);
+    }
 }
