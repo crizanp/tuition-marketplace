@@ -1,296 +1,86 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="auth-wrapper">
-    <div class="auth-card">
-        <div class="auth-left">
-            <div class="steps-section">
-                <div class="steps-top">
-                    <h2 class="steps-title">Find Home Tuition / Online Tuition Part Time Jobs.</h2>
-                    <div class="steps-row">
-                        <div class="step-box">
-                            <div class="step-label">Create <span>PROFILE</span></div>
-                            <div class="step-num">1</div>
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="flex w-full max-w-5xl bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="flex-1 flex flex-col justify-center items-center bg-gray-50 p-8">
+            <div class="w-full max-w-xs">
+                <h2 class="text-xl font-bold text-blue-700 mb-6 text-center">Find Home Tuition / Online Tuition Part Time Jobs.</h2>
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white border border-gray-200 rounded-lg shadow p-4 w-24 text-center">
+                            <div class="font-semibold text-gray-800">Create <span class="text-orange-500 font-bold">PROFILE</span></div>
+                            <div class="text-blue-700 font-bold text-lg mt-1">1</div>
                         </div>
-                        <span class="step-arrow">&#x2192;</span>
-                        <div class="step-box">
-                            <div class="step-label">Get <span>STUDENTS</span></div>
-                            <div class="step-num">2</div>
+                    </div>
+                    <span class="text-2xl text-gray-400">&#x2192;</span>
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white border border-gray-200 rounded-lg shadow p-4 w-24 text-center">
+                            <div class="font-semibold text-gray-800">Get <span class="text-orange-500 font-bold">STUDENTS</span></div>
+                            <div class="text-blue-700 font-bold text-lg mt-1">2</div>
                         </div>
-                        <span class="step-arrow">&#x2192;</span>
-                        <div class="step-box">
-                            <div class="step-label">Start <span>EARNING</span></div>
-                            <div class="step-num">3</div>
+                    </div>
+                    <span class="text-2xl text-gray-400">&#x2192;</span>
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white border border-gray-200 rounded-lg shadow p-4 w-24 text-center">
+                            <div class="font-semibold text-gray-800">Start <span class="text-orange-500 font-bold">EARNING</span></div>
+                            <div class="text-blue-700 font-bold text-lg mt-1">3</div>
                         </div>
                     </div>
                 </div>
-                <div class="tuition-illustration">
-                    <img src="/images/tuition-image.jpg" alt="Tuition Illustration" class="tuition-img-big">
+                <div class="flex justify-center mb-4">
+                    <img src="/images/tuition-image.jpg" alt="Tuition Illustration" class="rounded-xl shadow w-64 max-w-full">
                 </div>
-                <div class="steps-footer">
-                    <span>You focus on teaching, We focus on finding students for you.</span>
+                <div class="bg-white text-green-600 font-semibold text-center rounded-md py-2 mt-2 shadow-sm">
+                    You focus on teaching, We focus on finding students for you.
                 </div>
             </div>
         </div>
-        <div class="auth-right">
-            <h2 class="form-title">Tutor Registration</h2>
+        <div class="flex-1 flex flex-col justify-center px-8 py-12 max-w-md mx-auto">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Tutor Registration</h2>
             @if ($errors->any())
-                <div class="error">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                     @foreach ($errors->all() as $error)
                         <p>{{ $error }}</p>
                     @endforeach
                 </div>
             @endif
-            <form method="POST" action="/tutor/register">
+            <form method="POST" action="/tutor/register" class="space-y-4">
                 @csrf
-                <div class="form-group">
-                    <label>Name:</label>
-                    <input type="text" name="name" value="{{ old('name') }}" required>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Name:</label>
+                    <input type="text" name="name" value="{{ old('name') }}" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="form-group">
-                    <label>Email:</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Email:</label>
+                    <input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="form-group">
-                    <label>Phone:</label>
-                    <input type="text" name="phone" value="{{ old('phone') }}">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Phone:</label>
+                    <input type="text" name="phone" value="{{ old('phone') }}" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="form-group">
-                    <label>Password:</label>
-                    <input type="password" name="password" required>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Password:</label>
+                    <input type="password" name="password" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="form-group">
-                    <label>Confirm Password:</label>
-                    <input type="password" name="password_confirmation" required>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Confirm Password:</label>
+                    <input type="password" name="password_confirmation" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="form-group">
-                    <label>Bio:</label>
-                    <textarea name="bio" rows="3">{{ old('bio') }}</textarea>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Bio:</label>
+                    <textarea name="bio" rows="3" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">{{ old('bio') }}</textarea>
                 </div>
-                <div class="form-group">
-                    <label>Hourly Rate ($):</label>
-                    <input type="number" name="hourly_rate" step="0.01" value="{{ old('hourly_rate') }}">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Hourly Rate ($):</label>
+                    <input type="number" name="hourly_rate" step="0.01" value="{{ old('hourly_rate') }}" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <button type="submit" class="register-btn">Register</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded transition">Register</button>
             </form>
-            <div class="links">
-                <a href="/tutor/login">Already have an account? Login</a>
+            <div class="text-left mt-6">
+                <a href="/tutor/login" class="text-blue-600 hover:underline font-medium">Already have an account? Login</a>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-.auth-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.auth-card {
-    display: flex;
-    background: #222;
-    border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    overflow: hidden;
-    width: 100%;
-}
-.auth-left {
-    background: #f7f7f7;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 3;
-    min-height: 520px;
-    padding: 0;
-}
-.tuition-illustration {
-    margin: 0 auto 8px auto;
-    text-align: center;
-}
-.tuition-img-big {
-    width: 320px;
-    max-width: 95%;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-    display: block;
-    margin: 0 auto;
-}
-.steps-section {
-    width: 100%;
-    text-align: center;
-    padding: 0 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-}
-.steps-top {
-    margin-bottom: 8px;
-}
-.steps-title {
-    color: #2176ae;
-    font-size: 1.15em;
-    font-weight: 700;
-    margin-bottom: 8px;
-    margin-top: 12px;
-}
-.steps-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 0;
-}
-.step-box {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 12px 22px;
-    min-width: 110px;
-    text-align: center;
-    border: 1px solid #e0e0e0;
-}
-.step-label {
-    font-size: 1.08em;
-    color: #222;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-.step-label span {
-    color: #ff6600;
-    font-weight: 700;
-}
-.step-num {
-    color: #2176ae;
-    font-size: 1.15em;
-    font-weight: 700;
-    margin-top: 2px;
-}
-.step-arrow {
-    font-size: 2em;
-    color: #bbb;
-    margin: 0 4px;
-}
-.steps-footer {
-    background: #fff;
-    color: #66bb6a;
-    font-size: 1.08em;
-    font-weight: 600;
-    margin: 10px 0 0 0;
-    padding: 7px 0;
-    border-radius: 6px;
-}
-.auth-right {
-    background: #fff;
-    padding: 38px 32px 32px 32px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    border-left: 1px solid #eee;
-    min-width: 320px;
-    max-width: 400px;
-}
-.form-title {
-    margin-bottom: 18px;
-    color: #222;
-    font-size: 1.6em;
-    font-weight: 700;
-    text-align: left;
-}
-.form-group {
-    margin-bottom: 15px;
-}
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #333;
-}
-input, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 15px;
-    background: #fafafa;
-    color: #222;
-    box-sizing: border-box;
-}
-input:focus, textarea:focus {
-    border-color: #339fff;
-    outline: none;
-}
-.register-btn {
-    background: #339fff;
-    color: #fff;
-    padding: 12px 0;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 10px;
-    transition: background 0.2s;
-}
-.register-btn:hover {
-    background: #007bff;
-}
-.error {
-    color: #dc3545;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-.links {
-    text-align: left;
-    margin-top: 18px;
-}
-.links a {
-    color: #339fff;
-    text-decoration: none;
-    font-weight: 500;
-}
-@media (max-width: 900px) {
-    .auth-card {
-        flex-direction: column;
-        max-width: 98vw;
-    }
-    .auth-left {
-        width: 100%;
-        min-height: 220px;
-        padding: 18px 0;
-        flex: unset;
-    }
-    .auth-right {
-        border-left: none;
-        border-top: 1px solid #eee;
-        padding: 28px 18px 18px 18px;
-        min-width: unset;
-        max-width: unset;
-        flex: unset;
-    }
-    .tuition-img-big {
-        max-width: 180px;
-        width: 100%;
-    }
-}
-@media (max-width: 600px) {
-    .auth-card {
-        border-radius: 8px;
-    }
-    .auth-right {
-        padding: 18px 8px 8px 8px;
-    }
-    .form-title {
-        font-size: 1.2em;
-    }
-    .steps-title {
-        font-size: 1em;
-    }
-    .steps-footer {
-        font-size: 1em;
-    }
-}
-</style>
 @endsection
