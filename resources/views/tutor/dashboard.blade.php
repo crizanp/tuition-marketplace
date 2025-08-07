@@ -11,12 +11,28 @@
             <!-- Left Sidebar - Profile Information (1/3) -->
             <div class="col-lg-4 col-md-5">
                 <div class="profile-sidebar">
-                    <div class="welcome-header">
-                        <h4 class="mb-2">Welcome Back!</h4>
-                        <h5 class="text-primary">{{ Auth::guard('tutor')->user()->name }}</h5>
-                        <span class="badge badge-status badge-{{ strtolower(Auth::guard('tutor')->user()->status) }}">
-                            {{ ucfirst(Auth::guard('tutor')->user()->status) }}
-                        </span>
+                    <div class="welcome-header d-flex align-items-center justify-content-center" style="gap: 18px;">
+                        @php
+                            $tutor = Auth::guard('tutor')->user();
+                            $kyc = \App\Models\TutorKyc::where('tutor_id', $tutor->id)->where('status', 'approved')->first();
+                        @endphp
+                        @if($tutor->status === 'active' && $kyc && $kyc->profile_photo)
+                            <div class="profile-picture-circle" style="flex-shrink:0;">
+                                <img src="{{ Storage::url($kyc->profile_photo) }}" alt="Profile Photo" style="width:80px; height:80px; object-fit:cover; border-radius:50%; border:3px solid #e67e22;">
+                            </div>
+                        @endif
+                        <div class="text-start">
+                            <!-- <h4 class="mb-2">Welcome Back!</h4> -->
+                            <h5 class="text-primary mb-1 d-flex align-items-center" style="gap:6px;">
+                                {{ $tutor->name }}
+                                @if($tutor->status === 'active' && $kyc)
+                                    <i class="fas fa-check-circle" style="color:#2196f3; font-size:0.8em;" title="Verified"></i>
+                                @endif
+                            </h5>
+                            <span class="badge badge-status badge-{{ strtolower($tutor->status) }}">
+                                {{ ucfirst($tutor->status) }}
+                            </span>
+                        </div>
                     </div>
 
                     <div class="profile-card mt-4">
@@ -42,7 +58,7 @@
                             <i class="fas fa-dollar-sign"></i>
                             <div>
                                 <label>Hourly Rate</label>
-                                <span>${{ Auth::guard('tutor')->user()->hourly_rate ?? 'Not set' }}</span>
+                                <span>Rs. {{ Auth::guard('tutor')->user()->hourly_rate ?? 'Not set' }}</span>
                             </div>
                         </div>
 
@@ -74,7 +90,7 @@
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <a href="#" class="dashboard-card-link">
+                            <a href="{{ route('tutor.kyc.show') }}" class="dashboard-card-link">
                                 <div class="dashboard-card">
                                     <div class="card-icon">
                                         <i class="fas fa-shield-alt"></i>
@@ -151,7 +167,7 @@
     background: white;
     border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.21);
     height: fit-content;
 }
 

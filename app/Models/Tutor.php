@@ -55,4 +55,12 @@ class Tutor extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new TutorEmailVerificationNotification);
     }
+
+    /**
+     * Get the tutor's KYC data.
+     */
+    public function kyc()
+    {
+        return $this->hasOne(TutorKyc::class);
+    }
 }

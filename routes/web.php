@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\TutorAuthController;
 use App\Http\Controllers\Auth\StudentAuthController;
+use App\Http\Controllers\TutorKycController;
+use App\Http\Controllers\Admin\AdminKycController;
 
 // Home route
 Route::get('/', function () {
@@ -23,6 +25,12 @@ Route::prefix('admin')->group(function () {
     
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
+        
+        // KYC Management Routes
+        Route::get('/kyc', [AdminKycController::class, 'index'])->name('admin.kyc.index');
+        Route::get('/kyc/{id}', [AdminKycController::class, 'show'])->name('admin.kyc.show');
+        Route::post('/kyc/{id}/approve', [AdminKycController::class, 'approve'])->name('admin.kyc.approve');
+        Route::post('/kyc/{id}/reject', [AdminKycController::class, 'reject'])->name('admin.kyc.reject');
     });
 });
 
@@ -50,6 +58,13 @@ Route::prefix('tutor')->group(function () {
     
     Route::middleware(['tutor', 'verified:tutor'])->group(function () {
         Route::get('/dashboard', [TutorAuthController::class, 'dashboard'])->name('tutor.dashboard');
+        
+        // KYC Routes
+        Route::get('/kyc', [TutorKycController::class, 'show'])->name('tutor.kyc.show');
+        Route::get('/kyc/create', [TutorKycController::class, 'create'])->name('tutor.kyc.create');
+        Route::post('/kyc', [TutorKycController::class, 'store'])->name('tutor.kyc.store');
+        Route::get('/kyc/edit', [TutorKycController::class, 'edit'])->name('tutor.kyc.edit');
+        Route::put('/kyc', [TutorKycController::class, 'update'])->name('tutor.kyc.update');
     });
 });
 

@@ -242,8 +242,9 @@
         </a>
         <!-- Navigation Menu -->
         <nav class="navbar-center">
+            <a href="/tutor/dashboard" class="nav-link">Dashboard</a>
             <a href="/about" class="nav-link">About Us</a>
-            <a href="/courses" class="nav-link">Profile</a>
+            <a href="/courses" class="nav-link">Courses</a>
             <a href="/contact" class="nav-link">Contact</a>
         </nav>
         <!-- Authentication Links -->
