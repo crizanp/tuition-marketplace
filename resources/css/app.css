@@ -1,4 +1,10 @@
+
 @import "tailwindcss";
+
+/* Custom purple text utility for Bootstrap compatibility */
+.text-purple {
+    color: #8e44ad !important;
+}
 
 /* Custom component styles that work with both Bootstrap and Tailwind */
 @source "../../storage/framework/views/*.php";
