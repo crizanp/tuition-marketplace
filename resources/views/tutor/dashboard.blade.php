@@ -1,16 +1,14 @@
+
 @extends('layouts.app')
 
+@section('navbar')
+    @include('partials.tutor-navbar')
+@endsection
+
 @section('content')
-<div class="dashboard">
-    <div class="header">
-        <h2>Tutor Dashboard</h2>
-        <form method="POST" action="{{ route('tutor.logout') }}" style="display: inline;">
-            @csrf
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div>
-    
-    <p>Welcome, {{ Auth::guard('tutor')->user()->name }}!</p>
+<div class="dashboard py-5 container">
+  
+    <p>Welcome, {{ Auth::guard('tutor')->user()->name }}! teacher portal</p>
     <p>Status: <strong>{{ ucfirst(Auth::guard('tutor')->user()->status) }}</strong></p>
     
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">

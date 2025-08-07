@@ -5,6 +5,12 @@
 @endpush
 
 @section('content')
+@php
+    if (Auth::guard('tutor')->check()) {
+        header('Location: ' . url('/tutor/dashboard'));
+        exit;
+    }
+@endphp
 <style>
     .text-orange-500 {
         color: #f59e42 !important;

@@ -14,7 +14,11 @@
 <body class="bg-gray-50">
     
     <main>
-        @include('partials.auth-navbar')
+        @hasSection('navbar')
+            @yield('navbar')
+        @else
+            @include('partials.auth-navbar')
+        @endif
         @yield('content')
     </main>
 </body>

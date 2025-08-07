@@ -282,14 +282,25 @@
 
             <!-- Authentication Links -->
             <div class="auth-section">
-                <a href="/student/login" class="auth-link student">
-                    <i class="fas fa-user-graduate"></i>
-                    <span>Student Login</span>
-                </a>
-                <a href="/tutor/login" class="auth-link teacher">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <span>Teacher Portal</span>
-                </a>
+                @if(Auth::guard('tutor')->check())
+                    <span class="auth-link teacher">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        {{ Auth::guard('tutor')->user()->name }}
+                    </span>
+                    <form method="POST" action="{{ route('tutor.logout') }}" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="auth-link" style="background:none;border:none;padding:0;color:#ff6b35;cursor:pointer;">Logout</button>
+                    </form>
+                @else
+                    <a href="/student/login" class="auth-link student">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Student Login</span>
+                    </a>
+                    <a href="/tutor/login" class="auth-link teacher">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Teacher Portal</span>
+                    </a>
+                @endif
             </div>
         </div>
     </header>

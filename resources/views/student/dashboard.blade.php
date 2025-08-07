@@ -1,16 +1,15 @@
+
 @extends('layouts.app')
 
+@section('navbar')
+    @include('partials.student-navbar')
+@endsection
+
 @section('content')
-<div class="dashboard">
-    <div class="header">
-        <h2>Student Dashboard</h2>
-        <form method="POST" action="{{ route('student.logout') }}" style="display: inline;">
-            @csrf
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div>
+<div class="dashboard py-5 container">
     
-    <p>Welcome, {{ Auth::user()->name }}!</p>
+    
+    <p>Welcome, {{ Auth::user()->name }}! Student portal</p>
     <p>Find the perfect tutor for your learning needs!</p>
     
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
