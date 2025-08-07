@@ -63,4 +63,12 @@ class Tutor extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(TutorKyc::class);
     }
+
+    /**
+     * Get the tutor's profile data.
+     */
+    public function profile()
+    {
+        return $this->hasOne(TutorProfile::class);
+    }
 }

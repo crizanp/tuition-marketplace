@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\TutorAuthController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\TutorKycController;
+use App\Http\Controllers\TutorProfileController;
 use App\Http\Controllers\Admin\AdminKycController;
 
 // Home route
@@ -59,6 +60,34 @@ Route::prefix('tutor')->group(function () {
     Route::middleware(['tutor', 'verified:tutor'])->group(function () {
         Route::get('/dashboard', [TutorAuthController::class, 'dashboard'])->name('tutor.dashboard');
         
+        // Profile Routes
+        Route::get('/profile', [TutorProfileController::class, 'index'])->name('tutor.profile.index');
+        Route::post('/profile/personal', [TutorProfileController::class, 'updatePersonal'])->name('tutor.profile.personal');
+        Route::post('/profile/about', [TutorProfileController::class, 'updateAbout'])->name('tutor.profile.about');
+        Route::post('/profile/skills', [TutorProfileController::class, 'updateSkills'])->name('tutor.profile.skills');
+        Route::post('/profile/education', [TutorProfileController::class, 'updateEducation'])->name('tutor.profile.education');
+        Route::post('/profile/languages', [TutorProfileController::class, 'updateLanguages'])->name('tutor.profile.languages');
+        Route::post('/profile/video', [TutorProfileController::class, 'uploadVideo'])->name('tutor.profile.video');
+        Route::post('/profile/availability', [TutorProfileController::class, 'updateAvailability'])->name('tutor.profile.availability');
+        Route::post('/profile/portfolio', [TutorProfileController::class, 'addPortfolio'])->name('tutor.profile.portfolio');
+        Route::post('/profile/certifications', [TutorProfileController::class, 'addCertification'])->name('tutor.profile.certifications');
+        Route::get('/profile/share', [TutorProfileController::class, 'share'])->name('tutor.profile.share');
+        Route::get('/profile/preview', [TutorProfileController::class, 'preview'])->name('tutor.profile.preview');
+        Route::get('/profile/stats', [TutorProfileController::class, 'getStats'])->name('tutor.profile.stats');
+        
+        // Debug route for testing
+        Route::get('/profile/debug', function() {
+            $tutor = Auth::guard('tutor')->user();
+            $profile = $tutor->profile;
+            $kyc = $tutor->kyc;
+            
+            return response()->json([
+                'tutor' => $tutor ? $tutor->toArray() : null,
+                'profile' => $profile ? $profile->toArray() : null,
+                'kyc' => $kyc ? $kyc->toArray() : null,
+            ]);
+        })->name('tutor.profile.debug');
+        
         // KYC Routes
         Route::get('/kyc', [TutorKycController::class, 'show'])->name('tutor.kyc.show');
         Route::get('/kyc/create', [TutorKycController::class, 'create'])->name('tutor.kyc.create');
@@ -67,6 +96,9 @@ Route::prefix('tutor')->group(function () {
         Route::put('/kyc', [TutorKycController::class, 'update'])->name('tutor.kyc.update');
     });
 });
+
+// Public Profile Route
+Route::get('/tutor/{id}/profile', [TutorProfileController::class, 'publicProfile'])->name('tutor.profile.public');
 
 // Student Routes
 Route::prefix('student')->group(function () {

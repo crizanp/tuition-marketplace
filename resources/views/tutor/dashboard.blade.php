@@ -79,7 +79,7 @@
                     <!-- First Row - Main Actions -->
                     <div class="row mb-4">
                         <div class="col-md-4 mb-3">
-                            <a href="#" class="dashboard-card-link">
+                            <a href="{{ route('tutor.profile.index') }}" class="dashboard-card-link">
                                 <div class="dashboard-card">
                                     <div class="card-icon">
                                         <i class="fas fa-user-circle"></i>
@@ -158,7 +158,7 @@
 
 <style>
 .dashboard-container {
-    background-color: #f8f9fc;
+    background-color: #ffffffff;
     min-height: 100vh;
 }
 
@@ -167,7 +167,7 @@
     background: white;
     border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.21);
+    border: 1px solid #e9ecef;
     height: fit-content;
 }
 

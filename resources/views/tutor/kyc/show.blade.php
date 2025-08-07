@@ -35,11 +35,17 @@
                                             {{ ucfirst($kyc->status) }}
                                         </span>
                                         @if($kyc->status === 'pending')
-                                            <span class="text-muted small">Submitted on: {{ $kyc->submitted_at->format('F j, Y \a\t g:i A') }}</span>
+                                            @if($kyc->submitted_at)
+                                                <span class="text-muted small">Submitted on: {{ $kyc->submitted_at->format('F j, Y \a\t g:i A') }}</span>
+                                            @endif
                                         @elseif($kyc->status === 'approved')
-                                            <span class="text-muted small">Approved on: {{ $kyc->reviewed_at->format('F j, Y \a\t g:i A') }}</span>
+                                            @if($kyc->reviewed_at)
+                                                <span class="text-muted small">Approved on: {{ $kyc->reviewed_at->format('F j, Y \a\t g:i A') }}</span>
+                                            @endif
                                         @elseif($kyc->status === 'rejected')
-                                            <span class="text-muted small">Rejected on: {{ $kyc->reviewed_at->format('F j, Y \a\t g:i A') }}</span>
+                                            @if($kyc->reviewed_at)
+                                                <span class="text-muted small">Rejected on: {{ $kyc->reviewed_at->format('F j, Y \a\t g:i A') }}</span>
+                                            @endif
                                         @endif
                                     </div>
                                     @if($kyc->status === 'pending')
