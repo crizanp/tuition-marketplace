@@ -1,12 +1,17 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./resources/views/**/*.blade.php",
     "./resources/js/**/*.js",
-    "./resources/css/**/*.css"
+    "./app/View/Components/**/*.php",
+    "./storage/framework/views/*.php"
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'sans': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

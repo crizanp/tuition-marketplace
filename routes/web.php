@@ -10,6 +10,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// CSS Test Route (for development)
+Route::get('/css-test', function () {
+    return view('test.css-test');
+});
+
 // Admin Routes
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
