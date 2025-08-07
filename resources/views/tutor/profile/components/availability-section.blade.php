@@ -58,9 +58,9 @@
                             <strong>{{ $day }}</strong>
                         </div>
                         <div class="time-slots">
-                            @if($day === 'Sunday')
+                            @if($day === 'Saturday')
                                 <span class="time-badge unavailable">Unavailable</span>
-                            @elseif($day === 'Saturday')
+                            @elseif($day === 'Friday')
                                 <span class="time-badge available">10:00 AM</span>
                                 <span class="time-badge available">11:00 AM</span>
                                 <span class="time-badge available">12:00 PM</span>

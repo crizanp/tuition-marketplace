@@ -843,9 +843,9 @@ function getCurrentAvailabilityForDay(dayKey, currentData = null) {
     
     // Default availability patterns if no data exists
     console.log(`Using default pattern for ${dayKey}`);
-    if (dayKey === 'sunday') {
+    if (dayKey === 'saturday') {
         return [];
-    } else if (dayKey === 'saturday') {
+    } else if (dayKey === 'friday') {
         return [10, 11, 12, 13, 14, 15, 16]; // 10 AM to 4 PM
     } else {
         return [9, 10, 11, 12, 13, 14, 15, 16, 17, 18]; // 9 AM to 6 PM

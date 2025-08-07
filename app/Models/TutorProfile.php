@@ -85,7 +85,7 @@ class TutorProfile extends Model
             return [];
         }
 
-        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $days = ['Sunday','Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $schedule = [];
 
         foreach ($days as $day) {
@@ -141,9 +141,9 @@ class TutorProfile extends Model
             } else {
                 // Default: available for some hours (9 AM to 6 PM on weekdays, 10 AM to 4 PM on Saturday, unavailable on Sunday)
                 $defaultSlots = [];
-                if ($day === 'Sunday') {
+                if ($day === 'Saturday') {
                     $defaultSlots = [];
-                } elseif ($day === 'Saturday') {
+                } elseif ($day === 'Sunday') {
                     $defaultSlots = [10, 11, 12, 13, 14, 15, 16]; // 10 AM to 4 PM
                 } else {
                     $defaultSlots = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18]; // 9 AM to 6 PM

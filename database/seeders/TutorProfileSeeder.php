@@ -26,13 +26,13 @@ class TutorProfileSeeder extends Seeder
                 ],
                 'availability_status' => 'available',
                 'availability_schedule' => [
+                    'sunday' => ['start' => '09:00', 'end' => '18:00', 'off' => false],
                     'monday' => ['start' => '09:00', 'end' => '18:00', 'off' => false],
                     'tuesday' => ['start' => '09:00', 'end' => '18:00', 'off' => false],
                     'wednesday' => ['start' => '09:00', 'end' => '18:00', 'off' => false],
                     'thursday' => ['start' => '09:00', 'end' => '18:00', 'off' => false],
                     'friday' => ['start' => '09:00', 'end' => '18:00', 'off' => false],
-                    'saturday' => ['start' => '10:00', 'end' => '16:00', 'off' => false],
-                    'sunday' => ['start' => null, 'end' => null, 'off' => true],
+                    'saturday' => ['start' => null, 'end' => null, 'off' => true],
                 ],
             ]);
         }
