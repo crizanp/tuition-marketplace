@@ -92,17 +92,8 @@ class TutorAuthController extends Controller
 
     public function verifyEmail(Request $request, $id, $hash)
     {
-        \Log::info('Verification attempt', [
-            'id' => $id,
-            'hash' => $hash,
-            'has_valid_signature' => $request->hasValidSignature(),
-            'query_params' => $request->query(),
-            'url' => $request->fullUrl()
-        ]);
-
         // Validate the request has the required parameters
         if (!$request->hasValidSignature()) {
-            \Log::warning('Invalid signature for verification link');
             // If user is not logged in, show special error page
             if (!Auth::guard('tutor')->check()) {
                 return view('auth.tutor.verification-error');
@@ -112,9 +103,7 @@ class TutorAuthController extends Controller
 
         try {
             $tutor = Tutor::findOrFail($id);
-            \Log::info('Tutor found', ['email' => $tutor->email, 'verified' => $tutor->hasVerifiedEmail()]);
         } catch (\Exception $e) {
-            \Log::error('Tutor not found', ['id' => $id, 'error' => $e->getMessage()]);
             // If user is not logged in, show special error page
             if (!Auth::guard('tutor')->check()) {
                 return view('auth.tutor.verification-error');
@@ -122,11 +111,7 @@ class TutorAuthController extends Controller
             return redirect('/tutor/email/verify')->withErrors(['email' => 'Invalid verification link. Please request a new verification email.']);
         }
         
-        $expectedHash = sha1($tutor->getEmailForVerification());
-        \Log::info('Hash comparison', ['provided' => $hash, 'expected' => $expectedHash]);
-        
-        if (!hash_equals($hash, $expectedHash)) {
-            \Log::warning('Hash mismatch for verification');
+        if (!hash_equals($hash, sha1($tutor->getEmailForVerification()))) {
             // If user is not logged in, show special error page
             if (!Auth::guard('tutor')->check()) {
                 return view('auth.tutor.verification-error');
@@ -136,18 +121,15 @@ class TutorAuthController extends Controller
         }
         
         if ($tutor->hasVerifiedEmail()) {
-            \Log::info('Tutor already verified');
             Auth::guard('tutor')->login($tutor);
             return redirect('/tutor/dashboard');
         }
 
         if ($tutor->markEmailAsVerified()) {
-            \Log::info('Tutor email verified successfully');
             Auth::guard('tutor')->login($tutor);
             return redirect('/tutor/dashboard')->with('message', 'Email verified successfully!');
         }
 
-        \Log::error('Failed to mark email as verified');
         Auth::guard('tutor')->login($tutor);
         return redirect('/tutor/email/verify')->withErrors(['email' => 'Unable to verify email. Please try again.']);
     }

@@ -75,9 +75,12 @@
                 @else
                     <p class="small text-muted">Didn't receive the email? Check your spam folder or click the resend button above.</p>
                 @endif
-                <a href="/tutor/logout" class="text-orange-500 text-decoration-none">
-                    <i class="fa-solid fa-arrow-left me-2"></i>Use a different email address
-                </a>
+                <form method="POST" action="/tutor/logout" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-link text-orange-500 text-decoration-none p-0 border-0" style="background: none;">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Use a different email address
+                    </button>
+                </form>
             </div>
         </div>
     </div>
