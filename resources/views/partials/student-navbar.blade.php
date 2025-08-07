@@ -173,7 +173,6 @@
         background: var(--hover-color);
         border-color: var(--hover-color);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
     }
 
     .auth-link:hover i {
