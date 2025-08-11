@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class TutorJob extends Model
 {
@@ -171,5 +172,14 @@ class TutorJob extends Model
             'any' => 'Flexible Location',
             default => ucfirst($this->teaching_mode)
         };
+    }
+
+    /**
+     * Get the URL for this job.
+     */
+    public function getUrlAttribute()
+    {
+        $tutorName = Str::slug($this->tutor->name);
+        return route('jobs.show', ['tutorName' => $tutorName, 'jobId' => $this->id]);
     }
 }

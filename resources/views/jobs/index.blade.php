@@ -251,6 +251,13 @@ body {
     margin-left: 12px;
     font-size: 14px;
     padding-right: 5px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.tutor-name:hover {
+    color: #ff6b35;
+    text-decoration: none;
 }
 
 .verified-icon {
@@ -628,9 +635,9 @@ body {
                                         <i class="fas fa-user text-white"></i>
                                     </div>
                                 @endif
-                                <span class="tutor-name">{{ $job->tutor->name }}</span>
+                                <a href="{{ route('tutor.profile.public', $job->tutor->id) }}" class="tutor-name">{{ $job->tutor->name }}</a>
                                 @if($job->tutor->kyc && $job->tutor->kyc->status === 'approved')
-                                    <i class="fas fa-check-circle verified-icon"></i>
+                                    <i class="fas fa-check-circle verified-icon" title="Verified Tutor"></i>
                                 @endif
                             </div>
 
@@ -667,7 +674,7 @@ body {
                             <span class="views-count">
                                 <i class="fas fa-eye"></i>{{ $job->views }} views
                             </span>
-                            <a href="{{ route('jobs.show', $job) }}" class="btn-view-details">View Details</a>
+                            <a href="{{ $job->url }}" class="btn-view-details">View Details</a>
                         </div>
                     </div>
                 @endforeach

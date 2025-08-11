@@ -365,7 +365,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Home</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('jobs.index') }}">Jobs</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('jobs.show', $job) }}">{{ Str::limit($job->title, 30) }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ $job->url }}">{{ Str::limit($job->title, 30) }}</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Contact</li>
                     </ol>
                 </nav>
@@ -551,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
 
                                 <div class="d-flex justify-content-between">
-                                    <a href="{{ route('jobs.show', $job) }}" class="btn btn-secondary">
+                                    <a href="{{ $job->url }}" class="btn btn-secondary">
                                         <i class="fas fa-arrow-left me-2"></i>Back to Job
                                     </a>
                                     <button type="submit" class="btn btn-primary">

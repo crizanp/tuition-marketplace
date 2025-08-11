@@ -29,10 +29,11 @@ class TutorJobController extends Controller
         $tutor = Auth::guard('tutor')->user();
         $kyc = $tutor->kyc;
         
-        // Check if tutor has approved KYC
-        if (!$kyc || $kyc->status !== 'approved') {
-            return redirect()->route('tutor.kyc.show')
-                ->with('error', 'Please complete and get your KYC approved before posting jobs.');
+        // Check job limit (max 3 jobs per tutor)
+        $currentJobsCount = $tutor->jobs()->where('status', '!=', 'deleted')->count();
+        if ($currentJobsCount >= 3) {
+            return redirect()->route('tutor.jobs.index')
+                ->with('error', 'You have reached the maximum limit of 3 active job posts. Please delete or edit an existing job before creating a new one.');
         }
 
         // Available subjects
@@ -53,9 +54,10 @@ class TutorJobController extends Controller
     {
         $tutor = Auth::guard('tutor')->user();
         
-        // Check if tutor has approved KYC
-        if (!$tutor->kyc || $tutor->kyc->status !== 'approved') {
-            return back()->with('error', 'Please complete and get your KYC approved before posting jobs.');
+        // Check job limit (max 3 jobs per tutor)
+        $currentJobsCount = $tutor->jobs()->where('status', '!=', 'deleted')->count();
+        if ($currentJobsCount >= 3) {
+            return back()->with('error', 'You have reached the maximum limit of 3 active job posts. Please delete or edit an existing job before creating a new one.');
         }
 
         $request->validate([

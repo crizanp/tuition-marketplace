@@ -49,6 +49,35 @@
                                 </span>
                                 <span class="stat-item me-4">
                                     <i class="fas fa-clock me-1"></i>
+                                    {{ $tutor->profile ? $tutor->profile->total_hours : 0 }} Hours Taught
+                                </span>
+                                <span class="stat-item me-4">
+                                    <i class="fas fa-eye me-1"></i>
+                                    {{ $tutor->profile ? $tutor->profile->profile_views : 0 }} Profile Views
+                                </span>
+                            </div>
+                            <!-- Availability Status -->
+                            @if($tutor->profile)
+                                <div class="availability-status mb-3">
+                                    @if($tutor->profile->availability_status === 'available')
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-circle me-1"></i>Available for Tutoring
+                                        </span>
+                                    @elseif($tutor->profile->availability_status === 'busy')
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-circle me-1"></i>Currently Busy
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-circle me-1"></i>Unavailable
+                                            @if($tutor->profile->unavailable_until)
+                                                until {{ $tutor->profile->unavailable_until->format('M d, Y') }}
+                                            @endif
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+                                    <i class="fas fa-clock me-1"></i>
                                     {{ $tutor->profile ? $tutor->profile->total_hours : 0 }} Hours Completed
                                 </span>
                                 <span class="stat-item">

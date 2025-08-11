@@ -456,17 +456,45 @@
                                             <i class="fas fa-user"></i>
                                         </div>
                                     @endif
-                                    <div>
-                                        <h6 class="tutor-name">{{ $job->tutor->name }}</h6>
-                                        <div class="d-flex align-items-center">
-                                            @if($job->tutor->kyc && $job->tutor->kyc->status === 'approved')
-                                                <span class="verified-badge me-2">
-                                                    <i class="fas fa-check-circle"></i> Verified Tutor
-                                                </span>
-                                            @endif
-                                            <small class="text-muted">
-                                                Member since {{ $job->tutor->created_at->format('M Y') }}
-                                            </small>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <a href="{{ route('tutor.profile.public', $job->tutor->id) }}" class="tutor-name text-decoration-none">{{ $job->tutor->name }}</a>
+                                                <div class="d-flex align-items-center mt-1">
+                                                    @if($job->tutor->kyc && $job->tutor->kyc->status === 'approved')
+                                                        <span class="verified-badge me-2">
+                                                            <i class="fas fa-check-circle"></i> Verified Tutor
+                                                        </span>
+                                                    @endif
+                                                    <!-- Availability Status -->
+                                                    @if($job->tutor->profile)
+                                                        @if($job->tutor->profile->availability_status === 'available')
+                                                            <span class="badge bg-success me-2">
+                                                                <i class="fas fa-circle"></i> Available
+                                                            </span>
+                                                        @elseif($job->tutor->profile->availability_status === 'busy')
+                                                            <span class="badge bg-warning me-2">
+                                                                <i class="fas fa-circle"></i> Busy
+                                                            </span>
+                                                        @else
+                                                            <span class="badge bg-secondary me-2">
+                                                                <i class="fas fa-circle"></i> Unavailable
+                                                            </span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                <small class="text-muted">
+                                                    Member since {{ $job->tutor->created_at->format('M Y') }}
+                                                    @if($job->tutor->profile && $job->tutor->profile->profile_views > 0)
+                                                        • {{ number_format($job->tutor->profile->profile_views) }} profile views
+                                                    @endif
+                                                </small>
+                                            </div>
+                                            <div class="text-end">
+                                                <a href="{{ route('tutor.profile.public', $job->tutor->id) }}" class="btn btn-outline-primary btn-sm">
+                                                    View Profile
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -713,7 +741,7 @@
                                             <small class="text-muted">{{ $relatedJob->views }} views</small>
                                         </div>
 
-                                        <a href="{{ route('jobs.show', $relatedJob) }}" class="btn-view-details w-100 text-center">
+                                        <a href="{{ $relatedJob->url }}" class="btn-view-details w-100 text-center">
                                             View Details
                                         </a>
                                     </div>

@@ -24,7 +24,7 @@ Route::get('/api/search/locations', [SearchController::class, 'getLocationSugges
 
 // Public Job Routes
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
-Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
+Route::get('/jobs/{tutorName}/{jobId}', [JobController::class, 'show'])->name('jobs.show')->where(['tutorName' => '[a-zA-Z0-9\-]+', 'jobId' => '[0-9]+']);
 Route::get('/jobs/{job}/contact', [JobController::class, 'contact'])->name('jobs.contact');
 Route::post('/jobs/{job}/inquiry', [JobController::class, 'sendInquiry'])->name('jobs.inquiry');
 Route::get('/search/jobs', [JobController::class, 'search'])->name('jobs.search');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TutorJob;
 use App\Models\Tutor;
+use Illuminate\Support\Str;
 
 class JobController extends Controller
 {
@@ -99,8 +100,17 @@ class JobController extends Controller
     /**
      * Display the specified job.
      */
-    public function show(TutorJob $job)
+    public function show($tutorName, $jobId)
     {
+        // Find job by ID and verify tutor name matches
+        $job = TutorJob::with(['tutor', 'tutor.kyc', 'tutor.profile'])->findOrFail($jobId);
+        
+        // Create URL-friendly tutor name and compare
+        $urlFriendlyName = Str::slug($job->tutor->name);
+        if ($urlFriendlyName !== $tutorName) {
+            abort(404);
+        }
+
         // Check if job is active
         if ($job->status !== 'active' || $job->isExpired()) {
             abort(404);
@@ -109,13 +119,11 @@ class JobController extends Controller
         // Increment views
         $job->incrementViews();
 
-        // Load relationships
-        $job->load(['tutor', 'tutor.kyc']);
-
         // Get related jobs from the same tutor
         $relatedJobs = TutorJob::where('tutor_id', $job->tutor_id)
             ->where('id', '!=', $job->id)
             ->active()
+            ->with('tutor')
             ->limit(3)
             ->get();
 
