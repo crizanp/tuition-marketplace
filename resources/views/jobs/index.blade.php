@@ -427,6 +427,52 @@ body {
     margin: 40px 0;
 }
 
+/* Verification Message */
+.verification-message {
+        margin: 20px auto;
+
+    /* background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 15px 25px;
+    margin: 20px auto;
+    max-width: 1200px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef; */
+}
+
+.btn-show-all {
+    background: black;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-show-all:hover {
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-hide-unverified {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-hide-unverified:hover {
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .page-header {
@@ -441,6 +487,21 @@ body {
     .search-filters-container {
         margin: -40px 20px 30px;
         padding: 20px;
+    }
+
+    .verification-message {
+        margin: 15px 20px;
+        padding: 12px 20px;
+    }
+
+    .verification-message .d-flex {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .btn-show-all, .btn-hide-unverified {
+        margin: 0 auto;
     }
 
     .filter-row {
@@ -563,6 +624,29 @@ body {
                     </div>
                 </form>
             </div>
+            
+            <!-- Verification Status Message -->
+            @if(!$showAll && !request('verification_status'))
+                <div class="verification-message">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-eye-slash me-2 text-muted"></i>
+                        <span class="text-muted">Automatically hiding unverified tutors</span>
+                        <a href="{{ request()->fullUrlWithQuery(['show_all' => '1']) }}" class="btn-show-all ms-3">
+                            Show All Posts
+                        </a>
+                    </div>
+                </div>
+            @elseif($showAll)
+                <div class="verification-message">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-eye me-2 text-success"></i>
+                        <span class="text-success">Showing all posts (including unverified tutors)</span>
+                        <a href="{{ request()->fullUrlWithQuery(['show_all' => null]) }}" class="btn-hide-unverified ms-3">
+                            Hide Unverified
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -767,7 +851,7 @@ function preserveFilters() {
     
     if (form) {
         // Add hidden inputs for sort parameters if they exist
-        ['sort', 'order', 'verification_status', 'views_sort'].forEach(param => {
+        ['sort', 'order', 'verification_status', 'views_sort', 'show_all'].forEach(param => {
             if (urlParams.has(param)) {
                 // Remove existing hidden input if it exists
                 const existingInput = form.querySelector(`input[name="${param}"]`);

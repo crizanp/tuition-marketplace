@@ -45,7 +45,17 @@ class JobController extends Controller
             $query->where('session_type', $request->session_type);
         }
 
-        // Verification Status Filter
+        // Default: Hide unverified tutors unless show_all is requested
+        $showAll = $request->get('show_all', false);
+        
+        if (!$showAll && !$request->filled('verification_status')) {
+            // By default, only show verified tutors
+            $query->whereHas('tutor.kyc', function($q) {
+                $q->where('status', 'approved');
+            });
+        }
+
+        // Verification Status Filter (overrides default)
         if ($request->filled('verification_status')) {
             if ($request->verification_status === 'verified') {
                 $query->whereHas('tutor.kyc', function($q) {
@@ -94,7 +104,7 @@ class JobController extends Controller
             ->get()
             ->groupBy('country');
 
-        return view('jobs.index', compact('jobs', 'subjects', 'locations'));
+        return view('jobs.index', compact('jobs', 'subjects', 'locations', 'showAll'));
     }
 
     /**
