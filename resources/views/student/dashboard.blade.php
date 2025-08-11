@@ -1,10 +1,6 @@
 
 @extends('layouts.app')
 
-@section('navbar')
-    @include('partials.student-navbar')
-@endsection
-
 @section('content')
 <div class="dashboard-container py-5">
     <div class="container">

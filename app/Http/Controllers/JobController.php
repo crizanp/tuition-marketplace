@@ -44,12 +44,36 @@ class JobController extends Controller
             $query->where('session_type', $request->session_type);
         }
 
-        // Sorting
-        $sortBy = $request->get('sort', 'created_at');
-        $sortOrder = $request->get('order', 'desc');
-        
-        if (in_array($sortBy, ['created_at', 'hourly_rate', 'views'])) {
-            $query->orderBy($sortBy, $sortOrder);
+        // Verification Status Filter
+        if ($request->filled('verification_status')) {
+            if ($request->verification_status === 'verified') {
+                $query->whereHas('tutor.kyc', function($q) {
+                    $q->where('status', 'approved');
+                });
+            } elseif ($request->verification_status === 'non_verified') {
+                $query->whereDoesntHave('tutor.kyc', function($q) {
+                    $q->where('status', 'approved');
+                });
+            }
+        }
+
+        // Views Sort Filter
+        if ($request->filled('views_sort')) {
+            if ($request->views_sort === 'highest') {
+                $query->orderBy('views', 'desc');
+            } elseif ($request->views_sort === 'lowest') {
+                $query->orderBy('views', 'asc');
+            }
+        }
+
+        // Default Sorting (only apply if views_sort is not set)
+        if (!$request->filled('views_sort')) {
+            $sortBy = $request->get('sort', 'created_at');
+            $sortOrder = $request->get('order', 'desc');
+            
+            if (in_array($sortBy, ['created_at', 'hourly_rate', 'views'])) {
+                $query->orderBy($sortBy, $sortOrder);
+            }
         }
 
         $jobs = $query->paginate(12);

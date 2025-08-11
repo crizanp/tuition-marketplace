@@ -1,345 +1,758 @@
+<!-- this is show page -->
+
 @extends('layouts.app')
 
+@section('navbar')
+    @include('partials.unified-navbar')
+@endsection
+
 @section('content')
-<div class="py-4">
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('jobs.index') }}">Jobs</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($job->title, 50) }}</li>
-            </ol>
-        </nav>
+    <style>
+        body {
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8dd 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
 
-        <div class="row">
-            <!-- Main Content -->
-            <div class="col-lg-8">
-                <!-- Job Header -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <h1 class="h3 mb-2">{{ $job->title }}</h1>
-                                @if($job->is_featured)
-                                    <span class="badge bg-warning me-2">
-                                        <i class="fas fa-star"></i> Featured
-                                    </span>
-                                @endif
-                                <span class="badge bg-{{ $job->status === 'active' ? 'success' : 'secondary' }}">
-                                    {{ ucfirst($job->status) }}
-                                </span>
-                            </div>
-                            <div class="text-end">
-                                <div class="h4 text-success mb-0">${{ number_format((float)$job->hourly_rate, 2) }}</div>
-                                <small class="text-muted">per hour</small>
-                            </div>
-                        </div>
+        .page-header {
+            background: #ffffffff;
+            color: #090909;
+            padding: 40px 0;
+            margin-bottom: 0;
+        }
 
-                        <!-- Tutor Info -->
-                        <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
-                            @if($job->tutor->kyc && $job->tutor->kyc->profile_photo)
-                                <img src="{{ Storage::url($job->tutor->kyc->profile_photo) }}" 
-                                     class="rounded-circle me-3" 
-                                     style="width: 50px; height: 50px; object-fit: cover;"
-                                     alt="Tutor">
-                            @else
-                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                     style="width: 50px; height: 50px;">
-                                    <i class="fas fa-user text-white"></i>
-                                </div>
-                            @endif
-                            <div>
-                                <h6 class="mb-1">{{ $job->tutor->name }}</h6>
-                                <div class="d-flex align-items-center">
-                                    @if($job->tutor->kyc && $job->tutor->kyc->status === 'approved')
-                                        <span class="badge bg-success me-2">
-                                            <i class="fas fa-check-circle"></i> Verified Tutor
-                                        </span>
-                                    @endif
-                                    <small class="text-muted">
-                                        Member since {{ $job->tutor->created_at->format('M Y') }}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
+        .main-container {
+            max-width: 1200px;
+            margin: 20px auto 0;
+            position: relative;
+            z-index: 10;
+            padding: 0 0px;
+        }
 
-                        <!-- Job Stats -->
-                        <div class="row text-center mb-3">
-                            <div class="col">
-                                <div class="border-end">
-                                    <div class="h5 mb-0">{{ $job->views }}</div>
-                                    <small class="text-muted">Views</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="border-end">
-                                    <div class="h5 mb-0">{{ $job->inquiries }}</div>
-                                    <small class="text-muted">Inquiries</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="h5 mb-0">{{ $job->created_at->diffForHumans() }}</div>
-                                <small class="text-muted">Posted</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        /* Card Styling */
+        .custom-card {
+            background: url('/images/texturebg.avif') no-repeat center center;
+            background-size: cover;
+            background-color: rgba(255, 255, 255, 0.95);
+            background-blend-mode: overlay;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
 
-                <!-- Job Description -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Job Description</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">{{ $job->description }}</p>
-                    </div>
-                </div>
+        .custom-card:hover {
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        }
 
-                <!-- Job Details -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Job Details</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <strong>Subjects:</strong>
-                                <div class="mt-1">
-                                    @foreach($job->subjects as $subject)
-                                        <span class="badge bg-secondary me-1">{{ $subject }}</span>
-                                    @endforeach
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <strong>Teaching Mode:</strong>
-                                <div class="mt-1">
-                                    <span class="badge bg-primary">{{ $job->getTeachingModeLabel() }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <strong>Student Level:</strong>
-                                <div class="mt-1">{{ $job->student_level }}</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <strong>Session Type:</strong>
-                                <div class="mt-1">{{ ucfirst($job->session_type) }} (Max {{ $job->max_students }} students)</div>
-                            </div>
-                            @if($job->preferred_times && count($job->preferred_times) > 0)
-                            <div class="col-md-6 mb-3">
-                                <strong>Preferred Times:</strong>
-                                <div class="mt-1">
-                                    @foreach($job->preferred_times as $time)
-                                        <span class="badge bg-info me-1">{{ ucfirst($time) }}</span>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
-                            <div class="col-md-6 mb-3">
-                                <strong>Gender Preference:</strong>
-                                <div class="mt-1">{{ ucfirst($job->gender_preference) }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        .custom-card-header {
+            background: linear-gradient(135deg, #000000, #21201f);
+            color: white;
+            border-radius: 16px 16px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+        }
 
-                <!-- Location -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-map-marker-alt me-2"></i>Location
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <address class="mb-0">
-                            @if($job->landmark)
-                                {{ $job->landmark }}<br>
-                            @endif
-                            {{ $job->place }}, {{ $job->district }}<br>
-                            {{ $job->state }}, {{ $job->country }}
-                            @if($job->postal_code)
-                                <br>{{ $job->postal_code }}
-                            @endif
-                        </address>
-                    </div>
-                </div>
+        .custom-card-header h5,
+        .custom-card-header h6 {
+            margin-bottom: 0;
+            font-weight: 700;
+        }
 
-                @if($job->requirements)
-                <!-- Requirements -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Requirements</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">{{ $job->requirements }}</p>
-                    </div>
-                </div>
-                @endif
+        .custom-card-body {
+            padding: 25px;
+            background: white;
 
-                @if($job->gallery && count($job->gallery) > 0)
-                <!-- Gallery -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Gallery</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach($job->gallery as $image)
-                                <div class="col-md-4 mb-3">
-                                    <img src="{{ Storage::url($image) }}" class="img-fluid rounded" alt="Job Gallery">
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-                @endif
-            </div>
+        }
 
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <!-- Contact Card -->
-                <div class="card mb-4 sticky-top" style="top: 20px;">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-envelope me-2"></i>Contact Tutor
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center mb-3">
-                            <div class="h4 text-success">${{ number_format((float)$job->hourly_rate, 2) }}/hour</div>
-                        </div>
-                        
-                        @guest
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Please <a href="{{ route('student.login') }}">login</a> to contact this tutor.
-                            </div>
-                        @else
-                            <a href="{{ route('jobs.contact', $job) }}" class="btn btn-primary btn-lg w-100 mb-3">
-                                <i class="fas fa-envelope me-2"></i>Send Message
-                            </a>
-                        @endguest
+        /* Job Header Styling */
+        .job-header-card {
+            background: white;
+        }
 
-                        <div class="text-center">
-                            <small class="text-muted">Response rate: Usually within 24 hours</small>
-                        </div>
-                    </div>
-                </div>
+        .job-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
 
-                <!-- Quick Info -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h6 class="mb-0">Quick Info</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Job ID:</span>
-                            <span class="fw-bold">#{{ $job->id }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Posted:</span>
-                            <span>{{ $job->created_at->format('M d, Y') }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Views:</span>
-                            <span>{{ $job->views }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Status:</span>
-                            <span class="badge bg-{{ $job->status === 'active' ? 'success' : 'secondary' }}">
-                                {{ ucfirst($job->status) }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+        .badge-featured {
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #2c3e50;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
 
-                <!-- Share -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h6 class="mb-0">Share this Job</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary btn-sm" onclick="copyJobLink()">
-                                <i class="fas fa-link me-2"></i>Copy Link
-                            </button>
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" 
-                               target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="fab fa-facebook me-2"></i>Share on Facebook
-                            </a>
-                            <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->fullUrl()) }}&text={{ urlencode($job->title) }}" 
-                               target="_blank" class="btn btn-outline-info btn-sm">
-                                <i class="fab fa-twitter me-2"></i>Share on Twitter
-                            </a>
-                        </div>
-                    </div>
+        .badge-status-active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .badge-status-secondary {
+            background: #6c757d;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .hourly-rate-display {
+            color: #ff6b35;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        /* Tutor Info Styling */
+        .tutor-info-section {
+            background: rgba(255, 107, 53, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .tutor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .tutor-placeholder {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #000000ff, #232322ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .tutor-name {
+            color: #000000ff;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .verified-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Job Stats */
+        .stats-section {
+            background: rgba(255, 107, 53, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6b35;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Subject Badges */
+        .subject-badge {
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .teaching-mode-badge {
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Location Section */
+        .location-card {
+            background: rgba(255, 107, 53, 0.05);
+            border: 2px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .location-icon {
+            color: #ff6b35;
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        /* Sidebar Styling */
+        .sidebar-card {
+            position: sticky;
+            top: 20px;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(247, 147, 30, 0.1));
+        }
+
+        .contact-rate {
+            color: #ff6b35;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .btn-contact {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-contact:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Quick Info */
+        .quick-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .quick-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .quick-info-label {
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .quick-info-value {
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        /* Share Buttons */
+        .share-btn {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            color: #ff6b35;
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .share-btn:hover {
+            background: #ff6b35;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Related Jobs */
+        .related-job-card {
+            background: url('/images/texturebg.avif') no-repeat center center;
+            background-size: cover;
+            background-color: rgba(255, 255, 255, 0.9);
+            background-blend-mode: overlay;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .related-job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .related-job-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .related-job-rate {
+            color: #ff6b35;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .btn-view-details {
+            background: linear-gradient(135deg, #000000, #21201f);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-view-details:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Alert Styling */
+        .alert-info {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            color: #ff6b35;
+            border-radius: 12px;
+        }
+
+        .alert-info a {
+            color: #ff6b35;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 25px;
+            padding: 12px 20px;
+        }
+
+        .breadcrumb-item a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .breadcrumb-item.active {
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        /* Gallery */
+        .gallery-image {
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .gallery-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: -20px auto 0;
+                padding: 0 15px;
+            }
+
+            .job-title {
+                font-size: 1.5rem;
+            }
+
+            .hourly-rate-display {
+                font-size: 1.5rem;
+            }
+
+            .custom-card-body {
+                padding: 20px;
+                background: white;
+            }
+
+            .sidebar-card {
+                position: static;
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .custom-card-body {
+                padding: 15px;
+                background: white;
+
+            }
+
+            .job-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+
+    <div class="">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="main-container">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('jobs.index') }}">Jobs</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($job->title, 50) }}</li>
+                    </ol>
+                </nav>
+                <div>
+                    <h1 class="job-title">{{ $job->title }}</h1>
+                    @if($job->is_featured)
+                        <span class="badge-featured me-2">
+                            <i class="fas fa-star"></i> Featured
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>
 
-        @if($relatedJobs->count() > 0)
-        <!-- Related Jobs -->
-        <div class="mt-5">
-            <h4 class="mb-4">More Jobs from {{ $job->tutor->name }}</h4>
+        <div class="main-container">
             <div class="row">
-                @foreach($relatedJobs as $relatedJob)
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h6 class="card-title">{{ Str::limit($relatedJob->title, 40) }}</h6>
-                                <p class="card-text text-muted small">{{ Str::limit($relatedJob->description, 80) }}</p>
-                                
-                                <!-- Subjects -->
-                                <div class="mb-2">
-                                    @foreach(array_slice($relatedJob->subjects, 0, 2) as $subject)
-                                        <span class="badge bg-secondary me-1">{{ $subject }}</span>
-                                    @endforeach
-                                </div>
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <!-- Job Header -->
+                    <div class="custom-card job-header-card">
+                        <div class="custom-card-body">
 
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-success fw-bold">${{ number_format((float)$relatedJob->hourly_rate, 2) }}/hr</span>
-                                    <small class="text-muted">{{ $relatedJob->views }} views</small>
+
+                            <!-- Tutor Info -->
+                            <div class="tutor-info-section">
+                                <div class="d-flex align-items-center">
+                                    @if($job->tutor->kyc && $job->tutor->kyc->profile_photo)
+                                        <img src="{{ Storage::url($job->tutor->kyc->profile_photo) }}" class="tutor-avatar me-3"
+                                            alt="Tutor">
+                                    @else
+                                        <div class="tutor-placeholder me-3">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <h6 class="tutor-name">{{ $job->tutor->name }}</h6>
+                                        <div class="d-flex align-items-center">
+                                            @if($job->tutor->kyc && $job->tutor->kyc->status === 'approved')
+                                                <span class="verified-badge me-2">
+                                                    <i class="fas fa-check-circle"></i> Verified Tutor
+                                                </span>
+                                            @endif
+                                            <small class="text-muted">
+                                                Member since {{ $job->tutor->created_at->format('M Y') }}
+                                            </small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-footer bg-transparent">
-                                <a href="{{ route('jobs.show', $relatedJob) }}" class="btn btn-outline-primary btn-sm w-100">
-                                    View Details
+
+                            <!-- Job Stats -->
+                            <div class="stats-section mt-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="stat-item">
+                                            <div class="stat-number">{{ $job->views }}</div>
+                                            <div class="stat-label">Views</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="stat-item">
+                                            <div class="stat-number">{{ $job->inquiries }}</div>
+                                            <div class="stat-label">Inquiries</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="stat-item">
+                                            <div class="stat-number">{{ $job->created_at->diffForHumans() }}</div>
+                                            <div class="stat-label">Posted</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Description -->
+                    <div class="custom-card">
+                        <div class="custom-card-header">
+                            <h5>Job Description</h5>
+                        </div>
+                        <div class="custom-card-body">
+                            <p class="mb-0">{{ $job->description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Job Details -->
+                    <div class="custom-card">
+                        <div class="custom-card-header">
+                            <h5>Job Details</h5>
+                        </div>
+                        <div class="custom-card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <strong>Subjects:</strong>
+                                    <div class="mt-2">
+                                        @foreach($job->subjects as $subject)
+                                            <span class="subject-badge">{{ $subject }}</span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Teaching Mode:</strong>
+                                    <div class="mt-2">
+                                        <span class="teaching-mode-badge">{{ $job->getTeachingModeLabel() }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Student Level:</strong>
+                                    <div class="mt-1">{{ $job->student_level }}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Session Type:</strong>
+                                    <div class="mt-1">{{ ucfirst($job->session_type) }} (Max {{ $job->max_students }}
+                                        students)</div>
+                                </div>
+                                @if($job->preferred_times && count($job->preferred_times) > 0)
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Preferred Times:</strong>
+                                        <div class="mt-2">
+                                            @foreach($job->preferred_times as $time)
+                                                <span class="subject-badge">{{ ucfirst($time) }}</span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="col-md-6 mb-3">
+                                    <strong>Gender Preference:</strong>
+                                    <div class="mt-1">{{ ucfirst($job->gender_preference) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="custom-card location-card">
+                        <div class="custom-card-header">
+                            <h5>
+                                <i class="fas fa-map-marker-alt me-2"></i>Location
+                            </h5>
+                        </div>
+                        <div class="custom-card-body">
+                            <address class="mb-0">
+                                @if($job->landmark)
+                                    {{ $job->landmark }}<br>
+                                @endif
+                                {{ $job->place }}, {{ $job->district }}<br>
+                                {{ $job->state }}, {{ $job->country }}
+                                @if($job->postal_code)
+                                    <br>{{ $job->postal_code }}
+                                @endif
+                            </address>
+                        </div>
+                    </div>
+
+                    @if($job->requirements)
+                        <!-- Requirements -->
+                        <div class="custom-card">
+                            <div class="custom-card-header">
+                                <h5>Requirements</h5>
+                            </div>
+                            <div class="custom-card-body">
+                                <p class="mb-0">{{ $job->requirements }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($job->gallery && count($job->gallery) > 0)
+                        <!-- Gallery -->
+                        <div class="custom-card">
+                            <div class="custom-card-header">
+                                <h5>Gallery</h5>
+                            </div>
+                            <div class="custom-card-body">
+                                <div class="row">
+                                    @foreach($job->gallery as $image)
+                                        <div class="col-md-4 mb-3">
+                                            <img src="{{ Storage::url($image) }}" class="img-fluid gallery-image" alt="Job Gallery">
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Contact Card -->
+                    <div class="custom-card contact-card sidebar-card">
+                        <div class="custom-card-header">
+                            <h5>
+                                <i class="fas fa-envelope me-2"></i>Contact Tutor
+                            </h5>
+                        </div>
+                        <div class="custom-card-body text-center">
+                            <div class="contact-rate">Rs.{{ number_format((float) $job->hourly_rate, 2) }}/hour</div>
+
+                            @guest
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Please <a href="{{ route('student.login') }}">login</a> to contact this tutor.
+                                </div>
+                            @else
+                                <a href="{{ route('jobs.contact', $job) }}" class="btn-contact w-100 mb-3">
+                                    <i class="fas fa-envelope me-2"></i>Send Message
+                                </a>
+                            @endguest
+
+                            <div class="text-center" style="margin-top: 15px;">
+                                <small class="text-muted">Response rate: Usually within 24 hours</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Info -->
+                    <div class="custom-card">
+                        <div class="custom-card-header">
+                            <h6>Quick Info</h6>
+                        </div>
+                        <div class="custom-card-body">
+                            <div class="quick-info-item">
+                                <span class="quick-info-label">Job ID:</span>
+                                <span class="quick-info-value">#{{ $job->id }}</span>
+                            </div>
+                            <div class="quick-info-item">
+                                <span class="quick-info-label">Posted:</span>
+                                <span class="quick-info-value">{{ $job->created_at->format('M d, Y') }}</span>
+                            </div>
+                            <div class="quick-info-item">
+                                <span class="quick-info-label">Views:</span>
+                                <span class="quick-info-value">{{ $job->views }}</span>
+                            </div>
+                            <div class="quick-info-item">
+                                <span class="quick-info-label">Status:</span>
+                                <span class="badge-status-{{ $job->status === 'active' ? 'active' : 'secondary' }}">
+                                    {{ ucfirst($job->status) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Share -->
+                    <div class="custom-card">
+                        <div class="custom-card-header">
+                            <h6>Share this Job</h6>
+                        </div>
+                        <div class="custom-card-body">
+                            <div class="d-grid gap-2">
+                                <button class="share-btn" onclick="copyJobLink()">
+                                    <i class="fas fa-link me-2"></i>Copy Link
+                                </button>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}"
+                                    target="_blank" class="share-btn text-center">
+                                    <i class="fab fa-facebook me-2"></i>Share on Facebook
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->fullUrl()) }}&text={{ urlencode($job->title) }}"
+                                    target="_blank" class="share-btn text-center">
+                                    <i class="fab fa-twitter me-2"></i>Share on Twitter
                                 </a>
                             </div>
                         </div>
                     </div>
-                @endforeach
+                </div>
             </div>
+
+            @if($relatedJobs->count() > 0)
+                <!-- Related Jobs -->
+                <div class="mt-5">
+                    <h4 class="mb-4" style="color: #2c3e50; font-weight: 700;">More Jobs from {{ $job->tutor->name }}</h4>
+                    <div class="row">
+                        @foreach($relatedJobs as $relatedJob)
+                            <div class="col-md-4 mb-4">
+                                <div class="related-job-card">
+                                    <div class="custom-card-body">
+                                        <h6 class="related-job-title">{{ Str::limit($relatedJob->title, 40) }}</h6>
+                                        <p class="text-muted small mb-3">{{ Str::limit($relatedJob->description, 80) }}</p>
+
+                                        <!-- Subjects -->
+                                        <div class="mb-3">
+                                            @foreach(array_slice($relatedJob->subjects, 0, 2) as $subject)
+                                                <span class="subject-badge">{{ $subject }}</span>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span
+                                                class="related-job-rate">Rs.{{ number_format((float) $relatedJob->hourly_rate, 2) }}/hr</span>
+                                            <small class="text-muted">{{ $relatedJob->views }} views</small>
+                                        </div>
+
+                                        <a href="{{ route('jobs.show', $relatedJob) }}" class="btn-view-details w-100 text-center">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
-        @endif
     </div>
-</div>
 @endsection
 
 @push('scripts')
-<script>
-function copyJobLink() {
-    navigator.clipboard.writeText(window.location.href).then(function() {
-        // Show success message
-        const button = event.target.closest('button');
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
-        button.classList.remove('btn-outline-primary');
-        button.classList.add('btn-success');
-        
-        setTimeout(function() {
-            button.innerHTML = originalText;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-primary');
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Could not copy text: ', err);
-    });
-}
-</script>
+    <script>
+        function copyJobLink() {
+            navigator.clipboard.writeText(window.location.href).then(function () {
+                // Show success message
+                const button = event.target.closest('button');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+                button.classList.remove('share-btn');
+                button.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                button.style.color = 'white';
+
+                setTimeout(function () {
+                    button.innerHTML = originalText;
+                    button.classList.add('share-btn');
+                    button.style.background = '';
+                    button.style.color = '';
+                }, 2000);
+            }).catch(function (err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
 @endpush
 
 @push('head')
-<!-- FontAwesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 @endpush

@@ -117,7 +117,7 @@
 
 <style>
 .search-container {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #c0b8f1;
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
