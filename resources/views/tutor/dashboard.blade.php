@@ -115,7 +115,7 @@
                     <!-- Second Row - Post Job -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <a href="#" class="dashboard-card-link">
+                            <a href="{{ route('tutor.jobs.create') }}" class="dashboard-card-link">
                                 <div class="dashboard-card post-job-card">
                                     <div class="card-icon">
                                         <i class="fas fa-briefcase"></i>
@@ -129,6 +129,17 @@
                     <!-- Third Row - Additional Features -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
+                            <a href="{{ route('tutor.jobs.index') }}" class="dashboard-card-link">
+                                <div class="dashboard-card">
+                                    <div class="card-icon">
+                                        <i class="fas fa-list-alt"></i>
+                                    </div>
+                                    <h6>My Jobs</h6>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
                             <a href="#" class="dashboard-card-link">
                                 <div class="dashboard-card">
                                     <div class="card-icon">
@@ -138,7 +149,10 @@
                                 </div>
                             </a>
                         </div>
+                    </div>
 
+                    <!-- Fourth Row - More Features -->
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <a href="#" class="dashboard-card-link">
                                 <div class="dashboard-card">
@@ -146,6 +160,17 @@
                                         <i class="fas fa-bullhorn"></i>
                                     </div>
                                     <h6>Promote</h6>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <a href="#" class="dashboard-card-link">
+                                <div class="dashboard-card">
+                                    <div class="card-icon">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </div>
+                                    <h6>Analytics</h6>
                                 </div>
                             </a>
                         </div>

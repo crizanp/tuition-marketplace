@@ -7,11 +7,27 @@ use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\TutorKycController;
 use App\Http\Controllers\TutorProfileController;
 use App\Http\Controllers\Admin\AdminKycController;
+use App\Http\Controllers\TutorJobController;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\SearchController;
 
 // Home route
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Search Routes
+Route::get('/search/tutors', [SearchController::class, 'searchTutors'])->name('search.tutors');
+Route::get('/search/vacancies', [SearchController::class, 'searchVacancies'])->name('search.vacancies');
+Route::get('/api/search/subjects', [SearchController::class, 'getSubjectSuggestions'])->name('api.search.subjects');
+Route::get('/api/search/locations', [SearchController::class, 'getLocationSuggestions'])->name('api.search.locations');
+
+// Public Job Routes
+Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
+Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
+Route::get('/jobs/{job}/contact', [JobController::class, 'contact'])->name('jobs.contact');
+Route::post('/jobs/{job}/inquiry', [JobController::class, 'sendInquiry'])->name('jobs.inquiry');
+Route::get('/search/jobs', [JobController::class, 'search'])->name('jobs.search');
 
 // CSS Test Route (for development)
 Route::get('/css-test', function () {
@@ -94,6 +110,17 @@ Route::prefix('tutor')->group(function () {
         Route::post('/kyc', [TutorKycController::class, 'store'])->name('tutor.kyc.store');
         Route::get('/kyc/edit', [TutorKycController::class, 'edit'])->name('tutor.kyc.edit');
         Route::put('/kyc', [TutorKycController::class, 'update'])->name('tutor.kyc.update');
+        
+        // Job Management Routes
+        Route::get('/jobs', [TutorJobController::class, 'index'])->name('tutor.jobs.index');
+        Route::get('/jobs/create', [TutorJobController::class, 'create'])->name('tutor.jobs.create');
+        Route::post('/jobs', [TutorJobController::class, 'store'])->name('tutor.jobs.store');
+        Route::get('/jobs/{job}', [TutorJobController::class, 'show'])->name('tutor.jobs.show');
+        Route::get('/jobs/{job}/edit', [TutorJobController::class, 'edit'])->name('tutor.jobs.edit');
+        Route::put('/jobs/{job}', [TutorJobController::class, 'update'])->name('tutor.jobs.update');
+        Route::delete('/jobs/{job}', [TutorJobController::class, 'destroy'])->name('tutor.jobs.destroy');
+        Route::post('/jobs/{job}/toggle-status', [TutorJobController::class, 'toggleStatus'])->name('tutor.jobs.toggle-status');
+        Route::get('/jobs-stats', [TutorJobController::class, 'getStats'])->name('tutor.jobs.stats');
     });
 });
 
@@ -124,5 +151,25 @@ Route::prefix('student')->group(function () {
     
     Route::middleware(['auth', 'verified:web'])->group(function () {
         Route::get('/dashboard', [StudentAuthController::class, 'dashboard'])->name('student.dashboard');
+        
+        // Profile routes
+        Route::prefix('profile')->group(function () {
+            Route::get('/', [\App\Http\Controllers\StudentProfileController::class, 'index'])->name('student.profile.index');
+            Route::get('/edit', [\App\Http\Controllers\StudentProfileController::class, 'edit'])->name('student.profile.edit');
+            Route::put('/update', [\App\Http\Controllers\StudentProfileController::class, 'update'])->name('student.profile.update');
+            Route::get('/change-password', [\App\Http\Controllers\StudentProfileController::class, 'showChangePasswordForm'])->name('student.profile.change-password');
+            Route::post('/change-password', [\App\Http\Controllers\StudentProfileController::class, 'updatePassword'])->name('student.profile.update-password');
+        });
+        
+        // Vacancy routes
+        Route::prefix('vacancies')->group(function () {
+            Route::get('/', [\App\Http\Controllers\StudentVacancyController::class, 'index'])->name('student.vacancies.index');
+            Route::get('/create', [\App\Http\Controllers\StudentVacancyController::class, 'create'])->name('student.vacancies.create');
+            Route::post('/store', [\App\Http\Controllers\StudentVacancyController::class, 'store'])->name('student.vacancies.store');
+            Route::get('/{vacancy}', [\App\Http\Controllers\StudentVacancyController::class, 'show'])->name('student.vacancies.show');
+            Route::get('/{vacancy}/edit', [\App\Http\Controllers\StudentVacancyController::class, 'edit'])->name('student.vacancies.edit');
+            Route::put('/{vacancy}', [\App\Http\Controllers\StudentVacancyController::class, 'update'])->name('student.vacancies.update');
+            Route::delete('/{vacancy}', [\App\Http\Controllers\StudentVacancyController::class, 'destroy'])->name('student.vacancies.destroy');
+        });
     });
 });

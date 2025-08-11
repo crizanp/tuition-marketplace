@@ -374,7 +374,7 @@ class TutorProfileController extends Controller
      */
     public function publicProfile($id)
     {
-        $tutor = Tutor::with(['kyc', 'profile'])->findOrFail($id);
+        $tutor = Tutor::with(['kyc', 'profile', 'jobs'])->findOrFail($id);
         
         // Only show active tutors with approved KYC
         if ($tutor->status !== 'active' || !$tutor->kyc || $tutor->kyc->status !== 'approved') {

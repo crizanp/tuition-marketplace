@@ -71,4 +71,12 @@ class Tutor extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(TutorProfile::class);
     }
+
+    /**
+     * Get the tutor's jobs.
+     */
+    public function jobs()
+    {
+        return $this->hasMany(TutorJob::class);
+    }
 }

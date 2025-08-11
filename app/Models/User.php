@@ -54,4 +54,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new StudentEmailVerificationNotification);
     }
+
+    /**
+     * Relationship with StudentVacancy
+     */
+    public function vacancies()
+    {
+        return $this->hasMany(\App\Models\StudentVacancy::class);
+    }
 }
