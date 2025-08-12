@@ -104,7 +104,13 @@ class JobController extends Controller
             ->get()
             ->groupBy('country');
 
-        return view('jobs.index', compact('jobs', 'subjects', 'locations', 'showAll'));
+        // Get wishlist job IDs for the logged-in user
+        $wishlistJobIds = [];
+        if (auth()->check()) {
+            $wishlistJobIds = auth()->user()->wishlist()->pluck('tutor_job_id')->toArray();
+        }
+
+        return view('jobs.index', compact('jobs', 'subjects', 'locations', 'showAll', 'wishlistJobIds'));
     }
 
     /**
@@ -173,8 +179,10 @@ class JobController extends Controller
         // Here you would typically send an email to the tutor
         // For now, we'll just show a success message
 
-        return redirect()->route('jobs.show', $job)
-            ->with('success', 'Your inquiry has been sent successfully! The tutor will contact you soon.');
+        return redirect()->route('jobs.show', [
+            'tutorName' => Str::slug($job->tutor->name),
+            'jobId' => $job->id
+        ])->with('success', 'Your inquiry has been sent successfully! The tutor will contact you soon.');
     }
 
     /**

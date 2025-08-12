@@ -162,7 +162,7 @@ body {
 .job-card {
     background: url('/images/texturebg.avif') no-repeat center center;
     background-size: cover;
-    background-color: rgba(255, 255, 255, 0.9); /* White overlay with low opacity */
+    background-color: rgb(255 255 255 / 95%) ;
     background-blend-mode: overlay;
     border: none;
     border-radius: 16px;
@@ -584,6 +584,29 @@ body {
         padding: 15px 20px;
     }
 }
+/* Make all filter input placeholders dim gray, not fully black */
+.filter-input::placeholder {
+    color: #888 !important;
+    opacity: 1; /* Ensure full visibility */
+}
+.filter-row,
+.filter-row * {
+    color: black !important; /* Make all text black */
+    border-color: black !important; /* Make all borders black */
+}
+
+.filter-input,
+.filter-select {
+   color: #312f2f !important;
+    border: 1px solid #444040 !important;
+}
+
+.btn-filter,
+.btn-clear {
+    color: black !important;
+    border: 1px solid black !important;
+}
+
 </style>
 
 <div class="">
@@ -624,25 +647,9 @@ body {
                             </select>
                         </div>
 
-                        <!-- State Filter -->
-                        <div class="filter-group">
-                            <label for="state">State</label>
-                            <input type="text" class="filter-input" id="state" name="state" 
-                                   value="{{ request('state') }}" placeholder="Bagmati Province">
-                        </div>
+                       
 
-                        <!-- Rate Range -->
-                        <div class="filter-group">
-                            <label>Min Rate (NPR)</label>
-                            <input type="number" class="filter-input" name="min_rate" 
-                                   value="{{ request('min_rate') }}" placeholder="Min" min="0" step="0.01">
-                        </div>
-
-                        <div class="filter-group">
-                            <label>Max Rate (NPR)</label>
-                            <input type="number" class="filter-input" name="max_rate" 
-                                   value="{{ request('max_rate') }}" placeholder="Max" min="0" step="0.01">
-                        </div>
+                        
 
                         <!-- Gender Preference -->
                         <div class="filter-group">
@@ -746,7 +753,7 @@ body {
                                 <h6 class="job-title">{{ Str::limit($job->title, 50) }}</h6>
                                 <div class="d-flex align-items-center">
                                     <!-- Wishlist Button -->
-                                    <button class="wishlist-btn me-2" onclick="toggleWishlist({{ $job->id }})" 
+                                    <button class="wishlist-btn me-2 @auth{{ in_array($job->id, $wishlistJobIds ?? []) ? 'active' : '' }}@endauth" onclick="toggleWishlist({{ $job->id }})" 
                                             data-job-id="{{ $job->id }}" title="Add to Wishlist">
                                         <i class="fas fa-heart"></i>
                                     </button>

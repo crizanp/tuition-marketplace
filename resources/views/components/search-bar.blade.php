@@ -117,7 +117,7 @@
 
 <style>
 .search-container {
-    background: #000000ff;
+    background: #7972dd;
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
