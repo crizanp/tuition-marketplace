@@ -212,4 +212,55 @@ class JobController extends Controller
 
         return response()->json($jobs);
     }
+
+    /**
+     * Toggle job in user's wishlist
+     */
+    public function toggleWishlist(Request $request, TutorJob $job)
+    {
+        try {
+            $user = auth()->user();
+            
+            // Check if job is already in wishlist
+            $wishlistItem = $user->wishlist()->where('tutor_job_id', $job->id)->first();
+            
+            if ($wishlistItem) {
+                // Remove from wishlist
+                $wishlistItem->delete();
+                return response()->json([
+                    'success' => true,
+                    'added' => false,
+                    'message' => 'Removed from wishlist'
+                ]);
+            } else {
+                // Add to wishlist
+                $user->wishlist()->create([
+                    'tutor_job_id' => $job->id
+                ]);
+                return response()->json([
+                    'success' => true,
+                    'added' => true,
+                    'message' => 'Added to wishlist'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating wishlist: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Display user's wishlist
+     */
+    public function wishlist()
+    {
+        $user = auth()->user();
+        $wishlistJobs = TutorJob::whereHas('wishlistedBy', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with(['tutor', 'tutor.kyc'])->paginate(12);
+
+        return view('jobs.wishlist', compact('wishlistJobs'));
+    }
 }

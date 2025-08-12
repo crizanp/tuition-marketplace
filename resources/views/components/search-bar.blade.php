@@ -117,11 +117,10 @@
 
 <style>
 .search-container {
-    background: #c0b8f1;
+    background: #000000ff;
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
 }
 
 .search-large {

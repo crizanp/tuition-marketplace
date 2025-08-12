@@ -29,6 +29,17 @@ Route::get('/jobs/{job}/contact', [JobController::class, 'contact'])->name('jobs
 Route::post('/jobs/{job}/inquiry', [JobController::class, 'sendInquiry'])->name('jobs.inquiry');
 Route::get('/search/jobs', [JobController::class, 'search'])->name('jobs.search');
 
+// Wishlist Routes (require authentication)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/jobs/{job}/wishlist', [JobController::class, 'toggleWishlist'])->name('jobs.wishlist.toggle');
+    Route::get('/wishlist', [JobController::class, 'wishlist'])->name('jobs.wishlist');
+});
+
+// Rating Routes (require authentication)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/tutor/{tutor}/rate', [TutorProfileController::class, 'rate'])->name('tutor.rate');
+});
+
 // CSS Test Route (for development)
 Route::get('/css-test', function () {
     return view('test.css-test');

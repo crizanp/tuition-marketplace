@@ -216,6 +216,38 @@ body {
     flex-shrink: 0; /* Prevents badge from shrinking */
 }
 
+/* Wishlist Button */
+.wishlist-btn {
+    background: transparent;
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+    padding: 8px 10px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.wishlist-btn:hover {
+    border-color: #ff6b35;
+    color: #ff6b35;
+    transform: scale(1.1);
+}
+
+.wishlist-btn.active {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: white;
+}
+
+.wishlist-btn.active:hover {
+    background: #e55a2b;
+}
+
 .tutor-info {
     display: flex;
     align-items: center;
@@ -566,6 +598,15 @@ body {
     <!-- Search and Filters Container -->
     <div class="container">
         <div class="search-filters-container">
+            <!-- Search Bar Section -->
+            <div class="search-section">
+                @include('components.search-bar', [
+                    'action' => route('search.tutors'),
+                    'placeholder' => 'Search for jobs by keyword, subject, or location...',
+                    'size' => 'normal'
+                ])
+            </div>
+            
             <!-- Filters Section -->
             <div class="filters-section">
                 <form method="GET" action="{{ route('jobs.index') }}">
@@ -703,9 +744,16 @@ body {
                         <div class="job-card-body">
                             <div class="job-header">
                                 <h6 class="job-title">{{ Str::limit($job->title, 50) }}</h6>
-                                @if($job->is_featured)
-                                    <span class="featured-badge">Featured</span>
-                                @endif
+                                <div class="d-flex align-items-center">
+                                    <!-- Wishlist Button -->
+                                    <button class="wishlist-btn me-2" onclick="toggleWishlist({{ $job->id }})" 
+                                            data-job-id="{{ $job->id }}" title="Add to Wishlist">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                    @if($job->is_featured)
+                                        <span class="featured-badge">Featured</span>
+                                    @endif
+                                </div>
                             </div>
                             
                             <!-- Tutor Info -->
@@ -782,6 +830,115 @@ body {
 
 @push('scripts')
 <script>
+// Wishlist functionality
+function toggleWishlist(jobId) {
+    // Check if user is logged in
+    @auth
+        const button = document.querySelector(`[data-job-id="${jobId}"]`);
+        const isActive = button.classList.contains('active');
+        
+        // Toggle button state immediately for better UX
+        if (isActive) {
+            button.classList.remove('active');
+            button.title = 'Add to Wishlist';
+        } else {
+            button.classList.add('active');
+            button.title = 'Remove from Wishlist';
+        }
+        
+        // Send AJAX request to toggle wishlist
+        fetch(`/jobs/${jobId}/wishlist`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                job_id: jobId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update button state based on server response
+                if (data.added) {
+                    button.classList.add('active');
+                    button.title = 'Remove from Wishlist';
+                } else {
+                    button.classList.remove('active');
+                    button.title = 'Add to Wishlist';
+                }
+                
+                // Show success message
+                showToast(data.message || (data.added ? 'Added to wishlist' : 'Removed from wishlist'));
+            } else {
+                // Revert button state on error
+                if (isActive) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+                showToast('Error updating wishlist', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Revert button state on error
+            if (isActive) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+            showToast('Error updating wishlist', 'error');
+        });
+    @else
+        // Show login modal or redirect to login
+        showLoginModal();
+    @endauth
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    // Simple toast implementation
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#dc3545' : '#28a745'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+
+// Show login modal
+function showLoginModal() {
+    alert('Please login to add jobs to your wishlist. Redirecting to login page...');
+    window.location.href = '/login';
+}
+
 function changeSorting(value, paramName) {
     console.log('changeSorting called with:', value, paramName);
     

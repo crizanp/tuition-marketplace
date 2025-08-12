@@ -383,7 +383,8 @@ class TutorProfileController extends Controller
             $tutor->profile->increment('profile_views');
         }
 
-        return view('tutor.profile.public', compact('tutor'));
+        $tutorJobs = $tutor->jobs;
+        return view('tutor.profile.public', compact('tutor', 'tutorJobs'));
     }
 
     /**
@@ -427,5 +428,81 @@ class TutorProfileController extends Controller
 
         $completed = array_filter($fields);
         return round((count($completed) / count($fields)) * 100);
+    }
+
+    /**
+     * Rate a tutor
+     */
+    public function rate(Request $request, Tutor $tutor)
+    {
+        try {
+            $request->validate([
+                'rating' => 'required|integer|min:1|max:5',
+                'review' => 'nullable|string|max:1000',
+                'job_id' => 'nullable|exists:tutor_jobs,id'
+            ]);
+
+            $user = auth()->user();
+            
+            // Check if user has already rated this tutor
+            $existingRating = $user->ratings()->where('tutor_id', $tutor->id)->first();
+            
+            if ($existingRating) {
+                // Update existing rating
+                $existingRating->update([
+                    'rating' => $request->rating,
+                    'review' => $request->review,
+                    'job_id' => $request->job_id
+                ]);
+                $message = 'Rating updated successfully';
+            } else {
+                // Create new rating
+                $user->ratings()->create([
+                    'tutor_id' => $tutor->id,
+                    'rating' => $request->rating,
+                    'review' => $request->review,
+                    'job_id' => $request->job_id
+                ]);
+                $message = 'Rating submitted successfully';
+            }
+
+            // Update tutor's profile with new average rating
+            $this->updateTutorRating($tutor);
+
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting rating: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update tutor's average rating
+     */
+    private function updateTutorRating(Tutor $tutor)
+    {
+        $ratings = $tutor->ratings;
+        $averageRating = $ratings->avg('rating');
+        $totalRatings = $ratings->count();
+
+        $profile = $tutor->profile;
+        if ($profile) {
+            $profile->update([
+                'rating' => round($averageRating, 1),
+                'total_ratings' => $totalRatings
+            ]);
+        }
     }
 }

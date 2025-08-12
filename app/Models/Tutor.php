@@ -79,4 +79,12 @@ class Tutor extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(TutorJob::class);
     }
+
+    /**
+     * Get the tutor's ratings.
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 }

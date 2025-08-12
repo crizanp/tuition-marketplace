@@ -182,4 +182,20 @@ class TutorJob extends Model
         $tutorName = Str::slug($this->tutor->name);
         return route('jobs.show', ['tutorName' => $tutorName, 'jobId' => $this->id]);
     }
+
+    /**
+     * Get users who have this job in their wishlist.
+     */
+    public function wishlistedBy()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Get ratings for this job.
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'job_id');
+    }
 }

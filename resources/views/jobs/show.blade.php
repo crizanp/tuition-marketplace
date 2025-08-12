@@ -47,10 +47,10 @@
         }
 
         .custom-card-header {
-            background: linear-gradient(135deg, #000000, #21201f);
+            background: linear-gradient(2deg, #4b76f2, #7c91df);
             color: white;
             border-radius: 16px 16px 0 0 !important;
-            padding: 20px 25px;
+            padding: 10px 15px;
             border: none;
         }
 
@@ -280,6 +280,56 @@
             background: #ff6b35;
             color: white;
             transform: translateY(-2px);
+        }
+
+        /* Rating Section */
+        .rating-section {
+            background: rgba(255, 107, 53, 0.02);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .rating-stars i {
+            margin-right: 2px;
+        }
+
+        .rating-input {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #f1f1f1;
+        }
+
+        .rating-star {
+            background: none;
+            border: none;
+            color: #ddd;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .rating-star:hover {
+            color: #ffc107;
+            transform: scale(1.1);
+        }
+
+        .rating-star.active {
+            color: #ffc107;
+        }
+
+        .rating-star.hover {
+            color: #ffc107;
+        }
+
+        #ratingDisplay {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        #submitRating:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         /* Related Jobs */
@@ -716,6 +766,75 @@
                 </div>
             </div>
 
+            <!-- Rating Section -->
+            <div class="mt-5">
+                <div class="custom-card">
+                    <div class="custom-card-header">
+                        <h5><i class="fas fa-star me-2"></i>Rate this Tutor</h5>
+                    </div>
+                    <div class="custom-card-body">
+                        @auth
+                            <div class="rating-section">
+                                <div class="current-rating mb-4">
+                                    <h6>Current Rating</h6>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rating-stars me-3">
+                                            @php
+                                                $rating = $job->tutor->profile ? $job->tutor->profile->rating : 0;
+                                                $totalRatings = $job->tutor->profile ? $job->tutor->profile->total_ratings : 0;
+                                            @endphp
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <i class="fas fa-star {{ $i <= $rating ? 'text-warning' : 'text-muted' }}" style="font-size: 1.2rem;"></i>
+                                            @endfor
+                                        </div>
+                                        <span class="rating-text">{{ number_format($rating, 1) }} out of 5 ({{ $totalRatings }} reviews)</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="add-rating">
+                                    <h6>Your Rating</h6>
+                                    <form id="ratingForm" action="/tutor/{{ $job->tutor->id }}/rate" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="job_id" value="{{ $job->id }}">
+                                        
+                                        <div class="rating-input mb-3">
+                                            <div class="d-flex align-items-center">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    <button type="button" class="rating-star" data-rating="{{ $i }}">
+                                                        <i class="fas fa-star" style="font-size: 1.5rem;"></i>
+                                                    </button>
+                                                @endfor
+                                                <span class="ms-3" id="ratingDisplay">Click to rate</span>
+                                            </div>
+                                            <input type="hidden" name="rating" id="ratingValue" required>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="review" class="form-label">Review (Optional)</label>
+                                            <textarea class="form-control" id="review" name="review" rows="3" 
+                                                      placeholder="Share your experience with this tutor..."></textarea>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary" id="submitRating" disabled>
+                                            <i class="fas fa-star me-2"></i>Submit Rating
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                <h6>Login to Rate this Tutor</h6>
+                                <p class="text-muted mb-3">Share your experience and help other students find the best tutors.</p>
+                                <a href="/login" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login to Rate
+                                </a>
+                            </div>
+                        @endauth
+                    </div>
+                </div>
+            </div>
+
             @if($relatedJobs->count() > 0)
                 <!-- Related Jobs -->
                 <div class="mt-5">
@@ -777,6 +896,105 @@
                 console.error('Could not copy text: ', err);
             });
         }
+
+        // Rating functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const ratingStars = document.querySelectorAll('.rating-star');
+            const ratingValue = document.getElementById('ratingValue');
+            const ratingDisplay = document.getElementById('ratingDisplay');
+            const submitButton = document.getElementById('submitRating');
+            const ratingForm = document.getElementById('ratingForm');
+
+            if (ratingStars.length > 0) {
+                ratingStars.forEach((star, index) => {
+                    // Hover effect
+                    star.addEventListener('mouseenter', function() {
+                        highlightStars(index + 1);
+                    });
+
+                    // Click effect
+                    star.addEventListener('click', function() {
+                        const rating = index + 1;
+                        selectRating(rating);
+                    });
+                });
+
+                // Reset hover effect when leaving the rating area
+                document.querySelector('.rating-input').addEventListener('mouseleave', function() {
+                    const currentRating = parseInt(ratingValue.value) || 0;
+                    highlightStars(currentRating);
+                });
+            }
+
+            function highlightStars(count) {
+                ratingStars.forEach((star, index) => {
+                    if (index < count) {
+                        star.classList.add('hover');
+                    } else {
+                        star.classList.remove('hover');
+                    }
+                });
+            }
+
+            function selectRating(rating) {
+                ratingValue.value = rating;
+                
+                // Update visual state
+                ratingStars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('active');
+                        star.classList.remove('hover');
+                    } else {
+                        star.classList.remove('active', 'hover');
+                    }
+                });
+
+                // Update display text
+                const ratingTexts = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+                ratingDisplay.textContent = `${rating} star${rating > 1 ? 's' : ''} - ${ratingTexts[rating - 1]}`;
+                
+                // Enable submit button
+                submitButton.disabled = false;
+            }
+
+            // Handle form submission
+            if (ratingForm) {
+                ratingForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    if (!ratingValue.value) {
+                        alert('Please select a rating before submitting.');
+                        return;
+                    }
+
+                    // Submit form via AJAX
+                    const formData = new FormData(ratingForm);
+                    
+                    fetch(ratingForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Thank you for your rating!');
+                            // Optionally refresh the page to show updated rating
+                            location.reload();
+                        } else {
+                            alert('Error submitting rating: ' + (data.message || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error submitting rating. Please try again.');
+                    });
+                });
+            }
+        });
     </script>
 @endpush
 
