@@ -56,7 +56,9 @@ class AdminVacancyController extends Controller
      */
     public function show($id)
     {
-        $vacancy = StudentVacancy::with(['student'])->findOrFail($id);
+        $vacancy = StudentVacancy::with(['student'])
+            ->withCount('applications')
+            ->findOrFail($id);
         
         return view('admin.vacancies.show', compact('vacancy'));
     }

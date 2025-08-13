@@ -527,11 +527,15 @@
             @if($tutor)
                 <a href="{{ route('tutor.dashboard') }}" class="nav-link">Dashboard</a>
                 <a href="{{ route('tutor.jobs.index') }}" class="nav-link">Jobs</a>
+                <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @elseif($student)
                 <a href="{{ route('student.dashboard') }}" class="nav-link">Dashboard</a>
                 <a href="/search" class="nav-link">Find Tutors</a>
+                <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @else
                 <a href="/search" class="nav-link">Find Tutors</a>
+                <a href="{{ route('jobs.index') }}" class="nav-link">Jobs</a>
+                <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
                 <a href="/become-tutor" class="nav-link">Become a Tutor</a>
             @endif
             <a href="/about" class="nav-link">About Us</a>

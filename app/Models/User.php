@@ -40,7 +40,6 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Send the password reset notification.
      *
-     * @param  string  $token
      * @return void
      */
     public function sendPasswordResetNotification($token)
@@ -68,6 +67,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Relationship with Wishlist
+     */
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Relationship with Wishlist (plural form for compatibility)
      */
     public function wishlists()
     {

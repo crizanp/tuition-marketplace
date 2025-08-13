@@ -102,6 +102,14 @@ class Tutor extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the tutor's vacancy applications.
+     */
+    public function vacancyApplications()
+    {
+        return $this->hasMany(VacancyApplication::class);
+    }
+
+    /**
      * Get the tutor's contact messages.
      */
     public function contactMessages()

@@ -48,6 +48,14 @@ class StudentVacancy extends Model
     }
 
     /**
+     * Relationship with Vacancy Applications
+     */
+    public function applications()
+    {
+        return $this->hasMany(VacancyApplication::class, 'vacancy_id');
+    }
+
+    /**
      * Scope for pending vacancies
      */
     public function scopePending($query)

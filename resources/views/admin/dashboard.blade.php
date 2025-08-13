@@ -242,6 +242,11 @@
                                 Student Vacancies
                                 <span class="badge badge-info">{{ $stats['total_vacancies'] ?? 0 }}</span>
                             </a>
+                            <a href="{{ route('admin.vacancy-applications.index') }}" class="management-link">
+                                <i class="fas fa-file-alt"></i>
+                                Vacancy Applications
+                                <span class="badge badge-secondary">{{ $stats['total_applications'] ?? 0 }}</span>
+                            </a>
                             @if($stats['unread_messages'] > 0)
                             <a href="{{ route('admin.messages.index', ['status' => 'unread']) }}" class="management-link urgent">
                                 <i class="fas fa-envelope"></i>

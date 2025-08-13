@@ -9,10 +9,12 @@ use App\Http\Controllers\TutorProfileController;
 use App\Http\Controllers\Admin\AdminKycController;
 use App\Http\Controllers\TutorJobController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\VacancyController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminTutorController;
 use App\Http\Controllers\Admin\AdminJobController;
 use App\Http\Controllers\Admin\AdminVacancyController;
+use App\Http\Controllers\Admin\AdminVacancyApplicationController;
 use App\Http\Controllers\Admin\AdminMessageController;
 use App\Http\Controllers\Admin\AdminAnalyticsController;
 use App\Http\Controllers\SearchController;
@@ -34,6 +36,12 @@ Route::get('/jobs/{tutorName}/{jobId}', [JobController::class, 'show'])->name('j
 Route::get('/jobs/{job}/contact', [JobController::class, 'contact'])->name('jobs.contact');
 Route::post('/jobs/{job}/inquiry', [JobController::class, 'sendInquiry'])->name('jobs.inquiry');
 Route::get('/search/jobs', [JobController::class, 'search'])->name('jobs.search');
+
+// Public Vacancy Routes
+Route::get('/vacancies', [VacancyController::class, 'index'])->name('vacancies.index');
+Route::get('/vacancies/{id}', [VacancyController::class, 'show'])->name('vacancies.show');
+Route::post('/vacancies/{id}/apply', [VacancyController::class, 'apply'])->name('vacancies.apply');
+Route::get('/search/vacancies', [VacancyController::class, 'search'])->name('vacancies.search');
 
 // Wishlist Routes (require authentication)
 Route::middleware(['auth'])->group(function () {
@@ -101,6 +109,18 @@ Route::prefix('admin')->group(function () {
             Route::post('/bulk-update', [AdminVacancyController::class, 'bulkUpdate'])->name('admin.vacancies.bulkUpdate');
             Route::delete('/{id}', [AdminVacancyController::class, 'destroy'])->name('admin.vacancies.destroy');
             Route::get('/export/csv', [AdminVacancyController::class, 'export'])->name('admin.vacancies.export');
+        });
+        
+        // Vacancy Application Management Routes
+        Route::prefix('vacancy-applications')->group(function () {
+            Route::get('/', [AdminVacancyApplicationController::class, 'index'])->name('admin.vacancy-applications.index');
+            Route::get('/{id}', [AdminVacancyApplicationController::class, 'show'])->name('admin.vacancy-applications.show');
+            Route::post('/{id}/approve', [AdminVacancyApplicationController::class, 'approve'])->name('admin.vacancy-applications.approve');
+            Route::post('/{id}/reject', [AdminVacancyApplicationController::class, 'reject'])->name('admin.vacancy-applications.reject');
+            Route::put('/{id}/status', [AdminVacancyApplicationController::class, 'updateStatus'])->name('admin.vacancy-applications.status');
+            Route::post('/bulk-update', [AdminVacancyApplicationController::class, 'bulkUpdate'])->name('admin.vacancy-applications.bulkUpdate');
+            Route::delete('/{id}', [AdminVacancyApplicationController::class, 'destroy'])->name('admin.vacancy-applications.destroy');
+            Route::get('/export/csv', [AdminVacancyApplicationController::class, 'export'])->name('admin.vacancy-applications.export');
         });
         
         // Message Management Routes
