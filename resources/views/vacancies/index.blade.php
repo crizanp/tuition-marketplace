@@ -47,76 +47,7 @@ body {
     max-width: 1200px;
 }
 
-.filters-section {
-    padding-top: 25px;
-}
 
-.filter-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    align-items: end;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.filter-group label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-.filter-input, .filter-select {
-    padding: 12px 16px;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    font-size: 14px;
-    background: #f8f9fa;
-    transition: all 0.3s ease;
-}
-
-.filter-input:focus, .filter-select:focus {
-    outline: none;
-    border-color: #ff6b35;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-}
-
-.btn-filter {
-    background: linear-gradient(135deg, #ff6b35, #f7931e);
-    border: none;
-    color: white;
-    padding: 12px 25px;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    margin-top: 24px;
-}
-
-.btn-filter:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
-}
-
-.btn-clear {
-    background: transparent;
-    border: 2px solid #6c757d;
-    color: #6c757d;
-    padding: 10px 25px;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    margin-top: 24px;
-}
-
-.btn-clear:hover {
-    background: #6c757d;
-    color: white;
-}
 
 /* Main Content */
 .content-section {
@@ -147,8 +78,7 @@ body {
 }
 
 .vacancy-card {
-    /* background: url('/images/texturebg.avif') no-repeat center center; */
-    background:white;
+    background: white;
     background-size: cover;
     background-color: rgb(255 255 255 / 95%);
     background-blend-mode: overlay;
@@ -374,6 +304,7 @@ body {
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+    text-decoration: none;
 }
 
 /* Empty State */
@@ -418,6 +349,7 @@ body {
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+    text-decoration: none;
 }
 
 /* Pagination */
@@ -427,28 +359,41 @@ body {
     margin: 40px 0;
 }
 
-/* Make all filter input placeholders dim gray */
-.filter-input::placeholder {
-    color: #888 !important;
-    opacity: 1;
+/* Search Input Styling */
+.search-section .input-group {
+    max-width: 100%;
 }
 
-.filter-row,
-.filter-row * {
-    color: black !important;
-    border-color: black !important;
+.search-section .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 10px 0 0 10px;
+    padding: 12px 16px;
+    font-size: 16px;
+    background: #f8f9fa;
+    color: #495057;
 }
 
-.filter-input,
-.filter-select {
-    color: #312f2f !important;
-    border: 1px solid #444040 !important;
+.search-section .form-control:focus {
+    border-color: #ff6b35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    background: white;
 }
 
-.btn-filter,
-.btn-clear {
-    color: black !important;
+.search-section .btn-primary {
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    border: 2px solid #ff6b35;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 20px;
+    font-weight: 600;
 }
+
+.search-section .btn-primary:hover {
+    background: linear-gradient(135deg, #e55a2b, #e08718);
+    border-color: #e55a2b;
+    transform: translateY(-1px);
+}
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -466,10 +411,7 @@ body {
         padding: 20px;
     }
 
-    .filter-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
+
 
     .section-header {
         flex-direction: column;
@@ -485,6 +427,20 @@ body {
     .info-row {
         grid-template-columns: 1fr;
         gap: 10px;
+    }
+
+    .search-section .input-group {
+        flex-direction: column;
+    }
+
+    .search-section .form-control {
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .search-section .btn-primary {
+        border-radius: 10px;
+        width: 100%;
     }
 }
 
@@ -533,70 +489,7 @@ body {
                 </form>
             </div>
             
-            <!-- Filters Section -->
-            <div class="filters-section">
-                <form method="GET" action="{{ route('vacancies.index') }}">
-                    <div class="filter-row">
-                        <!-- Subject Filter -->
-                        <div class="filter-group">
-                            <label for="subject">Subject</label>
-                            <select class="filter-select" id="subject" name="subject">
-                                <option value="">All Subjects</option>
-                                @foreach($subjects as $subject)
-                                    <option value="{{ $subject }}" {{ request('subject') == $subject ? 'selected' : '' }}>
-                                        {{ $subject }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
 
-                        <!-- Grade Level Filter -->
-                        <div class="filter-group">
-                            <label for="grade_level">Grade Level</label>
-                            <select class="filter-select" id="grade_level" name="grade_level">
-                                <option value="">All Grades</option>
-                                @foreach($gradeLevels as $grade)
-                                    <option value="{{ $grade }}" {{ request('grade_level') == $grade ? 'selected' : '' }}>
-                                        {{ $grade }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Location Type Filter -->
-                        <div class="filter-group">
-                            <label for="location_type">Location Type</label>
-                            <select class="filter-select" id="location_type" name="location_type">
-                                <option value="">All Types</option>
-                                <option value="online" {{ request('location_type') == 'online' ? 'selected' : '' }}>Online</option>
-                                <option value="home" {{ request('location_type') == 'home' ? 'selected' : '' }}>Student's Home</option>
-                                <option value="tutor_place" {{ request('location_type') == 'tutor_place' ? 'selected' : '' }}>Tutor's Place</option>
-                                <option value="flexible" {{ request('location_type') == 'flexible' ? 'selected' : '' }}>Flexible</option>
-                            </select>
-                        </div>
-
-                        <!-- Urgency Filter -->
-                        <div class="filter-group">
-                            <label for="urgency">Urgency</label>
-                            <select class="filter-select" id="urgency" name="urgency">
-                                <option value="">All Urgency</option>
-                                <option value="low" {{ request('urgency') == 'low' ? 'selected' : '' }}>Low</option>
-                                <option value="medium" {{ request('urgency') == 'medium' ? 'selected' : '' }}>Medium</option>
-                                <option value="high" {{ request('urgency') == 'high' ? 'selected' : '' }}>High</option>
-                            </select>
-                        </div>
-
-                        <!-- Filter Buttons -->
-                        <div class="filter-group">
-                            <button type="submit" class="btn-filter w-100">Apply Filters</button>
-                        </div>
-
-                        <div class="filter-group">
-                            <a href="{{ route('vacancies.index') }}" class="btn-clear w-100 text-center text-decoration-none">Clear Filters</a>
-                        </div>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -716,4 +609,7 @@ body {
         @endif
     </div>
 </div>
+
+
+
 @endsection

@@ -535,7 +535,7 @@
                 <a href="/search/tutors" class="nav-link">Find Tutors</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @else
-                <a href="/search" class="nav-link">Find Tutors</a>
+                <a href="/search/tutors" class="nav-link">Find Tutors</a>
                 <a href="{{ route('jobs.index') }}" class="nav-link">Jobs</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
                 <a href="/become-tutor" class="nav-link">Become a Tutor</a>

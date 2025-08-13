@@ -159,7 +159,7 @@ body {
 .job-card {
     background: url('/images/texturebg.avif') no-repeat center center;
     background-size: cover;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgb(255 255 255 / 98%);
     background-blend-mode: overlay;
     border: none;
     border-radius: 16px;
