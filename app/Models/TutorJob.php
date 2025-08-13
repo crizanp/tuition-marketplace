@@ -34,6 +34,9 @@ class TutorJob extends Model
         'session_type',
         'status',
         'is_featured',
+        'featured_at',
+        'admin_notes',
+        'admin_updated_at',
         'expires_at',
         'views',
         'inquiries',
@@ -45,6 +48,8 @@ class TutorJob extends Model
         'gallery' => 'array',
         'hourly_rate' => 'decimal:2',
         'is_featured' => 'boolean',
+        'featured_at' => 'datetime',
+        'admin_updated_at' => 'datetime',
         'expires_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -197,5 +202,21 @@ class TutorJob extends Model
     public function ratings()
     {
         return $this->hasMany(Rating::class, 'job_id');
+    }
+
+    /**
+     * Get contact messages for this job.
+     */
+    public function contactMessages()
+    {
+        return $this->hasMany(ContactMessage::class, 'job_id');
+    }
+
+    /**
+     * Check if job is featured
+     */
+    public function isFeatured()
+    {
+        return $this->is_featured;
     }
 }

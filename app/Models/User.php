@@ -21,6 +21,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'grade_level',
         'preferred_subjects',
         'status',
+        'status_reason',
+        'status_updated_at',
     ];
 
     protected $hidden = [
@@ -32,6 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'preferred_subjects' => 'array',
+        'status_updated_at' => 'datetime',
     ];
 
     /**
@@ -66,7 +69,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Relationship with Wishlist
      */
-    public function wishlist()
+    public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
     }
@@ -77,5 +80,37 @@ class User extends Authenticatable implements MustVerifyEmail
     public function ratings()
     {
         return $this->hasMany(Rating::class);
+    }
+
+    /**
+     * Get the user's contact messages.
+     */
+    public function contactMessages()
+    {
+        return $this->hasMany(ContactMessage::class, 'student_id');
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive()
+    {
+        return $this->status === 'active';
+    }
+
+    /**
+     * Check if user is suspended
+     */
+    public function isSuspended()
+    {
+        return $this->status === 'suspended';
+    }
+
+    /**
+     * Check if user is banned
+     */
+    public function isBanned()
+    {
+        return $this->status === 'banned';
     }
 }

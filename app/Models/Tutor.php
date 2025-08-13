@@ -22,6 +22,9 @@ class Tutor extends Authenticatable implements MustVerifyEmail
         'subjects',
         'hourly_rate',
         'status',
+        'status_reason',
+        'status_updated_at',
+        'approved_at',
     ];
 
     protected $hidden = [
@@ -33,6 +36,8 @@ class Tutor extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'subjects' => 'array',
+        'status_updated_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     /**
@@ -81,10 +86,58 @@ class Tutor extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Alias for jobs relationship (used in admin controllers)
+     */
+    public function tutorJobs()
+    {
+        return $this->hasMany(TutorJob::class);
+    }
+
+    /**
      * Get the tutor's ratings.
      */
     public function ratings()
     {
         return $this->hasMany(Rating::class);
+    }
+
+    /**
+     * Get the tutor's contact messages.
+     */
+    public function contactMessages()
+    {
+        return $this->hasMany(ContactMessage::class);
+    }
+
+    /**
+     * Check if tutor is active
+     */
+    public function isActive()
+    {
+        return $this->status === 'active';
+    }
+
+    /**
+     * Check if tutor is pending
+     */
+    public function isPending()
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
+     * Check if tutor is suspended
+     */
+    public function isSuspended()
+    {
+        return $this->status === 'suspended';
+    }
+
+    /**
+     * Check if tutor is banned
+     */
+    public function isBanned()
+    {
+        return $this->status === 'banned';
     }
 }

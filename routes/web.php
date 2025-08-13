@@ -9,6 +9,12 @@ use App\Http\Controllers\TutorProfileController;
 use App\Http\Controllers\Admin\AdminKycController;
 use App\Http\Controllers\TutorJobController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\Admin\AdminStudentController;
+use App\Http\Controllers\Admin\AdminTutorController;
+use App\Http\Controllers\Admin\AdminJobController;
+use App\Http\Controllers\Admin\AdminVacancyController;
+use App\Http\Controllers\Admin\AdminMessageController;
+use App\Http\Controllers\Admin\AdminAnalyticsController;
 use App\Http\Controllers\SearchController;
 
 // Home route
@@ -53,6 +59,66 @@ Route::prefix('admin')->group(function () {
     
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
+        
+        // Student Management Routes
+        Route::prefix('students')->group(function () {
+            Route::get('/', [AdminStudentController::class, 'index'])->name('admin.students.index');
+            Route::get('/{id}', [AdminStudentController::class, 'show'])->name('admin.students.show');
+            Route::put('/{id}/status', [AdminStudentController::class, 'updateStatus'])->name('admin.students.status');
+            Route::delete('/{id}', [AdminStudentController::class, 'destroy'])->name('admin.students.destroy');
+            Route::get('/export/csv', [AdminStudentController::class, 'export'])->name('admin.students.export');
+        });
+        
+        // Tutor Management Routes
+        Route::prefix('tutors')->group(function () {
+            Route::get('/', [AdminTutorController::class, 'index'])->name('admin.tutors.index');
+            Route::get('/{id}', [AdminTutorController::class, 'show'])->name('admin.tutors.show');
+            Route::put('/{id}/status', [AdminTutorController::class, 'updateStatus'])->name('admin.tutors.status');
+            Route::post('/{id}/approve', [AdminTutorController::class, 'approve'])->name('admin.tutors.approve');
+            Route::post('/bulk-update', [AdminTutorController::class, 'bulkUpdate'])->name('admin.tutors.bulkUpdate');
+            Route::delete('/{id}', [AdminTutorController::class, 'destroy'])->name('admin.tutors.destroy');
+            Route::get('/export/csv', [AdminTutorController::class, 'export'])->name('admin.tutors.export');
+        });
+        
+        // Job Management Routes
+        Route::prefix('jobs')->group(function () {
+            Route::get('/', [AdminJobController::class, 'index'])->name('admin.jobs.index');
+            Route::get('/{id}', [AdminJobController::class, 'show'])->name('admin.jobs.show');
+            Route::put('/{id}/status', [AdminJobController::class, 'updateStatus'])->name('admin.jobs.status');
+            Route::post('/{id}/toggle-featured', [AdminJobController::class, 'toggleFeatured'])->name('admin.jobs.toggleFeatured');
+            Route::post('/bulk-update', [AdminJobController::class, 'bulkUpdate'])->name('admin.jobs.bulkUpdate');
+            Route::delete('/{id}', [AdminJobController::class, 'destroy'])->name('admin.jobs.destroy');
+            Route::get('/export/csv', [AdminJobController::class, 'export'])->name('admin.jobs.export');
+        });
+        
+        // Vacancy Management Routes
+        Route::prefix('vacancies')->group(function () {
+            Route::get('/', [AdminVacancyController::class, 'index'])->name('admin.vacancies.index');
+            Route::get('/{id}', [AdminVacancyController::class, 'show'])->name('admin.vacancies.show');
+            Route::post('/{id}/approve', [AdminVacancyController::class, 'approve'])->name('admin.vacancies.approve');
+            Route::post('/{id}/reject', [AdminVacancyController::class, 'reject'])->name('admin.vacancies.reject');
+            Route::put('/{id}/status', [AdminVacancyController::class, 'updateStatus'])->name('admin.vacancies.status');
+            Route::post('/bulk-update', [AdminVacancyController::class, 'bulkUpdate'])->name('admin.vacancies.bulkUpdate');
+            Route::delete('/{id}', [AdminVacancyController::class, 'destroy'])->name('admin.vacancies.destroy');
+            Route::get('/export/csv', [AdminVacancyController::class, 'export'])->name('admin.vacancies.export');
+        });
+        
+        // Message Management Routes
+        Route::prefix('messages')->group(function () {
+            Route::get('/', [AdminMessageController::class, 'index'])->name('admin.messages.index');
+            Route::get('/{id}', [AdminMessageController::class, 'show'])->name('admin.messages.show');
+            Route::post('/{id}/respond', [AdminMessageController::class, 'respond'])->name('admin.messages.respond');
+            Route::post('/bulk-update', [AdminMessageController::class, 'bulkUpdate'])->name('admin.messages.bulkUpdate');
+            Route::delete('/{id}', [AdminMessageController::class, 'destroy'])->name('admin.messages.destroy');
+            Route::get('/export/csv', [AdminMessageController::class, 'export'])->name('admin.messages.export');
+            Route::get('/stats/json', [AdminMessageController::class, 'getStats'])->name('admin.messages.stats');
+        });
+        
+        // Analytics Routes
+        Route::prefix('analytics')->group(function () {
+            Route::get('/', [AdminAnalyticsController::class, 'index'])->name('admin.analytics.index');
+            Route::get('/export', [AdminAnalyticsController::class, 'export'])->name('admin.analytics.export');
+        });
         
         // KYC Management Routes
         Route::get('/kyc', [AdminKycController::class, 'index'])->name('admin.kyc.index');
