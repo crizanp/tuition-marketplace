@@ -1,4 +1,4 @@
-<!-- this is index page -->
+<!-- this is job index page -->
 
 @extends('layouts.app')
 

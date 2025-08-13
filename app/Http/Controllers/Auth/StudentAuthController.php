@@ -57,6 +57,17 @@ class StudentAuthController extends Controller
             'password' => 'required',
         ]);
 
+        // Check if a tutor or admin is already logged in
+        if (Auth::guard('tutor')->check()) {
+            return back()->withErrors(['email' => 'A tutor is currently logged in. Please <a href="' . route('logout.all') . '" onclick="event.preventDefault(); document.getElementById(\'logout-all-form\').submit();" style="color: #dc3545; text-decoration: underline;">logout all accounts</a> first before logging in as a student.'])
+                ->with('logout_all_form', true);
+        }
+        
+        if (Auth::guard('admin')->check()) {
+            return back()->withErrors(['email' => 'An admin is currently logged in. Please <a href="' . route('logout.all') . '" onclick="event.preventDefault(); document.getElementById(\'logout-all-form\').submit();" style="color: #dc3545; text-decoration: underline;">logout all accounts</a> first before logging in as a student.'])
+                ->with('logout_all_form', true);
+        }
+
         if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
             $user = Auth::user();
             
@@ -75,6 +86,20 @@ class StudentAuthController extends Controller
     {
         Auth::logout();
         return redirect('/student/login');
+    }
+
+    public function logoutAll()
+    {
+        // Logout from all guards
+        Auth::guard('web')->logout();
+        Auth::guard('tutor')->logout();
+        Auth::guard('admin')->logout();
+        
+        // Clear session
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        
+        return redirect('/')->with('message', 'You have been logged out from all accounts.');
     }
 
     public function dashboard()

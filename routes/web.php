@@ -24,6 +24,21 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Global logout route
+Route::post('/logout-all', function () {
+    Auth::guard('web')->logout();
+    Auth::guard('tutor')->logout();
+    Auth::guard('admin')->logout();
+    
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    
+    return redirect('/')->with('message', 'You have been logged out from all accounts.');
+})->name('logout.all');
+
+// Global logout route - accessible from any guard
+Route::post('/logout-all', [StudentAuthController::class, 'logoutAll'])->name('logout.all');
+
 // Search Routes
 Route::get('/search/tutors', [SearchController::class, 'searchTutors'])->name('search.tutors');
 Route::get('/search/vacancies', [SearchController::class, 'searchVacancies'])->name('search.vacancies');
@@ -64,6 +79,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AdminAuthController::class, 'login']);
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+    Route::post('/logout-all', [AdminAuthController::class, 'logoutAll'])->name('admin.logout.all');
     
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
@@ -156,6 +172,7 @@ Route::prefix('tutor')->group(function () {
     Route::get('/register', [TutorAuthController::class, 'showRegisterForm'])->name('tutor.register');
     Route::post('/register', [TutorAuthController::class, 'register']);
     Route::post('/logout', [TutorAuthController::class, 'logout'])->name('tutor.logout');
+    Route::post('/logout-all', [TutorAuthController::class, 'logoutAll'])->name('tutor.logout.all');
     
     // Email verification routes (accessible without middleware)
     Route::get('/email/verify', [TutorAuthController::class, 'showEmailVerificationForm'])->name('tutor.verification.notice');
@@ -232,6 +249,7 @@ Route::prefix('student')->group(function () {
     Route::get('/register', [StudentAuthController::class, 'showRegisterForm'])->name('student.register');
     Route::post('/register', [StudentAuthController::class, 'register']);
     Route::post('/logout', [StudentAuthController::class, 'logout'])->name('student.logout');
+    Route::post('/logout-all', [StudentAuthController::class, 'logoutAll'])->name('student.logout.all');
     
     // Email verification routes (accessible without middleware)
     Route::get('/email/verify', [StudentAuthController::class, 'showEmailVerificationForm'])->name('verification.notice');

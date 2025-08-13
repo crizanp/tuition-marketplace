@@ -480,29 +480,33 @@
 
         <!-- Right Side: Dynamic Links -->
         <div class="dynamic-links">
-            @if($student && !$tutor)
-                <a href="/tutor/login" class="top-auth-link">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    Teacher Login
-                </a>
-            @elseif($tutor && !$student)
+            @if($student || $tutor || $admin)
+                <!-- Logged in - show user status or quick links -->
+                @if($student)
+                    <span class="top-auth-link">
+                        <i class="fas fa-user-graduate"></i>
+                        Welcome, {{ explode(' ', $student->name)[0] }}
+                    </span>
+                @elseif($tutor)
+                    <span class="top-auth-link">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Welcome, {{ explode(' ', $tutor->name)[0] }}
+                    </span>
+                @elseif($admin)
+                    <span class="top-auth-link">
+                        <i class="fas fa-user-shield"></i>
+                        Admin Panel
+                    </span>
+                @endif
+            @else
+                <!-- Not logged in - show login links -->
                 <a href="/student/login" class="top-auth-link">
                     <i class="fas fa-user-graduate"></i>
                     Student Login
                 </a>
-                 @elseif(!$tutor && !$student)
-                <a href="/post-vacancy" class="top-auth-link">
-                    <i class="fas fa-briefcase"></i>
-                    Post Vacancy
-                </a>
-                <a href="/search" class="top-auth-link">
-                    <i class="fas fa-search"></i>
-                    Browse Tutors
-                </a>
-            @elseif($tutor && $student)
-                <a href="/post-vacancy" class="top-auth-link">
-                    <i class="fas fa-briefcase"></i>
-                    Post Vacancy
+                <a href="/tutor/login" class="top-auth-link">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Teacher Login
                 </a>
             @endif
         </div>
@@ -569,6 +573,13 @@
                             <i class="fas fa-shield-alt"></i>
                             KYC
                         </a>
+                        <form method="POST" action="{{ route('logout.all') }}" class="logout-form">
+                            @csrf
+                            <button type="submit" class="logout-btn" style="background-color: #dc3545; margin-bottom: 5px;">
+                                <i class="fas fa-power-off"></i>
+                                Logout All
+                            </button>
+                        </form>
                         <form method="POST" action="{{ route('tutor.logout') }}" class="logout-form">
                             @csrf
                             <button type="submit" class="logout-btn">
@@ -603,6 +614,13 @@
                             <i class="fas fa-calendar-alt"></i>
                             My Bookings
                         </a>
+                        <form method="POST" action="{{ route('logout.all') }}" class="logout-form">
+                            @csrf
+                            <button type="submit" class="logout-btn" style="background-color: #dc3545; margin-bottom: 5px;">
+                                <i class="fas fa-power-off"></i>
+                                Logout All
+                            </button>
+                        </form>
                         <form method="POST" action="{{ route('student.logout') }}" class="logout-form">
                             @csrf
                             <button type="submit" class="logout-btn">
@@ -612,17 +630,8 @@
                         </form>
                     </div>
                 </div>
-            @else
-                <!-- Guest Links -->
-                <a href="/student/login" class="auth-link student">
-                    <i class="fas fa-user-graduate"></i>
-                    <span>Student Login</span>
-                </a>
-                <a href="/tutor/login" class="auth-link teacher">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <span>Tutor Login</span>
-                </a>
             @endif
+            <!-- Guests will see login links in the top menu bar, keep main nav clean -->
         </div>
     </div>
 </header>

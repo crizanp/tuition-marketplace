@@ -42,9 +42,16 @@
             @if ($errors->any())
                 <div class="alert alert-danger">
                     @foreach ($errors->all() as $error)
-                        <p class="mb-0">{{ $error }}</p>
+                        <p class="mb-0">{!! $error !!}</p>
                     @endforeach
                 </div>
+            @endif
+
+            <!-- Hidden logout-all form -->
+            @if(session('logout_all_form'))
+                <form id="logout-all-form" action="{{ route('logout.all') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
             @endif
 
             <form method="POST" action="/student/login">
