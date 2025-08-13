@@ -44,6 +44,8 @@ Route::get('/search/tutors', [SearchController::class, 'searchTutors'])->name('s
 Route::get('/search/vacancies', [SearchController::class, 'searchVacancies'])->name('search.vacancies');
 Route::get('/api/search/subjects', [SearchController::class, 'getSubjectSuggestions'])->name('api.search.subjects');
 Route::get('/api/search/locations', [SearchController::class, 'getLocationSuggestions'])->name('api.search.locations');
+Route::get('/api/search/districts', [SearchController::class, 'getDistrictSuggestions'])->name('api.search.districts');
+Route::get('/api/search/places', [SearchController::class, 'getPlaceSuggestions'])->name('api.search.places');
 
 // Public Job Routes
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');

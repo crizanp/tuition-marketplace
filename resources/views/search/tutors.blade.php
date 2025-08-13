@@ -576,12 +576,12 @@ body {
                     </h2>
                     <p class="text-muted mb-0">
                         Found {{ $jobs->total() }} jobs
-                        @if($subject || $location || $keyword)
+                        @if($keyword || $district || $place || $location)
                             matching your criteria
                         @endif
                     </p>
                     
-                    @if($subject || $location || $keyword)
+                    @if($keyword || $district || $place || $location)
                         <div class="search-filters mt-2">
                             @if($keyword)
                                 <span class="badge bg-primary me-2">
@@ -592,11 +592,20 @@ body {
                                     </a>
                                 </span>
                             @endif
-                            @if($subject)
+                            @if($district)
+                                <span class="badge bg-info me-2">
+                                    <i class="fas fa-map-marked-alt me-1"></i>
+                                    {{ $district }}
+                                    <a href="{{ request()->fullUrlWithQuery(['district' => null]) }}" class="text-white ms-1">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </span>
+                            @endif
+                            @if($place)
                                 <span class="badge bg-success me-2">
-                                    <i class="fas fa-book me-1"></i>
-                                    {{ $subject }}
-                                    <a href="{{ request()->fullUrlWithQuery(['subject' => null]) }}" class="text-white ms-1">
+                                    <i class="fas fa-map-pin me-1"></i>
+                                    {{ $place }}
+                                    <a href="{{ request()->fullUrlWithQuery(['place' => null]) }}" class="text-white ms-1">
                                         <i class="fas fa-times"></i>
                                     </a>
                                 </span>
