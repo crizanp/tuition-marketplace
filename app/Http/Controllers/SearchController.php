@@ -409,7 +409,7 @@ class SearchController extends Controller
     }
     
     /**
-     * Calculate flexible score based on priority system
+     * Calculate flexible score based on priority system with improved relevance ranking
      */
     private function calculateFlexibleScore($job, $keyword, $district, $place)
     {
@@ -417,11 +417,15 @@ class SearchController extends Controller
         $locationScore = 0;
         $hasKeywordMatch = false;
         $hasLocationMatch = false;
+        $hasStrongKeywordMatch = false;
         
         // KEYWORD SCORING (0-90 points) - Very flexible matching
         if (!empty($keyword)) {
             $keywordScore = $this->scoreFlexibleKeyword($job, $keyword);
             $hasKeywordMatch = $keywordScore > 0;
+            
+            // Check for strong keyword matches (exact or very close matches)
+            $hasStrongKeywordMatch = $this->hasStrongKeywordMatch($job, $keyword);
         }
         
         // LOCATION SCORING (0-40 points) - District + Place combined
@@ -430,25 +434,46 @@ class SearchController extends Controller
             $hasLocationMatch = $locationScore > 0;
         }
         
-        // PRIORITY-BASED FINAL SCORING
+        // PRIORITY-BASED FINAL SCORING with improved relevance
         $finalScore = 0;
         
-        // PRIORITY 1: Both keyword and location match (100+ points)
-        if ($hasKeywordMatch && $hasLocationMatch) {
-            $finalScore = 100 + $keywordScore + $locationScore;
+        // PRIORITY 1: Strong keyword match + location match (120+ points)
+        if ($hasStrongKeywordMatch && $hasLocationMatch) {
+            $finalScore = 120 + $keywordScore + $locationScore;
             
-            // Extra bonus for strong matches
-            if ($keywordScore > 60 && $locationScore > 20) {
-                $finalScore += 20; // Premium match bonus
+            // Extra bonus for perfect matches
+            if ($keywordScore > 70 && $locationScore > 25) {
+                $finalScore += 30; // Premium perfect match bonus
             }
         }
-        // PRIORITY 2: Keyword only (50-90 points)
-        elseif ($hasKeywordMatch && !$hasLocationMatch) {
-            $finalScore = 50 + $keywordScore;
+        // PRIORITY 2: Strong keyword match only (90-120 points)
+        elseif ($hasStrongKeywordMatch && !$hasLocationMatch) {
+            $finalScore = 90 + $keywordScore;
         }
-        // PRIORITY 3: Location only (20-40 points)
+        // PRIORITY 3: Weak keyword match + location match (70-110 points)
+        elseif ($hasKeywordMatch && $hasLocationMatch && !$hasStrongKeywordMatch) {
+            $finalScore = 70 + $keywordScore + $locationScore;
+        }
+        // PRIORITY 4: Weak keyword match only (30-80 points)
+        elseif ($hasKeywordMatch && !$hasLocationMatch && !$hasStrongKeywordMatch) {
+            $finalScore = 30 + $keywordScore;
+        }
+        // PRIORITY 5: Location only (15-35 points)
         elseif (!$hasKeywordMatch && $hasLocationMatch) {
-            $finalScore = 20 + $locationScore;
+            $finalScore = 15 + $locationScore;
+        }
+        
+        // RELEVANCE PENALTIES for poor matches
+        if ($finalScore > 0) {
+            // Penalize results that don't match primary subject when keyword is clearly a subject
+            if (!empty($keyword) && $this->isSubjectKeyword($keyword) && !$this->matchesPrimarySubject($job, $keyword)) {
+                $finalScore = max(10, $finalScore * 0.3); // Heavily penalize subject mismatches
+            }
+            
+            // Penalize weak location matches when specific location is searched
+            if (!empty($district) && $locationScore < 15) {
+                $finalScore = max(5, $finalScore * 0.6); // Penalize weak location matches
+            }
         }
         
         // QUALITY BONUSES
@@ -463,13 +488,117 @@ class SearchController extends Controller
             if ($job->tutor && $job->tutor->kyc && $job->tutor->kyc->status === 'approved') {
                 $finalScore += 3;
             }
+            
+            // Exact title match bonus
+            if (!empty($keyword) && stripos($job->title, $keyword) !== false) {
+                $finalScore += 10;
+            }
         }
         
         return max(0, $finalScore);
     }
     
     /**
-     * Score keyword matches with ultra-flexible matching (handles typos, abbreviations, zigzag patterns)
+     * Check if a job has strong keyword matches (high relevance)
+     */
+    private function hasStrongKeywordMatch($job, $keyword)
+    {
+        $keyword = strtolower(trim($keyword));
+        $keywordVariations = $this->generateKeywordVariations($keyword);
+        
+        // Check for strong matches in high-priority fields
+        foreach ($keywordVariations as $variation) {
+            // Strong title matches
+            if ($this->isExactMatch($job->title, $variation)) {
+                return true;
+            }
+            
+            // Strong subject matches
+            if ($job->subjects) {
+                $subjectsText = is_array($job->subjects) ? implode(' ', $job->subjects) : $job->subjects;
+                if ($this->isExactMatch($subjectsText, $variation)) {
+                    return true;
+                }
+            }
+            
+            // Strong tutor skills matches
+            if ($job->tutor && $job->tutor->profile && $job->tutor->profile->skills) {
+                $skillsText = is_array($job->tutor->profile->skills) ? implode(' ', $job->tutor->profile->skills) : $job->tutor->profile->skills;
+                if ($this->isExactMatch($skillsText, $variation)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if keyword is likely a subject name
+     */
+    private function isSubjectKeyword($keyword)
+    {
+        $keyword = strtolower(trim($keyword));
+        $subjectKeywords = [
+            'math', 'mathematics', 'maths', 'algebra', 'calculus', 'geometry',
+            'science', 'sci', 'physics', 'phy', 'chemistry', 'chem', 'biology', 'bio',
+            'english', 'eng', 'grammar', 'literature',
+            'nepali', 'nep', 'hindi',
+            'computer', 'programming', 'coding', 'cs', 'software',
+            'history', 'geography', 'social', 'economics',
+            'art', 'music', 'drawing', 'painting',
+            'pe', 'physical education', 'sports'
+        ];
+        
+        foreach ($subjectKeywords as $subject) {
+            if (strpos($keyword, $subject) !== false || strpos($subject, $keyword) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if job's primary subjects match the searched keyword
+     */
+    private function matchesPrimarySubject($job, $keyword)
+    {
+        $keyword = strtolower(trim($keyword));
+        $keywordVariations = $this->generateKeywordVariations($keyword);
+        
+        // Check job subjects
+        if ($job->subjects) {
+            $subjectsText = is_array($job->subjects) ? implode(' ', $job->subjects) : $job->subjects;
+            foreach ($keywordVariations as $variation) {
+                if ($this->ultraFlexibleMatch($subjectsText, $variation)) {
+                    return true;
+                }
+            }
+        }
+        
+        // Check job title for subject terms
+        foreach ($keywordVariations as $variation) {
+            if ($this->ultraFlexibleMatch($job->title, $variation)) {
+                return true;
+            }
+        }
+        
+        // Check tutor profile skills
+        if ($job->tutor && $job->tutor->profile && $job->tutor->profile->skills) {
+            $skillsText = is_array($job->tutor->profile->skills) ? implode(' ', $job->tutor->profile->skills) : $job->tutor->profile->skills;
+            foreach ($keywordVariations as $variation) {
+                if ($this->ultraFlexibleMatch($skillsText, $variation)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Score keyword matches with ultra-flexible matching and improved relevance
      */
     private function scoreFlexibleKeyword($job, $keyword)
     {
@@ -482,15 +611,17 @@ class SearchController extends Controller
         // Count how many words from the search query are found
         $searchWords = explode(' ', $keyword);
         $matchedWords = 0;
+        $hasExactMatch = false;
+        $hasSubjectMatch = false;
         
-        // Title matches (highest priority - 30 points max)
-        $titleMatches = 0;
+        // Title matches (highest priority - 35 points max)
+        $titleScore = 0;
         foreach ($keywordVariations as $variation) {
             if ($this->ultraFlexibleMatch($job->title, $variation)) {
-                $titleMatches++;
-                $score += 25;
+                $titleScore += 25;
                 if ($this->isExactMatch($job->title, $variation)) {
-                    $score += 5; // Exact match bonus
+                    $titleScore += 10; // Exact match bonus
+                    $hasExactMatch = true;
                 }
                 
                 // Count matched words for multi-word bonus
@@ -502,22 +633,19 @@ class SearchController extends Controller
                 break; // Only count once per field
             }
         }
+        $score += min($titleScore, 35);
         
-        // Special bonus for programming-related titles
-        if (strpos($keyword, 'programming') !== false || strpos($keyword, 'coding') !== false) {
-            if (strpos(strtolower($job->title), 'computer') !== false && strpos(strtolower($job->title), 'programming') !== false) {
-                $score += 15; // Big bonus for "Computer Programming" matches
-            }
-        }
-        
-        // Subject matches (high priority - 25 points max)
+        // Subject matches (very high priority - 40 points max)
+        $subjectScore = 0;
         if ($job->subjects) {
             $subjectsText = is_array($job->subjects) ? implode(' ', $job->subjects) : $job->subjects;
             foreach ($keywordVariations as $variation) {
                 if ($this->ultraFlexibleMatch($subjectsText, $variation)) {
-                    $score += 20;
+                    $subjectScore += 30;
+                    $hasSubjectMatch = true;
                     if ($this->isExactMatch($subjectsText, $variation)) {
-                        $score += 5; // Exact match bonus
+                        $subjectScore += 10; // Exact match bonus
+                        $hasExactMatch = true;
                     }
                     
                     // Count matched words
@@ -530,13 +658,33 @@ class SearchController extends Controller
                 }
             }
         }
+        $score += min($subjectScore, 40);
         
-        // Description matches (medium priority - 20 points max)
+        // Tutor skills matches (high priority - 25 points max)
+        $skillsScore = 0;
+        if ($job->tutor && $job->tutor->profile && $job->tutor->profile->skills) {
+            $skillsText = is_array($job->tutor->profile->skills) ? implode(' ', $job->tutor->profile->skills) : $job->tutor->profile->skills;
+            foreach ($keywordVariations as $variation) {
+                if ($this->ultraFlexibleMatch($skillsText, $variation)) {
+                    $skillsScore += 20;
+                    $hasSubjectMatch = true;
+                    if ($this->isExactMatch($skillsText, $variation)) {
+                        $skillsScore += 5; // Exact match bonus
+                        $hasExactMatch = true;
+                    }
+                    break;
+                }
+            }
+        }
+        $score += min($skillsScore, 25);
+        
+        // Description matches (medium priority - 15 points max)
+        $descScore = 0;
         foreach ($keywordVariations as $variation) {
             if ($this->ultraFlexibleMatch($job->description, $variation)) {
-                $score += 15;
+                $descScore += 10;
                 if ($this->isExactMatch($job->description, $variation)) {
-                    $score += 5; // Exact match bonus
+                    $descScore += 5; // Exact match bonus
                 }
                 
                 // Count matched words
@@ -548,56 +696,66 @@ class SearchController extends Controller
                 break;
             }
         }
+        $score += min($descScore, 15);
         
-        // Requirements matches (medium priority - 15 points max)
+        // Requirements matches (medium priority - 10 points max)
         if ($job->requirements) {
             foreach ($keywordVariations as $variation) {
                 if ($this->ultraFlexibleMatch($job->requirements, $variation)) {
-                    $score += 10;
+                    $score += 8;
                     if ($this->isExactMatch($job->requirements, $variation)) {
-                        $score += 5; // Exact match bonus
+                        $score += 2; // Exact match bonus
                     }
                     break;
                 }
             }
         }
         
-        // Tutor name matches (15 points max)
+        // Tutor name matches (10 points max)
         if ($job->tutor && $job->tutor->name) {
             foreach ($keywordVariations as $variation) {
                 if ($this->ultraFlexibleMatch($job->tutor->name, $variation)) {
-                    $score += 12;
-                    break;
-                }
-            }
-        }
-        
-        // Tutor bio matches (10 points max)
-        if ($job->tutor && $job->tutor->bio) {
-            foreach ($keywordVariations as $variation) {
-                if ($this->ultraFlexibleMatch($job->tutor->bio, $variation)) {
                     $score += 8;
                     break;
                 }
             }
         }
         
-        // Tutor skills matches (12 points max)
-        if ($job->tutor && $job->tutor->profile && $job->tutor->profile->skills) {
-            $skillsText = is_array($job->tutor->profile->skills) ? implode(' ', $job->tutor->profile->skills) : $job->tutor->profile->skills;
+        // Tutor bio matches (8 points max)
+        if ($job->tutor && $job->tutor->bio) {
             foreach ($keywordVariations as $variation) {
-                if ($this->ultraFlexibleMatch($skillsText, $variation)) {
-                    $score += 10;
+                if ($this->ultraFlexibleMatch($job->tutor->bio, $variation)) {
+                    $score += 6;
                     break;
                 }
             }
         }
         
-        // Multi-word match bonus (big bonus for matching multiple words from search)
-        if (count($searchWords) > 1) {
-            $matchPercentage = $matchedWords / count($searchWords);
-            if ($matchPercentage >= 0.5) { // At least 50% of words match
-                $score += 20 * $matchPercentage; // Up to 20 points bonus
+        // RELEVANCE BONUSES AND PENALTIES
+        if ($score > 0) {
+            // Strong subject relevance bonus
+            if ($hasExactMatch && $hasSubjectMatch && $this->isSubjectKeyword($keyword)) {
+                $score += 20; // Major bonus for exact subject matches
+            }
+            
+            // Multi-word match bonus
+            if (count($searchWords) > 1) {
+                $matchPercentage = $matchedWords / count($searchWords);
+                if ($matchPercentage >= 0.5) { // At least 50% of words match
+                    $score += 15 * $matchPercentage; // Up to 15 points bonus
+                }
+            }
+            
+            // Special programming bonus
+            if (strpos($keyword, 'programming') !== false || strpos($keyword, 'coding') !== false) {
+                if (strpos(strtolower($job->title), 'computer') !== false) {
+                    $score += 15; // Bonus for computer programming matches
+                }
+            }
+            
+            // PENALTY for subject mismatches
+            if ($this->isSubjectKeyword($keyword) && !$hasSubjectMatch) {
+                $score = max(5, $score * 0.4); // Heavy penalty for subject mismatch
             }
         }
         
@@ -605,13 +763,14 @@ class SearchController extends Controller
     }
     
     /**
-     * Score location matches (district + place combined)
+     * Score location matches (district + place combined) with improved precision
      */
     private function scoreFlexibleLocation($job, $district, $place)
     {
         $score = 0;
+        $hasExactLocationMatch = false;
         
-        // District matching (25 points max)
+        // District matching (30 points max)
         if (!empty($district)) {
             $districtVariations = $this->generateLocationVariations($district);
             if ($job->district) {
@@ -619,7 +778,8 @@ class SearchController extends Controller
                     if ($this->ultraFlexibleMatch($job->district, $variation)) {
                         $score += 20;
                         if ($this->isExactMatch($job->district, $variation)) {
-                            $score += 5; // Exact match bonus
+                            $score += 10; // Exact match bonus
+                            $hasExactLocationMatch = true;
                         }
                         break;
                     }
@@ -637,7 +797,8 @@ class SearchController extends Controller
                     if ($this->ultraFlexibleMatch($job->place, $variation)) {
                         $score += 15;
                         if ($this->isExactMatch($job->place, $variation)) {
-                            $score += 3; // Exact match bonus
+                            $score += 5; // Exact match bonus
+                            $hasExactLocationMatch = true;
                         }
                         break;
                     }
@@ -648,7 +809,10 @@ class SearchController extends Controller
             if ($job->landmark) {
                 foreach ($placeVariations as $variation) {
                     if ($this->ultraFlexibleMatch($job->landmark, $variation)) {
-                        $score += 10;
+                        $score += 8;
+                        if ($this->isExactMatch($job->landmark, $variation)) {
+                            $score += 2;
+                        }
                         break;
                     }
                 }
@@ -658,11 +822,16 @@ class SearchController extends Controller
             if ($job->state) {
                 foreach ($placeVariations as $variation) {
                     if ($this->ultraFlexibleMatch($job->state, $variation)) {
-                        $score += 8;
+                        $score += 6;
                         break;
                     }
                 }
             }
+        }
+        
+        // Bonus for exact location matches
+        if ($hasExactLocationMatch) {
+            $score += 5;
         }
         
         return min($score, 40); // Cap at 40 points
@@ -1503,7 +1672,7 @@ class SearchController extends Controller
     }
     
     /**
-     * Generate keyword variations for ultra-flexible matching
+     * Generate keyword variations for ultra-flexible matching with better subject matching
      */
     private function generateKeywordVariations($keyword)
     {
@@ -1513,29 +1682,41 @@ class SearchController extends Controller
         foreach ($words as $word) {
             $variations[] = $word;
             
-            // Add common abbreviations and synonyms
+            // Enhanced subject synonyms and abbreviations
             $synonyms = [
+                // Math related - prioritize exact matches
+                'math' => ['mathematics', 'maths', 'mathematical'],
+                'mathematics' => ['math', 'maths', 'mathematical'],
+                'maths' => ['math', 'mathematics', 'mathematical'],
+                'mathematical' => ['math', 'mathematics', 'maths'],
+                
+                // Science related
+                'science' => ['sci', 'sciences'],
+                'sci' => ['science', 'sciences'],
+                'physics' => ['phy', 'physical science'],
+                'phy' => ['physics', 'physical science'],
+                'chemistry' => ['chem', 'chemical science'],
+                'chem' => ['chemistry', 'chemical science'],
+                'biology' => ['bio', 'biological science'],
+                'bio' => ['biology', 'biological science'],
+                
+                // Language related
+                'english' => ['eng', 'language arts'],
+                'eng' => ['english', 'language arts'],
+                'nepali' => ['nep'],
+                'nep' => ['nepali'],
+                
+                // Programming related
                 'c' => ['computer', 'coding', 'programming'],
                 'programming' => ['coding', 'development', 'software', 'computer', 'prog'],
                 'coding' => ['programming', 'development', 'software', 'computer'],
                 'development' => ['programming', 'coding', 'software', 'dev'],
                 'software' => ['programming', 'coding', 'development', 'computer'],
                 'computer' => ['programming', 'coding', 'software', 'comp', 'cs'],
-                'math' => ['mathematics', 'maths'],
-                'mathematics' => ['math', 'maths'],
-                'maths' => ['math', 'mathematics'],
-                'eng' => ['english'],
-                'english' => ['eng'],
-                'sci' => ['science'],
-                'science' => ['sci'],
-                'phy' => ['physics'],
-                'physics' => ['phy'],
-                'chem' => ['chemistry'],
-                'chemistry' => ['chem'],
-                'bio' => ['biology'],
-                'biology' => ['bio'],
                 'comp' => ['computer', 'programming'],
                 'cs' => ['computer science', 'programming', 'computer'],
+                
+                // Education terms
                 'teacher' => ['tutor', 'instructor', 'educator'],
                 'tutor' => ['teacher', 'instructor', 'educator'],
                 'grade' => ['class', 'level'],
@@ -1547,14 +1728,28 @@ class SearchController extends Controller
                 $variations = array_merge($variations, $synonyms[$word]);
             }
             
-            // Add partial matches for longer words
-            if (strlen($word) > 4) {
-                $variations[] = substr($word, 0, 3); // First 3 chars
+            // Add partial matches for longer words (but be more selective)
+            if (strlen($word) > 5) {
                 $variations[] = substr($word, 0, 4); // First 4 chars
+            }
+            if (strlen($word) > 7) {
+                $variations[] = substr($word, 0, 5); // First 5 chars
             }
         }
         
-        // Special handling for programming-related searches
+        // Special handling for specific combinations
+        if (strpos($keyword, 'math') !== false) {
+            $variations[] = 'mathematics';
+            $variations[] = 'maths';
+            $variations[] = 'mathematical';
+        }
+        
+        if (strpos($keyword, 'science') !== false) {
+            $variations[] = 'physics';
+            $variations[] = 'chemistry';
+            $variations[] = 'biology';
+        }
+        
         if (strpos($keyword, 'programming') !== false || strpos($keyword, 'coding') !== false) {
             $variations[] = 'computer';
             $variations[] = 'software';
