@@ -529,12 +529,10 @@
         <!-- Navigation Menu -->
         <nav class="navbar-center">
             @if($tutor)
-                <a href="{{ route('tutor.dashboard') }}" class="nav-link">Dashboard</a>
                 <a href="{{ route('tutor.jobs.index') }}" class="nav-link">Jobs</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @elseif($student)
-                <a href="{{ route('student.dashboard') }}" class="nav-link">Dashboard</a>
-                <a href="/search" class="nav-link">Find Tutors</a>
+                <a href="/search/tutors" class="nav-link">Find Tutors</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @else
                 <a href="/search" class="nav-link">Find Tutors</a>

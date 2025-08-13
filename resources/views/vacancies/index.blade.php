@@ -261,7 +261,6 @@ body {
     background: #f8f9fa;
     border-radius: 10px;
     margin-bottom: 15px;
-    border-left: 4px solid #ff6b35;
 }
 
 .student-avatar {
@@ -448,7 +447,7 @@ body {
 
 .btn-filter,
 .btn-clear {
-    color: white !important;
+    color: black !important;
 }
 
 /* Responsive Design */
