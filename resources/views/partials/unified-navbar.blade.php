@@ -532,10 +532,10 @@
                 <a href="{{ route('tutor.jobs.index') }}" class="nav-link">Jobs</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @elseif($student)
-                <a href="/search/tutors" class="nav-link">Find Tutors</a>
+                <!-- <a href="/search/tutors" class="nav-link">Find Tutors</a> -->
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @else
-                <a href="/search/tutors" class="nav-link">Find Tutors</a>
+                <!-- <a href="/search/tutors" class="nav-link">Find Tutors</a> -->
                 <a href="{{ route('jobs.index') }}" class="nav-link">Jobs</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
                 <a href="/become-tutor" class="nav-link">Become a Tutor</a>
@@ -604,10 +604,10 @@
                             <i class="fas fa-user-circle"></i>
                             Profile
                         </a>
-                        <a href="/search" class="dropdown-item">
+                        <!-- <a href="/search" class="dropdown-item">
                             <i class="fas fa-search"></i>
                             Find Tutors
-                        </a>
+                        </a> -->
                         <a href="/student/bookings" class="dropdown-item">
                             <i class="fas fa-calendar-alt"></i>
                             My Bookings

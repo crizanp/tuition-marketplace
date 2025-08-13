@@ -439,9 +439,9 @@
             searchForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const keyword = document.getElementById('mainSearchInput').value;
-                const subject = document.getElementById('subjectInput').value;
-                const location = document.getElementById('locationInput').value;
-                const query = `?keyword=${encodeURIComponent(keyword)}&subject=${encodeURIComponent(subject)}&location=${encodeURIComponent(location)}`;
+                const district = document.getElementById('districtInput').value;
+                const place = document.getElementById('placeInput').value;
+                const query = `?keyword=${encodeURIComponent(keyword)}&district=${encodeURIComponent(district)}&place=${encodeURIComponent(place)}`;
                 window.location.href = `/search/tutors${query}`;
             });
         });
