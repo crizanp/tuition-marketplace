@@ -58,6 +58,26 @@
                                     <div class="info-value">{{ $student->grade_level ?? 'Not specified' }}</div>
                                 </div>
 
+                                <div class="info-group mb-3">
+                                    <label class="text-light small fw-bold">QUALIFICATION</label>
+                                    <div class="info-value">{{ $student->qualification ?? 'Not specified' }}</div>
+                                </div>
+
+                                <div class="info-group mb-3">
+                                    <label class="text-light small fw-bold">INSTITUTION</label>
+                                    <div class="info-value">{{ $student->institution ?? 'Not specified' }}</div>
+                                </div>
+
+                                <div class="info-group mb-3">
+                                    <label class="text-light small fw-bold">LOCATION</label>
+                                    <div class="info-value">{{ ($student->location_district ? $student->location_district . ', ' : '') . ($student->location_place ? $student->location_place . ', ' : '') . ($student->location_landmark ? $student->location_landmark : '')  ?: 'Not specified' }}</div>
+                                </div>
+
+                                <div class="info-group mb-3">
+                                    <label class="text-light small fw-bold">WHATSAPP</label>
+                                    <div class="info-value">{{ $student->whatsapp ?? 'Not provided' }}</div>
+                                </div>
+
                                 @if($student->preferred_subjects && count($student->preferred_subjects) > 0)
                                 <div class="info-group mb-3">
                                     <label class="text-light small fw-bold">PREFERRED SUBJECTS</label>

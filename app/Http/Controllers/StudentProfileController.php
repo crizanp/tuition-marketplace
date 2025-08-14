@@ -44,16 +44,31 @@ class StudentProfileController extends Controller
                 Rule::unique('users')->ignore($student->id),
             ],
             'phone' => 'nullable|string|max:20',
-            'grade_level' => 'nullable|string|max:50',
+            'grade_level' => 'nullable|string|max:100',
+            'qualification' => 'nullable|string|max:100',
+            'institution' => 'nullable|string|max:150',
+            'location_district' => 'nullable|string|max:100',
+            'location_place' => 'nullable|string|max:100',
+            'location_landmark' => 'nullable|string|max:150',
+            'whatsapp' => 'nullable|string|max:30',
             'preferred_subjects' => 'nullable|array',
             'preferred_subjects.*' => 'string|max:100',
         ]);
+
+        // Use provided grade_level directly (JS may have replaced select with hidden input)
+        $gradeLevel = $request->input('grade_level');
 
         $student->update([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'grade_level' => $request->grade_level,
+            'grade_level' => $gradeLevel,
+            'qualification' => $request->qualification,
+            'institution' => $request->institution,
+            'location_district' => $request->location_district,
+            'location_place' => $request->location_place,
+            'location_landmark' => $request->location_landmark,
+            'whatsapp' => $request->whatsapp,
             'preferred_subjects' => $request->preferred_subjects ?? [],
         ]);
 

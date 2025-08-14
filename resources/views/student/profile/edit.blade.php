@@ -71,6 +71,40 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="qualification" class="form-label text-light">Qualification (optional)</label>
+                                <input type="text" class="form-control" id="qualification" name="qualification" value="{{ old('qualification', $student->qualification) }}" placeholder="e.g., High School, BSc, MSc">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="institution" class="form-label text-light">Current School / College / University (optional)</label>
+                                <input type="text" class="form-control" id="institution" name="institution" value="{{ old('institution', $student->institution) }}" placeholder="Institution name">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="location_district" class="form-label text-light">District (optional)</label>
+                                <input type="text" class="form-control" id="location_district" name="location_district" value="{{ old('location_district', $student->location_district) }}" placeholder="District">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="location_place" class="form-label text-light">Place (optional)</label>
+                                <input type="text" class="form-control" id="location_place" name="location_place" value="{{ old('location_place', $student->location_place) }}" placeholder="Town / Area">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="location_landmark" class="form-label text-light">Landmark (optional)</label>
+                                <input type="text" class="form-control" id="location_landmark" name="location_landmark" value="{{ old('location_landmark', $student->location_landmark) }}" placeholder="Nearby landmark">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="whatsapp" class="form-label text-light">WhatsApp Number (optional)</label>
+                                <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="{{ old('whatsapp', $student->whatsapp) }}" placeholder="e.g., +977 98xxxxxxxx">
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label text-light">Preferred Subjects</label>
                             <div class="subjects-container">
@@ -157,7 +191,7 @@
 }
 
 .form-check-input:checked {
-    background-color: #cfcfcf;
+    background-color: #48b14f;
     border-color: #cfcfcf;
 }
 
@@ -171,6 +205,12 @@
     color: #e6e6e6;
     border: 1px solid #222222;
 }
+
+.form-control::placeholder { color: #9a9a9a; opacity: 1; }
+.form-control::-webkit-input-placeholder { color: #9a9a9a; }
+.form-control:-ms-input-placeholder { color: #9a9a9a; }
+.form-control::-ms-input-placeholder { color: #9a9a9a; }
+.form-control::-moz-placeholder { color: #9a9a9a; opacity: 1; }
 
 .form-control:focus {
     box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.03);
