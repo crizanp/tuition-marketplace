@@ -578,18 +578,12 @@
                         </a>
                         <form method="POST" action="{{ route('logout.all') }}" class="logout-form">
                             @csrf
-                            <button type="submit" class="logout-btn" style="background-color: #dc3545; margin-bottom: 5px;">
+                            <button type="submit" class="logout-btn" style="background-color: #dc3545;color: white; margin-bottom: 5px;">
                                 <i class="fas fa-power-off"></i>
                                 Logout All
                             </button>
                         </form>
-                        <form method="POST" action="{{ route('tutor.logout') }}" class="logout-form">
-                            @csrf
-                            <button type="submit" class="logout-btn">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Logout
-                            </button>
-                        </form>
+                        
                     </div>
                 </div>
             @elseif($student)
@@ -623,18 +617,12 @@
                         </a>
                         <form method="POST" action="{{ route('logout.all') }}" class="logout-form">
                             @csrf
-                            <button type="submit" class="logout-btn" style="background-color: #dc3545; margin-bottom: 5px;">
+                            <button type="submit" class="logout-btn" style="background-color: #dc3545; color: white; margin-bottom: 5px;">
                                 <i class="fas fa-power-off"></i>
                                 Logout All
                             </button>
                         </form>
-                        <form method="POST" action="{{ route('student.logout') }}" class="logout-form">
-                            @csrf
-                            <button type="submit" class="logout-btn">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Logout
-                            </button>
-                        </form>
+                        
                     </div>
                 </div>
             @endif
