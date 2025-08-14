@@ -69,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
 // Rating Routes (require authentication)
 Route::middleware(['auth'])->group(function () {
     Route::post('/tutor/{tutor}/rate', [TutorProfileController::class, 'rate'])->name('tutor.rate');
+    Route::post('/jobs/{job}/rate', [JobController::class, 'storeRating'])->name('jobs.rate');
 });
 
 // CSS Test Route (for development)

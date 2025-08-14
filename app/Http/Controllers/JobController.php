@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TutorJob;
 use App\Models\Tutor;
+use App\Models\ContactMessage;
+use App\Models\Rating;
 use Illuminate\Support\Str;
 
 class JobController extends Controller
@@ -143,7 +145,27 @@ class JobController extends Controller
             ->limit(3)
             ->get();
 
-        return view('jobs.show', compact('job', 'relatedJobs'));
+        // Get ratings for this specific job
+        $ratings = Rating::where('job_id', $job->id)
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Calculate average rating for this specific job
+        $averageRating = Rating::where('job_id', $job->id)->avg('rating');
+        $totalRatings = Rating::where('job_id', $job->id)->count();
+
+        // Check if current user has already rated this specific job
+        $userHasRated = false;
+        $userRating = null;
+        if (auth()->check()) {
+            $userRating = Rating::where('user_id', auth()->id())
+                ->where('job_id', $job->id)
+                ->first();
+            $userHasRated = $userRating ? true : false;
+        }
+
+        return view('jobs.show', compact('job', 'relatedJobs', 'ratings', 'averageRating', 'totalRatings', 'userHasRated', 'userRating'));
     }
 
     /**
@@ -173,16 +195,48 @@ class JobController extends Controller
             'message' => 'required|string|min:10|max:1000',
         ]);
 
+        // Check if user is authenticated and has already sent a message for this job
+        if (auth()->check()) {
+            $existingMessage = ContactMessage::where('student_id', auth()->id())
+                ->where('job_id', $job->id)
+                ->first();
+                
+            if ($existingMessage) {
+                return redirect()->back()
+                    ->with('error', 'You have already sent a message for this job. Please wait for the response.');
+            }
+        } else {
+            // For guest users, check by email
+            $existingMessage = ContactMessage::where('email', $request->email)
+                ->where('job_id', $job->id)
+                ->first();
+                
+            if ($existingMessage) {
+                return redirect()->back()
+                    ->with('error', 'A message has already been sent from this email address for this job.');
+            }
+        }
+
+        // Save the contact message to database
+        ContactMessage::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'message' => $request->message,
+            'job_id' => $job->id,
+            'tutor_id' => $job->tutor_id,
+            'student_id' => auth()->id(), // null if guest
+            'type' => 'job_inquiry',
+            'status' => 'unread'
+        ]);
+
         // Increment inquiries count
         $job->incrementInquiries();
-
-        // Here you would typically send an email to the tutor
-        // For now, we'll just show a success message
 
         return redirect()->route('jobs.show', [
             'tutorName' => Str::slug($job->tutor->name),
             'jobId' => $job->id
-        ])->with('success', 'Your inquiry has been sent successfully! The tutor will contact you soon.');
+        ])->with('success', 'Your inquiry has been sent successfully! The admin will review your message and forward it to the tutor.');
     }
 
     /**
@@ -270,5 +324,50 @@ class JobController extends Controller
         })->with(['tutor', 'tutor.kyc'])->paginate(12);
 
         return view('wishlist.index', compact('wishlistJobs'));
+    }
+
+    /**
+     * Store a rating for a job
+     */
+    public function storeRating(Request $request, TutorJob $job)
+    {
+        if (!auth()->check()) {
+            return redirect()->route('student.login')->with('error', 'Please login to submit a rating.');
+        }
+
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'review' => 'nullable|string|max:1000'
+        ]);
+
+        $user = auth()->user();
+
+        // Check if user has already rated this specific job
+        $existingJobRating = Rating::where('user_id', $user->id)
+            ->where('job_id', $job->id)
+            ->first();
+
+        if ($existingJobRating) {
+            // Update the existing rating for this job
+            $existingJobRating->update([
+                'rating' => $request->rating,
+                'review' => $request->review
+            ]);
+
+            return redirect()->back()
+                ->with('success', 'Your rating has been updated for this job!');
+        } else {
+            // Create new rating for this job
+            Rating::create([
+                'user_id' => $user->id,
+                'tutor_id' => $job->tutor_id,
+                'job_id' => $job->id,
+                'rating' => $request->rating,
+                'review' => $request->review
+            ]);
+
+            return redirect()->back()
+                ->with('success', 'Thank you for your rating! Your feedback has been submitted.');
+        }
     }
 }
