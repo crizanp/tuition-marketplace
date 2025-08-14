@@ -25,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
     'location_place',
     'location_landmark',
     'whatsapp',
+    'profile_picture',
+    'bio',
         'preferred_subjects',
         'status',
         'status_reason',
@@ -46,8 +48,40 @@ class User extends Authenticatable implements MustVerifyEmail
     'location_place' => 'string',
     'location_landmark' => 'string',
     'whatsapp' => 'string',
+        'profile_picture' => 'string',
+        'bio' => 'string',
         'status_updated_at' => 'datetime',
     ];
+
+    /**
+     * Calculate profile completion percentage based on presence of key fields.
+     */
+    public function profileCompletionPercentage()
+    {
+        $fields = [
+            'name', 'email', 'phone', 'grade_level', 'preferred_subjects',
+            'qualification', 'institution', 'location_district', 'location_place', 'whatsapp',
+            'profile_picture', 'bio'
+        ];
+
+        $total = count($fields);
+        $filled = 0;
+        foreach ($fields as $f) {
+            $val = $this->{$f} ?? null;
+            if (is_array($val)) {
+                if (count($val)) $filled++;
+            } else {
+                if (!empty($val)) $filled++;
+            }
+        }
+
+        return intval(($filled / $total) * 100);
+    }
+
+    public function isProfileVerified()
+    {
+        return $this->profileCompletionPercentage() >= 80;
+    }
 
     /**
      * Send the password reset notification.

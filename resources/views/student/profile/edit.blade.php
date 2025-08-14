@@ -22,7 +22,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('student.profile.update') }}" method="POST">
+                    <form action="{{ route('student.profile.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -103,6 +103,18 @@
                                 <label for="whatsapp" class="form-label text-light">WhatsApp Number (optional)</label>
                                 <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="{{ old('whatsapp', $student->whatsapp) }}" placeholder="e.g., +977 98xxxxxxxx">
                             </div>
+                            <div class="col-md-6 mb-3 text-center">
+                                <label class="form-label text-light d-block">Profile Picture (optional)</label>
+                                @if($student->profile_picture)
+                                    <img src="{{ asset('storage/' . $student->profile_picture) }}" alt="profile" style="width:120px; height:120px; object-fit:cover; border-radius:8px; display:block; margin-bottom:8px;">
+                                @endif
+                                <input type="file" name="profile_picture" accept="image/*" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bio" class="form-label text-light">Short Bio (max 100 chars)</label>
+                            <textarea name="bio" id="bio" class="form-control" maxlength="100" rows="3" placeholder="A short bio about you (max 100 characters)">{{ old('bio', $student->bio) }}</textarea>
                         </div>
 
                         <div class="mb-3">

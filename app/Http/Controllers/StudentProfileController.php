@@ -53,12 +53,14 @@ class StudentProfileController extends Controller
             'whatsapp' => 'nullable|string|max:30',
             'preferred_subjects' => 'nullable|array',
             'preferred_subjects.*' => 'string|max:100',
+            'bio' => 'nullable|string|max:100',
+            'profile_picture' => 'nullable|image|max:2048',
         ]);
 
         // Use provided grade_level directly (JS may have replaced select with hidden input)
         $gradeLevel = $request->input('grade_level');
 
-        $student->update([
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
@@ -70,7 +72,17 @@ class StudentProfileController extends Controller
             'location_landmark' => $request->location_landmark,
             'whatsapp' => $request->whatsapp,
             'preferred_subjects' => $request->preferred_subjects ?? [],
-        ]);
+            'bio' => $request->bio,
+        ];
+
+        // handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $path = $file->store('profile_pictures', 'public');
+            $data['profile_picture'] = $path;
+        }
+
+        $student->update($data);
 
         return redirect()
             ->route('student.profile.index')

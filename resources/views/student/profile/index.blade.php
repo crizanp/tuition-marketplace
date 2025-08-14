@@ -23,26 +23,51 @@
                     @endif
 
                     <div class="row">
-                        <div class="col-md-4 text-center mb-4">
-                            <div class="profile-avatar mb-3">
-                                <div style="width:120px; height:120px; margin:0 auto; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #000000, #111111); border-radius:50%; border:4px solid #111111; box-shadow:0 6px 25px rgba(0,0,0,0.7);">
-                                    <i class="fas fa-user-graduate" style="color:white; font-size:3rem;"></i>
-                                </div>
+                        <div class="col-md-4 text-center mb-4 d-flex flex-column align-items-center">
+                            <div class="profile-avatar mb-3 d-flex justify-content-center">
+                                @if($student->profile_picture)
+                                    <img src="{{ asset('storage/' . $student->profile_picture) }}" alt="{{ $student->name }}" style="width:140px; height:140px; object-fit:cover; border-radius:50%; border:4px solid #111111; box-shadow:0 6px 25px rgba(0,0,0,0.7);"/>
+                                @else
+                                    <div style="width:140px; height:140px; margin:0 auto; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #000000, #111111); border-radius:50%; border:4px solid #111111; box-shadow:0 6px 25px rgba(0,0,0,0.7);">
+                                        <i class="fas fa-user-graduate" style="color:white; font-size:3.2rem;"></i>
+                                    </div>
+                                @endif
                             </div>
-                            <h5 style="color:#ffffff">{{ $student->name }}</h5>
-                            <span class="badge badge-student">Student</span>
-                            @if($student->email_verified_at)
-                                <div class="mt-2">
-                                    <span class="badge bg-success">
-                                            <i class="fas fa-check-circle me-1"></i>
-                                            Verified
-                                        </span>
-                                </div>
+
+                            <h5 class="mt-2" style="color:#ffffff">{{ $student->name }}</h5>
+
+                            @php $verified = $student->isProfileVerified(); @endphp
+                            <div class="mt-2">
+                                @if($verified)
+                                    <span class="badge bg-success verified-badge" title="Profile verified">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Verified
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary unverified-badge" id="unverifiedBadge" style="cursor:pointer;">
+                                        <i class="fas fa-times-circle me-1"></i>
+                                        Unverified
+                                    </span>
+                                @endif
+                            </div>
+
+                            @if($student->bio)
+                                <p class="mt-3 text-center" style="color:#d1d1d1; font-weight:500; max-width:240px;">{{ $student->bio }}</p>
                             @endif
+
+                            <div class="mt-2">
+                                <span class="badge badge-student">Student</span>
+                            </div>
                         </div>
                         
                         <div class="col-md-8">
                             <div class="profile-info">
+                                @if($student->bio)
+                                <div class="info-group mb-3">
+                                    <label class="text-light small fw-bold">ABOUT</label>
+                                    <div class="info-value">{{ $student->bio }}</div>
+                                </div>
+                                @endif
                                 <div class="info-group mb-3">
                                     <label class="text-light small fw-bold">EMAIL ADDRESS</label>
                                     <div class="info-value">{{ $student->email }}</div>
@@ -253,4 +278,14 @@
     border: 1px solid #bbbbbb;
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const badge = document.getElementById('unverifiedBadge');
+    if(badge){
+        badge.addEventListener('click', function(){
+            alert('To get the Verified badge you must complete at least 80% of your profile. Please fill out the remaining fields in your profile settings.');
+        });
+    }
+});
+</script>
 @endsection
