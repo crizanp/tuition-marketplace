@@ -63,7 +63,7 @@ Route::get('/search/vacancies', [VacancyController::class, 'search'])->name('vac
 // Wishlist Routes (require authentication)
 Route::middleware(['auth'])->group(function () {
     Route::post('/jobs/{job}/wishlist', [JobController::class, 'toggleWishlist'])->name('jobs.wishlist.toggle');
-    Route::get('/wishlist', [JobController::class, 'wishlist'])->name('jobs.wishlist');
+    Route::get('/wishlist', [JobController::class, 'wishlist'])->name('wishlist.index');
 });
 
 // Rating Routes (require authentication)

@@ -1,3 +1,88 @@
+/* Custom Footer Styles */
+.custom-footer {
+    width: 100%;
+    padding: 40px 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #f8fafc;
+    color: #172554;
+}
+
+.footer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    min-width: 300px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.footer-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    text-align: center;
+    margin: 0 24px;
+}
+
+@media (min-width: 640px) {
+    .footer-columns {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+        gap: 24px;
+    }
+}
+
+.footer-column {
+    flex: 1;
+}
+
+.footer-headline {
+    font-weight: 900;
+    text-decoration: underline;
+    margin-bottom: 16px;
+}
+
+.hide-on-small {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .hide-on-small {
+        display: block;
+    }
+}
+
+.footer-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 16px;
+    align-items: center;
+}
+
+.footer-title {
+    border: 3px solid #172554;
+    padding: 0 12px;
+    text-transform: uppercase;
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 0 auto;
+}
+
+.footer-desc {
+    text-align: center;
+    margin: 0 auto;
+}
+
+.footer-socials {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 200px;
+    font-size: 2rem;
+    margin: 0 auto;
+}
 
 @import "tailwindcss";
 

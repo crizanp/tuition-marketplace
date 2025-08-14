@@ -269,6 +269,6 @@ class JobController extends Controller
             $query->where('user_id', $user->id);
         })->with(['tutor', 'tutor.kyc'])->paginate(12);
 
-        return view('jobs.wishlist', compact('wishlistJobs'));
+        return view('wishlist.index', compact('wishlistJobs'));
     }
 }

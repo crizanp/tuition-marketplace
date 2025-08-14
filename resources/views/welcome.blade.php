@@ -154,7 +154,6 @@
 
         /* Features Section */
         .features {
-            background: var(--white);
             padding-top: 0px;
             padding-bottom: 45px;
         }
@@ -296,7 +295,7 @@
 
         /* Footer */
         .footer {
-            background: var(--gray-100);
+            background: white;
             padding: 40px 0;
             text-align: center;
             border-top: 1px solid var(--border);
@@ -427,7 +426,7 @@
         </div>
     </section>
     <!-- Search Bar Component -->
-    <div class="search-container-wrapper" style="background-color: #ffffffff; padding: 2rem 0;">
+    <div class="search-container-wrapper" style=" padding: 2rem 0;">
         <div class="container" style="margin: 0 auto;">
             <x-search-bar action="/search/tutors" placeholder="Search for tutors, subjects, locations..." showFilters="true"
                 size="large" />
@@ -486,11 +485,7 @@
         </div>
     </section>
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 GyanHub. All rights reserved. | Premium Home Tuition Marketplace</p>
-        </div>
-    </footer>
+        <!-- Footer section (new custom CSS version) -->
     <script>
         // Initialize Feather Icons with debugging logs
         console.log('Initializing Feather Icons');

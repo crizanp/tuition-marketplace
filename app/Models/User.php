@@ -82,6 +82,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get wishlisted jobs through the wishlist pivot table
+     */
+    public function wishlistedJobs()
+    {
+        return $this->belongsToMany(TutorJob::class, 'wishlists', 'user_id', 'tutor_job_id')->withTimestamps();
+    }
+
+    /**
      * Relationship with Ratings
      */
     public function ratings()

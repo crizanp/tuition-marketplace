@@ -193,7 +193,7 @@ class TutorJob extends Model
      */
     public function wishlistedBy()
     {
-        return $this->hasMany(Wishlist::class);
+        return $this->belongsToMany(User::class, 'wishlists', 'tutor_job_id', 'user_id')->withTimestamps();
     }
 
     /**

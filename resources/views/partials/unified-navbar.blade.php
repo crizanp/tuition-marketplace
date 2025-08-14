@@ -529,10 +529,11 @@
         <!-- Navigation Menu -->
         <nav class="navbar-center">
             @if($tutor)
-                <a href="{{ route('tutor.jobs.index') }}" class="nav-link">Jobs</a>
+                <a href="{{ route('jobs.index') }}" class="nav-link">Jobs</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @elseif($student)
                 <!-- <a href="/search/tutors" class="nav-link">Find Tutors</a> -->
+                <a href="{{ route('jobs.index') }}" class="nav-link">Jobs</a>
                 <a href="{{ route('vacancies.index') }}" class="nav-link">Vacancies</a>
             @else
                 <!-- <a href="/search/tutors" class="nav-link">Find Tutors</a> -->
@@ -566,6 +567,10 @@
                         <a href="{{ route('tutor.jobs.index') }}" class="dropdown-item">
                             <i class="fas fa-briefcase"></i>
                             Jobs
+                        </a>
+                        <a href="{{ route('wishlist.index') }}" class="dropdown-item">
+                            <i class="fas fa-heart"></i>
+                            Wishlist
                         </a>
                         <a href="{{ route('tutor.kyc.show') }}" class="dropdown-item">
                             <i class="fas fa-shield-alt"></i>
@@ -608,6 +613,10 @@
                             <i class="fas fa-search"></i>
                             Find Tutors
                         </a> -->
+                        <a href="{{ route('wishlist.index') }}" class="dropdown-item">
+                            <i class="fas fa-heart"></i>
+                            Wishlist
+                        </a>
                         <a href="/student/bookings" class="dropdown-item">
                             <i class="fas fa-calendar-alt"></i>
                             My Bookings

@@ -12,8 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @stack('head')
 </head>
-<body class="bg-gray-50">
-    
+<body class="" style="background-color: #ffffffff;">
+
     <main>
         @hasSection('navbar')
             @yield('navbar')
@@ -23,6 +23,9 @@
         @yield('content')
     </main>
     
+</main>
+
+    @include('components.footer')
     @stack('scripts')
 </body>
 </html>
