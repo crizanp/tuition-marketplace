@@ -24,14 +24,14 @@
                             $approvedVacancies = $student->vacancies()->approved()->count();
                         @endphp
                         
-                        <div class="profile-picture-circle" style="flex-shrink:0;">
-                            <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #3498db, #2980b9); border-radius:50%; border:3px solid #3498db;">
-                                <i class="fas fa-user-graduate" style="color:white; font-size:2rem;"></i>
-                            </div>
-                        </div>
+                                                <div class="profile-picture-circle" style="flex-shrink:0;">
+                                                    <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #000000, #111111); border-radius:50%; border:3px solid #111111;">
+                                                        <i class="fas fa-user-graduate" style="color:white; font-size:2rem;"></i>
+                                                    </div>
+                                                </div>
                         
                         <div class="text-start">
-                            <h5 class="text-primary mb-1 d-flex align-items-center" style="gap:6px;">
+                            <h5 class="text-,light mb-1 d-flex align-items-center" style="gap:6px; color: #ffffff;">
                                 {{ $student->name }}
                                 @if($student->email_verified_at)
                                     <i class="fas fa-check-circle" style="color:#27ae60; font-size:0.8em;" title="Verified"></i>
@@ -181,7 +181,7 @@
                     </div>
 
                     <!-- Fourth Row - More Features -->
-                    <div class="row">
+                    <!-- <div class="row">
                         <div class="col-md-6 mb-3">
                             <a href="#" class="dashboard-card-link">
                                 <div class="dashboard-card student-card">
@@ -203,26 +203,31 @@
                                 </div>
                             </a>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
+    <style>
 .dashboard-container {
-    background-color: #ffffffff;
+    background-color: #fffafaff;
     min-height: 100vh;
+    color: #e9ecef;
 }
-
+.container{
+    max-width: 1230px;
+    margin: 0 auto;
+}
 /* Left Sidebar Styles */
 .profile-sidebar {
-    background: white;
+    background: linear-gradient(135deg, #494948ff 0%, #393735ff 100%);;
     border-radius: 12px;
     padding: 30px;
-    border: 1px solid #e9ecef;
+    border: 1px solid #1f1f1f;
     height: fit-content;
+    color: #e6e6e6;
 }
 
 .welcome-header {
@@ -230,13 +235,13 @@
 }
 
 .welcome-header h4 {
-    color: #2c3e50;
+    color: #ffffff;
     font-weight: 600;
     margin-bottom: 5px;
 }
 
 .welcome-header h5 {
-    color: #3498db;
+    color: #ffffff;
     font-weight: 700;
 }
 
@@ -249,23 +254,23 @@
 }
 
 .badge-student {
-    background-color: #3498db;
-    color: white;
+    background-color: #111111;
+    color: #e9e9e9;
 }
 
 .profile-card {
-    background: #fff;
-    border: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #282825ff 0%, #171716ff 100%);;
+    border: 1px solid #222222;
     border-radius: 8px;
     padding: 20px;
 }
 
 .profile-title {
-    color: #2c3e50;
+    color: #ffffff;
     font-weight: 600;
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #222222;
 }
 
 .profile-item {
@@ -276,7 +281,7 @@
 }
 
 .profile-item i {
-    color: #3498db;
+    color: #cfcfcf;
     width: 20px;
     margin-right: 15px;
     margin-top: 2px;
@@ -297,7 +302,7 @@
 }
 
 .profile-item span {
-    color: #2c3e50;
+    color: #e6e6e6;
     font-weight: 500;
     display: block;
 }
@@ -317,7 +322,7 @@
 .stat-number {
     font-size: 24px;
     font-weight: 700;
-    color: #3498db;
+    color: #ffffff;
     line-height: 1;
 }
 
@@ -342,7 +347,7 @@
     border-radius: 12px;
     padding: 30px;
     text-align: center;
-    box-shadow: 0 6px 25px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.6);
     transition: all 0.3s ease;
     height: 100%;
     display: flex;
@@ -354,17 +359,18 @@
 
 .dashboard-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 35px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.7);
 }
 
 .student-card {
-    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+    background: linear-gradient(135deg, #494948ff 0%, #393735ff 100%);
 }
 
 .card-icon {
     font-size: 50px;
     margin-bottom: 20px;
-    opacity: 0.9;
+    opacity: 0.95;
+    color: #e9e9e9;
 }
 
 .dashboard-card h6 {
@@ -390,7 +396,7 @@
 
 /* Post Vacancy Card */
 .post-vacancy-card {
-    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    background: linear-gradient(135deg, #282727ff 0%, #141313ff 100%);
     padding: 40px 30px;
     position: relative;
     overflow: hidden;
@@ -438,6 +444,7 @@
     position: relative;
     z-index: 2;
     animation: iconFloat 6s ease-in-out infinite;
+    color: #ffffff;
 }
 
 .post-vacancy-card h5, .post-vacancy-card p {
@@ -505,16 +512,15 @@
 
 /* Dashboard Search Section */
 .dashboard-search {
-    background: white;
+    background:linear-gradient(135deg, #494948ff 0%, #393735ff 100%);
     border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    border: 1px solid #1b1b1b;
 }
 
 .dashboard-search .search-container {
     margin-bottom: 0;
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #494948ff 0%, #393735ff 100%);;
 }
 </style>
 @endsection

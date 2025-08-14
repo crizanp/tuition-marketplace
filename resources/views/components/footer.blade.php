@@ -65,7 +65,7 @@
 <style>
 /* Custom Footer Styles */
 footer {
-    background-color: #1a202c;
+    background-color: #000000ff;
     color: #e2e8f0;
     padding-top: 2.5rem;
     padding-bottom: 1.5rem;
