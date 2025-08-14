@@ -33,10 +33,21 @@
                         <div class="text-start">
                             <h5 class="text-,light mb-1 d-flex align-items-center" style="gap:6px; color: #ffffff;">
                                 {{ $student->name }}
-                                @if($student->email_verified_at)
-                                    <i class="fas fa-check-circle" style="color:#27ae60; font-size:0.8em;" title="Verified"></i>
-                                @endif
                             </h5>
+                            @php $verified = $student->isProfileVerified(); @endphp
+                            <div class="mt-1 mb-2">
+                                @if($verified)
+                                    <span class="badge bg-success verified-badge" title="Profile verified">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Verified
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary unverified-badge" id="dashboardUnverifiedBadge" style="cursor:pointer;">
+                                        <i class="fas fa-times-circle me-1"></i>
+                                        Unverified
+                                    </span>
+                                @endif
+                            </div>
                             <span class="badge badge-status badge-student">
                                 Student
                             </span>
@@ -118,14 +129,25 @@
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <a href="{{ route('student.vacancies.index') }}" class="dashboard-card-link">
-                                <div class="dashboard-card student-card">
-                                    <div class="card-icon">
-                                        <i class="fas fa-list-alt"></i>
+                            @if($verified)
+                                <a href="{{ route('student.vacancies.index') }}" class="dashboard-card-link">
+                                    <div class="dashboard-card student-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-list-alt"></i>
+                                        </div>
+                                        <h6>My Vacancies</h6>
                                     </div>
-                                    <h6>My Vacancies</h6>
-                                </div>
-                            </a>
+                                </a>
+                            @else
+                                <a href="#" class="dashboard-card-link" id="myVacanciesBlocked">
+                                    <div class="dashboard-card student-card" style="cursor:pointer;">
+                                        <div class="card-icon">
+                                            <i class="fas fa-list-alt"></i>
+                                        </div>
+                                        <h6>My Vacancies</h6>
+                                    </div>
+                                </a>
+                            @endif
                         </div>
 
                         <div class="col-md-4 mb-3">
@@ -143,15 +165,32 @@
                     <!-- Second Row - Post Vacancy -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <a href="{{ route('student.vacancies.create') }}" class="dashboard-card-link">
-                                <div class="dashboard-card post-vacancy-card">
-                                    <div class="card-icon">
-                                        <i class="fas fa-plus-circle"></i>
+                            @php
+                                // ensure $verified is available; fallback to checking the authenticated user
+                                $verified = isset($verified) ? $verified : (Auth::check() ? Auth::user()->isProfileVerified() : false);
+                            @endphp
+
+                            @if($verified)
+                                <a href="{{ route('student.vacancies.create') }}" class="dashboard-card-link">
+                                    <div class="dashboard-card post-vacancy-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-plus-circle"></i>
+                                        </div>
+                                        <h5>POST A VACANCY NOW</h5>
+                                        <p class="card-subtitle">Find the perfect tutor for your learning needs</p>
                                     </div>
-                                    <h5>POST A VACANCY NOW</h5>
-                                    <p class="card-subtitle">Find the perfect tutor for your learning needs</p>
-                                </div>
-                            </a>
+                                </a>
+                            @else
+                                <a href="#" class="dashboard-card-link" id="postVacancyBlocked">
+                                    <div class="dashboard-card post-vacancy-card" style="cursor:pointer;">
+                                        <div class="card-icon">
+                                            <i class="fas fa-plus-circle"></i>
+                                        </div>
+                                        <h5>POST A VACANCY NOW</h5>
+                                        <p class="card-subtitle">Find the perfect tutor for your learning needs</p>
+                                    </div>
+                                </a>
+                            @endif
                         </div>
                     </div>
 
@@ -523,4 +562,80 @@
     background: linear-gradient(135deg, #494948ff 0%, #393735ff 100%);;
 }
 </style>
+<!-- Verification modal -->
+<div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#121212; color:#e6e6e6; border:1px solid #2a2a2a;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="verificationModalLabel">Complete your profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                To get the Verified badge you must complete at least 80% of your profile. Complete your profile to unlock the verified badge and increase trust.
+            </div>
+            <div class="modal-footer border-0">
+                <a href="{{ route('student.profile.edit') }}" class="btn "style="background: linear-gradient(135deg, #494948ff 0%, #393735ff 100%); color: #fff; border: 1px solid #bbbbbb;">Complete Profile</a>
+                <button type="button" class="btn "style="background: transparent; color: #e6e6e6; border: 1px solid #bbbbbb;" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+        const dashBadge = document.getElementById('dashboardUnverifiedBadge');
+        const modalEl = document.getElementById('verificationModal');
+        if(dashBadge && modalEl){
+                // prefer Bootstrap modal if available
+                let showModal = function(){
+                        try{
+                                if(typeof bootstrap !== 'undefined'){
+                                        const m = new bootstrap.Modal(modalEl);
+                                        m.show();
+                                        return;
+                                }
+                        }catch(e){/* fallthrough to fallback */}
+
+                        // fallback: basic dialog
+                        alert('To get the Verified badge you must complete at least 80% of your profile.');
+                }
+
+                dashBadge.addEventListener('click', showModal);
+        }
+    const blocked = document.getElementById('postVacancyBlocked');
+    if(blocked){
+        blocked.addEventListener('click', function(e){
+            e.preventDefault();
+            const modalEl = document.getElementById('verificationModal');
+            if(modalEl){
+                try{
+                    if(typeof bootstrap !== 'undefined'){
+                        const m = new bootstrap.Modal(modalEl);
+                        m.show();
+                        return;
+                    }
+                }catch(err){ }
+            }
+            alert('To post a vacancy you must verify your profile (80% complete).');
+        });
+    }
+    const myBlocked = document.getElementById('myVacanciesBlocked');
+    if(myBlocked){
+        myBlocked.addEventListener('click', function(e){
+            e.preventDefault();
+            const modalEl = document.getElementById('verificationModal');
+            if(modalEl){
+                try{
+                    if(typeof bootstrap !== 'undefined'){
+                        const m = new bootstrap.Modal(modalEl);
+                        m.show();
+                        return;
+                    }
+                }catch(err){ }
+            }
+            alert('To view your vacancies you must verify your profile (80% complete).');
+        });
+    }
+});
+</script>
 @endsection

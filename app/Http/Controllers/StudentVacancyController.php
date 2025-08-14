@@ -25,6 +25,14 @@ class StudentVacancyController extends Controller
      */
     public function create()
     {
+        // Only allow students with verified profiles (80% completion) to post vacancies
+        $user = Auth::user();
+        if (!$user || !method_exists($user, 'isProfileVerified') || !$user->isProfileVerified()) {
+            return redirect()
+                ->route('student.dashboard')
+                ->with('error', 'To post a vacancy you must complete at least 80% of your profile.');
+        }
+
         return view('student.vacancies.create');
     }
 

@@ -282,10 +282,40 @@
 document.addEventListener('DOMContentLoaded', function(){
     const badge = document.getElementById('unverifiedBadge');
     if(badge){
-        badge.addEventListener('click', function(){
-            alert('To get the Verified badge you must complete at least 80% of your profile. Please fill out the remaining fields in your profile settings.');
-        });
+                badge.addEventListener('click', function(){
+                        const modalEl = document.getElementById('verificationModal');
+                        if(modalEl){
+                                try{
+                                        if(typeof bootstrap !== 'undefined'){
+                                                const m = new bootstrap.Modal(modalEl);
+                                                m.show();
+                                                return;
+                                        }
+                                }catch(e){/* fallback below */}
+                        }
+
+                        alert('To get the Verified badge you must complete at least 80% of your profile. Please fill out the remaining fields in your profile settings.');
+                });
     }
 });
 </script>
+
+<!-- Verification modal -->
+<div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#121212; color:#e6e6e6; border:1px solid #2a2a2a;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="verificationModalLabel">Complete your profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                To get the Verified badge you must complete at least 80% of your profile. Complete your profile to unlock the verified badge and increase trust.
+            </div>
+            <div class="modal-footer border-0">
+                <a href="{{ route('student.profile.edit') }}" class="btn btn-dark-primary">Complete Profile</a>
+                <button type="button" class="btn btn-outline-dark-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
