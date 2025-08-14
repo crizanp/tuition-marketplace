@@ -337,7 +337,6 @@
     background: #f8f9fa;
     padding: 15px;
     border-radius: 6px;
-    border-left: 3px solid #3498db;
 }
 
 .badge {

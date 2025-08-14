@@ -228,7 +228,6 @@
     background: #f8f9fa;
     padding: 8px 12px;
     border-radius: 6px;
-    border-left: 3px solid #3498db;
 }
 
 .nav-pills .nav-link {

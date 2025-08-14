@@ -123,19 +123,37 @@ class VacancyController extends Controller
             'proposed_rate' => 'nullable|numeric|min:0',
             'experience_years' => 'required|integer|min:0|max:50'
         ]);
-        
-        VacancyApplication::create([
-            'tutor_id' => $tutor->id,
-            'vacancy_id' => $vacancy->id,
-            'cover_letter' => $request->cover_letter,
-            'proposed_rate' => $request->proposed_rate,
-            'experience_years' => $request->experience_years,
-            'status' => 'pending',
-            'applied_at' => now()
-        ]);
-        
-        return redirect()->back()
-            ->with('success', 'Your application has been submitted successfully! The student will review it and get back to you.');
+
+        try {
+            $application = VacancyApplication::create([
+                'tutor_id' => $tutor->id,
+                'vacancy_id' => $vacancy->id,
+                'cover_letter' => $request->cover_letter,
+                'proposed_rate' => $request->proposed_rate,
+                'experience_years' => $request->experience_years,
+                'status' => 'pending',
+                'applied_at' => now()
+            ]);
+
+            \Log::info('Vacancy application created successfully', [
+                'application_id' => $application->id,
+                'tutor_id' => $tutor->id,
+                'vacancy_id' => $vacancy->id
+            ]);
+
+            return redirect()->back()
+                ->with('success', 'Your application has been submitted successfully! The student will review it and get back to you.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to create vacancy application', [
+                'error' => $e->getMessage(),
+                'tutor_id' => $tutor->id,
+                'vacancy_id' => $vacancy->id,
+                'request_data' => $request->only(['cover_letter', 'proposed_rate', 'experience_years'])
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Failed to submit application. Please try again.');
+        }
     }
     
     /**

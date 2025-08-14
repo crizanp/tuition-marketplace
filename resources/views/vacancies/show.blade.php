@@ -428,13 +428,11 @@ body {
 .alert-warning {
     background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(253, 126, 20, 0.1));
     color: #856404;
-    border-left: 4px solid #ffc107;
 }
 
 .alert-info {
     background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(19, 132, 150, 0.1));
     color: #0c5460;
-    border-left: 4px solid #17a2b8;
 }
 
 .btn-kyc {
@@ -758,7 +756,9 @@ body {
                                             <label for="cover_letter" class="form-label">Cover Letter <span class="text-danger">*</span></label>
                                             <textarea class="form-control" id="cover_letter" name="cover_letter" rows="5" 
                                                       required placeholder="Introduce yourself and explain why you're the perfect fit for this position...">{{ old('cover_letter') }}</textarea>
-                                            <small class="text-muted">Minimum 50 characters</small>
+                                            @if(strlen(old('cover_letter')) < 50)
+                                                <div class="text-danger">Cover letter must be at least 50 characters long.</div>
+                                            @endif
                                         </div>
                                         
                                         <div class="mb-3">
