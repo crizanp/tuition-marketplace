@@ -190,9 +190,17 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
-                        <div class="avatar-circle bg-primary text-white me-3">
-                            {{ strtoupper(substr($vacancy->student->name, 0, 2)) }}
-                        </div>
+                        @if(!empty($vacancy->student->profile_picture))
+                            @php
+                                $pp = $vacancy->student->profile_picture;
+                                $imgUrl = preg_match('/^https?:\/\//', $pp) ? $pp : asset('storage/' . ltrim($pp, '/'));
+                            @endphp
+                            <img src="{{ $imgUrl }}" alt="Profile" class="avatar-img rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;border:1px solid rgba(255,255,255,0.04);">
+                        @else
+                            <div class="avatar-circle bg-primary text-white me-3">
+                                {{ strtoupper(substr($vacancy->student->name, 0, 2)) }}
+                            </div>
+                        @endif
                         <div>
                             <h6 class="mb-1">{{ $vacancy->student->name }}</h6>
                             <small class="text-muted">{{ $vacancy->student->email }}</small>
@@ -271,41 +279,83 @@
 </div>
 
 <style>
-.avatar-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 16px;
-}
+    :root{
+        --bg: #070707;
+        --panel: #0f0f10;
+        --muted: #bdbdbd;
+        --accent: #ff7a00; /* orange */
+        --border: rgba(255,255,255,0.04);
+    }
 
-.badge {
-    font-size: 0.75em;
-}
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+        background: linear-gradient(135deg,var(--panel), rgba(255,255,255,0.02));
+        color: #fff;
+        border: 1px solid var(--border);
+    }
 
-.card {
-    border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
+    .avatar-img { display: inline-block; vertical-align: middle; }
 
-.card-header {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
+    .badge {
+        font-size: 0.8em;
+        background: rgba(255,255,255,0.03);
+        color: var(--muted);
+        border: 1px solid rgba(255,255,255,0.03);
+    }
 
-.text-primary {
-    color: #0d6efd !important;
-}
+    /* map semantic badge colors to orange accent to keep palette limited */
+    .badge.bg-warning, .badge.bg-success, .badge.bg-danger {
+        background: var(--accent) !important;
+        color: #000 !important;
+        border-color: rgba(0,0,0,0.12) !important;
+    }
 
-.btn-outline-primary:hover {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
+    .card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        color: #fff;
+    }
 
-.border-end {
-    border-right: 1px solid #dee2e6 !important;
-}
+    .card-header {
+        background: transparent;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+        color: #fff;
+    }
+
+    /* Override Bootstrap's bg-light when used on card headers/footers */
+    .card-header.bg-light,
+    .card-footer.bg-light {
+        background: transparent !important;
+        color: #fff !important;
+        border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+    }
+
+    .text-muted { color: var(--muted) !important; }
+
+    .text-primary { color: var(--accent) !important; }
+
+    .btn-outline-primary:hover {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: #000 !important;
+    }
+
+    .border-end { border-right: 1px solid rgba(255,255,255,0.03) !important; }
+
+    /* small helpers */
+    h5, h6 { color: #fff; }
+    p, span { color: #fff; }
+
+    /* ensure badges in schedule look subtle */
+    .card-body .badge.bg-secondary { background: rgba(255,255,255,0.04); color: var(--muted); border:1px solid rgba(255,255,255,0.02); }
 </style>
 @endsection
