@@ -151,12 +151,12 @@
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <a href="#" class="dashboard-card-link">
+                            <a href="{{ route('wishlist.index') }}" class="dashboard-card-link">
                                 <div class="dashboard-card student-card">
                                     <div class="card-icon">
-                                        <i class="fas fa-cog"></i>
+                                        <i class="fas fa-heart"></i>
                                     </div>
-                                    <h6>Settings</h6>
+                                    <h6>Wishlist</h6>
                                 </div>
                             </a>
                         </div>

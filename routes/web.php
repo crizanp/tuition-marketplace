@@ -24,6 +24,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Generic login route used by middleware when no specific guard route is available
+// Redirects to student login by default. Adjust if you prefer a different default.
+Route::get('/login', function () {
+    return redirect()->route('student.login');
+})->name('login');
+
 // Global logout route
 Route::post('/logout-all', function () {
     Auth::guard('web')->logout();

@@ -4,7 +4,7 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>
-            <i class="fas fa-list-alt me-2"></i>
+            <!-- <i class="fas fa-list-alt me-2"></i> -->
             My Vacancies
         </h2>
         <a href="{{ route('student.vacancies.create') }}" class="btn btn-primary">
@@ -65,25 +65,7 @@
             @foreach($vacancies as $vacancy)
                 <div class="col-lg-6 col-xl-4 mb-4 vacancy-card" data-status="{{ $vacancy->status }}">
                     <div class="card vacancy-item shadow-sm h-100">
-                        <!-- Status Badge -->
-                        <div class="position-absolute top-0 end-0 p-3">
-                            @if($vacancy->status === 'pending')
-                                <span class="badge bg-warning">
-                                    <i class="fas fa-clock me-1"></i>
-                                    Pending Review
-                                </span>
-                            @elseif($vacancy->status === 'approved')
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>
-                                    Approved
-                                </span>
-                            @elseif($vacancy->status === 'rejected')
-                                <span class="badge bg-danger">
-                                    <i class="fas fa-times-circle me-1"></i>
-                                    Rejected
-                                </span>
-                            @endif
-                        </div>
+                        <!-- Status badge previously top-right — moved next to priority below -->
 
                         <div class="card-body">
                             <h5 class="card-title mb-2">{{ $vacancy->title }}</h5>
@@ -115,21 +97,38 @@
                                 {{ Str::limit($vacancy->description, 100) }}
                             </p>
 
-                            @if($vacancy->urgency === 'high')
-                                <div class="mb-2">
+                            <div class="mb-2 d-flex align-items-center gap-2">
+                                {{-- Status badge (left) --}}
+                                @if($vacancy->status === 'pending')
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>
+                                        Pending Review
+                                    </span>
+                                @elseif($vacancy->status === 'approved')
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Approved
+                                    </span>
+                                @elseif($vacancy->status === 'rejected')
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle me-1"></i>
+                                        Rejected
+                                    </span>
+                                @endif
+
+                                {{-- Priority/Urgency badge (right) --}}
+                                @if($vacancy->urgency === 'high')
                                     <span class="badge bg-danger">
                                         <i class="fas fa-exclamation me-1"></i>
                                         High Priority
                                     </span>
-                                </div>
-                            @elseif($vacancy->urgency === 'medium')
-                                <div class="mb-2">
+                                @elseif($vacancy->urgency === 'medium')
                                     <span class="badge bg-warning">
                                         <i class="fas fa-clock me-1"></i>
                                         Medium Priority
                                     </span>
-                                </div>
-                            @endif
+                                @endif
+                            </div>
 
                             <!-- Schedule Info -->
                             @if($vacancy->formatted_schedule)
@@ -221,6 +220,8 @@ body {
 
 .container {
     background-color: var(--white);
+    max-width: 1230px;
+    margin: 0 auto;
 }
 
 /* Header Styling */
