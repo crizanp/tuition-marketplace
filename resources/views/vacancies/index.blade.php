@@ -47,6 +47,31 @@ body {
     max-width: 1200px;
 }
 
+/* Completed ribbon */
+.vacancy-card { position: relative; overflow: hidden; }
+.vacancy-card.completed { filter: brightness(0.6); }
+.completed-ribbon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-6deg);
+    background: rgba(255,255,255,0.92);
+    color: rgba(0,0,0,0.85);
+    font-weight: 900;
+    padding: 8px 140px;
+    font-size: 1.1rem;
+    pointer-events: none;
+    text-transform: uppercase;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    border-radius: 6px;
+    letter-spacing: 1px;
+}
+.btn-view-details.disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    cursor: default;
+}
+
 
 
 /* Main Content */
@@ -508,9 +533,24 @@ body {
 
         <!-- Vacancies Grid -->
         @if($vacancies->count() > 0)
+            {{-- Ensure 'filled' (DB status 'completed') vacancies are shown last on the current page --}}
+            <?php
+                try {
+                    $collection = $vacancies->getCollection();
+                    $sorted = $collection->sortBy(function($v) {
+                        return ($v->status === 'completed') ? 1 : 0;
+                    })->values();
+                    $vacancies->setCollection($sorted);
+                } catch (\Throwable $e) {
+                    // ignore if paginator isn't available or methods differ
+                }
+            ?>
             <div class="vacancies-grid">
                 @foreach($vacancies as $vacancy)
-                    <div class="vacancy-card">
+                    <div class="vacancy-card {{ $vacancy->status === 'completed' ? 'completed' : '' }}">
+                        @if($vacancy->status === 'completed')
+                            <div class="completed-ribbon">COMPLETED</div>
+                        @endif
                         <div class="vacancy-card-body">
                             <div class="vacancy-header">
                                 <h6 class="vacancy-title">{{ Str::limit($vacancy->title, 60) }}</h6>
@@ -531,11 +571,11 @@ body {
                                 </div>
                             </div>
 
-                            <!-- Budget Info -->
+                            <!-- Budget Info
                             <div class="budget-info">
                                 <div class="budget-amount">Rs. {{ number_format($vacancy->budget_min) }} - Rs. {{ number_format($vacancy->budget_max) }}</div>
                                 <div class="budget-label">Per session ({{ $vacancy->duration_hours }} hours)</div>
-                            </div>
+                            </div> -->
 
                             <!-- Description -->
                             <p class="vacancy-description">{{ Str::limit($vacancy->description, 120) }}</p>
@@ -566,12 +606,29 @@ body {
                             @endif
 
                             <!-- Student Info -->
-                            <div class="student-info">
-                                <div class="student-avatar">
-                                    <i class="fas fa-user"></i>
+                            @if($vacancy->student)
+                                <div class="student-info">
+                                    <div class="student-avatar">
+                                        @if(!empty($vacancy->student->profile_picture))
+                                            @php
+                                                $pp = $vacancy->student->profile_picture;
+                                                $ppUrl = preg_match('/^https?:\/\//', $pp) ? $pp : asset('storage/' . ltrim($pp, '/'));
+                                            @endphp
+                                            <img src="{{ $ppUrl }}" alt="avatar" style="width:35px;height:35px;border-radius:50%;object-fit:cover;" />
+                                        @else
+                                            <i class="fas fa-user"></i>
+                                        @endif
+                                    </div>
+                                    <div class="student-name">{{ $vacancy->student->name }}</div>
                                 </div>
-                                <div class="student-name">{{ $vacancy->student->name }}</div>
-                            </div>
+                            @else
+                                <div class="student-info">
+                                    <div class="student-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="student-name">Posted by Admin</div>
+                                </div>
+                            @endif
 
                             <!-- Applications Count -->
                             @if($vacancy->applications_count > 0)
@@ -587,7 +644,11 @@ body {
                             <span class="posted-time">
                                 <i class="fas fa-clock"></i>{{ $vacancy->approved_at->diffForHumans() }}
                             </span>
-                            <a href="{{ route('vacancies.show', $vacancy->id) }}" class="btn-view-details">View Details</a>
+                            @if($vacancy->status === 'completed')
+                                <a class="btn-view-details disabled" tabindex="-1" aria-disabled="true">View Details</a>
+                            @else
+                                <a href="{{ route('vacancies.show', $vacancy->id) }}" class="btn-view-details">View Details</a>
+                            @endif
                         </div>
                     </div>
                 @endforeach

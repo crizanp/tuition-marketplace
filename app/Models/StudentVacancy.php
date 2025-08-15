@@ -26,6 +26,7 @@ class StudentVacancy extends Model
         'urgency',
         'requirements',
         'status',
+    'is_vip',
         'admin_notes',
         'approved_at',
         'rejected_at',
@@ -37,6 +38,7 @@ class StudentVacancy extends Model
         'requirements' => 'array',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
+    'is_vip' => 'boolean',
     ];
 
     /**

@@ -126,10 +126,12 @@ Route::prefix('admin')->group(function () {
         
         // Vacancy Management Routes
         Route::prefix('vacancies')->group(function () {
+            Route::get('/create', [AdminVacancyController::class, 'create'])->name('admin.vacancies.create');
+            Route::post('/store', [AdminVacancyController::class, 'store'])->name('admin.vacancies.store');
             Route::get('/', [AdminVacancyController::class, 'index'])->name('admin.vacancies.index');
             Route::get('/{id}', [AdminVacancyController::class, 'show'])->name('admin.vacancies.show');
             Route::post('/{id}/approve', [AdminVacancyController::class, 'approve'])->name('admin.vacancies.approve');
-            Route::post('/{id}/reject', [AdminVacancyController::class, 'reject'])->name('admin.vacancies.reject');
+            Route::match(['post', 'patch'], '/{id}/reject', [AdminVacancyController::class, 'reject'])->name('admin.vacancies.reject');
             Route::put('/{id}/status', [AdminVacancyController::class, 'updateStatus'])->name('admin.vacancies.status');
             Route::post('/bulk-update', [AdminVacancyController::class, 'bulkUpdate'])->name('admin.vacancies.bulkUpdate');
             Route::delete('/{id}', [AdminVacancyController::class, 'destroy'])->name('admin.vacancies.destroy');

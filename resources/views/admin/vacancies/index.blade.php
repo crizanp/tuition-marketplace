@@ -5,6 +5,9 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Student Vacancy Management</h1>
         <div class="btn-group">
+            <a href="{{ route('admin.vacancies.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Post Vacancy
+            </a>
             <a href="{{ route('admin.vacancies.export') }}" class="btn btn-success">
                 <i class="fas fa-download"></i> Export CSV
             </a>
@@ -110,13 +113,19 @@
                             @endif
                             <td>{{ $vacancy->id }}</td>
                             <td>{{ $vacancy->title }}</td>
-                            <td>{{ $vacancy->user->name ?? 'N/A' }}</td>
+                            <td>{{ $vacancy->student->name ?? 'N/A' }}</td>
                             <td>{{ $vacancy->subject }}</td>
                             <td>${{ number_format($vacancy->budget_min, 2) }} - ${{ number_format($vacancy->budget_max, 2) }}/hr</td>
-                            <td>{{ $vacancy->location }}</td>
                             <td>
-                                <span class="badge badge-{{ $vacancy->admin_status == 'approved' ? 'success' : ($vacancy->admin_status == 'pending' ? 'warning' : ($vacancy->admin_status == 'rejected' ? 'danger' : 'info')) }}">
-                                    {{ ucfirst($vacancy->admin_status ?? 'pending') }}
+                                @if($vacancy->location_type === 'online')
+                                    Online
+                                @else
+                                    {{ $vacancy->address ?? 'N/A' }}
+                                @endif
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ $vacancy->status == 'approved' ? 'success' : ($vacancy->status == 'pending' ? 'warning' : ($vacancy->status == 'rejected' ? 'danger' : 'info')) }}">
+                                    {{ ucfirst($vacancy->status ?? 'pending') }}
                                 </span>
                             </td>
                             <td>{{ $vacancy->created_at->format('M d, Y') }}</td>
@@ -125,28 +134,39 @@
                                     <a href="{{ route('admin.vacancies.show', $vacancy) }}" class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @if($vacancy->admin_status == 'pending')
+                                    @if(in_array($vacancy->status, ['pending', 'rejected']))
+                                    {{-- Show approve button for pending and rejected vacancies so an admin can reverse a rejection --}}
                                     <form action="{{ route('admin.vacancies.approve', $vacancy) }}" method="POST" style="display: inline;">
                                         @csrf
-                                        @method('PATCH')
                                         <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this vacancy?')">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </form>
+                                    @if($vacancy->status == 'pending')
+                                    {{-- Only show reject button when currently pending --}}
                                     <form action="{{ route('admin.vacancies.reject', $vacancy) }}" method="POST" style="display: inline;">
                                         @csrf
-                                        @method('PATCH')
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this vacancy?')">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>
-                                    @elseif($vacancy->admin_status == 'approved')
+                                    @endif
+                                    @elseif($vacancy->status == 'approved')
                                     <form action="{{ route('admin.vacancies.status', $vacancy) }}" method="POST" style="display: inline;">
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" name="status" value="filled">
                                         <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Mark this vacancy as filled?')">
                                             <i class="fas fa-flag"></i>
+                                        </button>
+                                    </form>
+                                    @elseif($vacancy->status == 'completed')
+                                    <form action="{{ route('admin.vacancies.status', $vacancy) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="pending">
+                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Reopen this vacancy (set to pending)?')">
+                                            <i class="fas fa-undo"></i>
                                         </button>
                                     </form>
                                     @endif

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\StudentVacancy;
 
 class AdminVacancyController extends Controller
@@ -28,9 +29,10 @@ class AdminVacancyController extends Controller
             });
         }
         
-        // Filter by status
+        // Filter by status (map 'filled' UI value to DB 'completed')
         if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+            $statusFilter = $request->status === 'filled' ? 'completed' : $request->status;
+            $query->where('status', $statusFilter);
         }
         
         // Filter by subject
@@ -49,6 +51,82 @@ class AdminVacancyController extends Controller
         $subjects = StudentVacancy::distinct('subject')->pluck('subject')->filter()->sort();
         
         return view('admin.vacancies.index', compact('vacancies', 'subjects'));
+    }
+    
+    /**
+     * Show form for admin to create a vacancy
+     */
+    public function create()
+    {
+        return view('admin.vacancies.create');
+    }
+
+    /**
+     * Store a vacancy posted by admin (approved immediately)
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'subject' => 'required|string|max:100',
+            'subject_other' => 'required_if:subject,other|nullable|string|max:100',
+            'grade_level' => 'required|string|max:50',
+            'grade_level_other' => 'required_if:grade_level,other|nullable|string|max:50',
+            'budget_min' => 'required|numeric|min:0',
+            'budget_max' => 'required|numeric|min:0|gte:budget_min',
+            'schedule_days' => 'required|array|min:1',
+            'schedule_days.*' => 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'schedule_times' => 'required|array|min:1',
+            'duration_hours' => 'required',
+            'duration_hours_other' => 'required_if:duration_hours,other|nullable|numeric|min:0.25|max:8',
+            'location_type' => 'required|in:online,home,tutor_place,flexible',
+            'address' => 'required_if:location_type,home|nullable|string',
+            'urgency' => 'required|in:low,medium,high',
+            'requirements' => 'nullable|array',
+            'requirements.*' => 'string|max:255',
+        ]);
+
+        // Normalize fields if 'other' was selected
+        $subject = $request->subject;
+        if ($subject === 'other' && $request->filled('subject_other')) {
+            $subject = $request->subject_other;
+        }
+
+        $grade = $request->grade_level;
+        if ($grade === 'other' && $request->filled('grade_level_other')) {
+            $grade = $request->grade_level_other;
+        }
+
+        $duration = $request->duration_hours;
+        if ($duration === 'other' && $request->filled('duration_hours_other')) {
+            $duration = $request->duration_hours_other;
+        }
+
+        $vacancy = StudentVacancy::create([
+            // Admin posts are not tied to a student user; leave user_id null
+            'user_id' => null,
+            'title' => $request->title,
+            'description' => $request->description,
+            'subject' => $subject,
+            'grade_level' => $grade,
+            'budget_min' => $request->budget_min,
+            'budget_max' => $request->budget_max,
+            'schedule_days' => $request->schedule_days,
+            'schedule_times' => $request->schedule_times,
+            'duration_hours' => $duration,
+            'location_type' => $request->location_type,
+            'address' => $request->address,
+            'urgency' => $request->urgency,
+            'requirements' => $request->requirements ?? [],
+            // Mark admin-posted vacancies as VIP
+            'is_vip' => true,
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+
+        return redirect()->route('admin.vacancies.show', $vacancy->id)
+            ->with('success', 'Vacancy posted and approved successfully.');
     }
     
     /**
@@ -84,15 +162,21 @@ class AdminVacancyController extends Controller
      */
     public function reject(Request $request, $id)
     {
-        $request->validate([
-            'reason' => 'required|string|max:500'
+        // Debug log: capture incoming method and payload to investigate unexpected PATCH requests
+        \Log::info('AdminVacancyController@reject called', [
+            'method' => $request->method(),
+            'path' => $request->path(),
+            'payload' => $request->all()
         ]);
-        
+        $request->validate([
+            'reason' => 'nullable|string|max:500'
+        ]);
+
         $vacancy = StudentVacancy::findOrFail($id);
         $vacancy->update([
             'status' => 'rejected',
             'rejected_at' => now(),
-            'admin_notes' => $request->reason
+            'admin_notes' => $request->reason ?? 'Rejected by admin'
         ]);
         
         return redirect()->route('admin.vacancies.show', $id)
@@ -105,30 +189,42 @@ class AdminVacancyController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,approved,rejected',
+            // accept 'filled' from the UI and map it to the DB's 'completed' status below
+            'status' => 'required|in:pending,approved,rejected,completed,filled',
             'admin_notes' => 'nullable|string|max:500'
         ]);
-        
+
         $vacancy = StudentVacancy::findOrFail($id);
-        
+
+        // normalize status values: UI may send 'filled' but DB uses 'completed'
+        $inputStatus = $request->status;
+        $statusToSave = $inputStatus === 'filled' ? 'completed' : $inputStatus;
+
         $updateData = [
-            'status' => $request->status,
+            'status' => $statusToSave,
             'admin_notes' => $request->admin_notes
         ];
-        
-        if ($request->status === 'approved') {
+
+        // Manage timestamp fields sensibly depending on the chosen status
+        if ($statusToSave === 'approved') {
             $updateData['approved_at'] = now();
             $updateData['rejected_at'] = null;
-        } elseif ($request->status === 'rejected') {
+        } elseif ($statusToSave === 'rejected') {
             $updateData['rejected_at'] = now();
             $updateData['approved_at'] = null;
+        } elseif ($statusToSave === 'completed') {
+            // marking as filled/completed: preserve approved_at if present, clear rejected_at
+            if (!$vacancy->approved_at) {
+                $updateData['approved_at'] = now();
+            }
+            $updateData['rejected_at'] = null;
         } else {
             $updateData['approved_at'] = null;
             $updateData['rejected_at'] = null;
         }
-        
+
         $vacancy->update($updateData);
-        
+
         return redirect()->route('admin.vacancies.show', $id)
             ->with('success', 'Vacancy status updated successfully.');
     }

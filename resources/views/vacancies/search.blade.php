@@ -131,6 +131,25 @@ body {
     margin-bottom: 40px;
 }
 
+/* Completed card styling */
+.vacancy-card.completed { filter: brightness(0.6); }
+.completed-ribbon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-6deg);
+    background: rgba(255,255,255,0.92);
+    color: rgba(0,0,0,0.85);
+    font-weight: 900;
+    padding: 8px 140px;
+    font-size: 1.1rem;
+    pointer-events: none;
+    text-transform: uppercase;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    border-radius: 6px;
+    letter-spacing: 1px;
+}
+
 .vacancy-card {
     background: url('/images/texturebg.avif') no-repeat center center;
     background-size: cover;
@@ -511,9 +530,24 @@ body {
 
         <!-- Vacancies Grid -->
         @if($vacancies->count() > 0)
+            {{-- move completed (filled) items to the end of the current page --}}
+            <?php
+                try {
+                    $collection = $vacancies->getCollection();
+                    $sorted = $collection->sortBy(function($v) {
+                        return ($v->status === 'completed') ? 1 : 0;
+                    })->values();
+                    $vacancies->setCollection($sorted);
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+            ?>
             <div class="vacancies-grid">
                 @foreach($vacancies as $vacancy)
-                    <div class="vacancy-card">
+                    <div class="vacancy-card {{ $vacancy->status === 'completed' ? 'completed' : '' }}">
+                        @if($vacancy->status === 'completed')
+                            <div class="completed-ribbon">COMPLETED</div>
+                        @endif
                         <div class="vacancy-card-body">
                             <div class="vacancy-header">
                                 <h6 class="vacancy-title">{{ Str::limit($vacancy->title, 60) }}</h6>
@@ -568,7 +602,11 @@ body {
                             <span class="posted-time">
                                 <i class="fas fa-clock"></i>{{ $vacancy->approved_at->diffForHumans() }}
                             </span>
-                            <a href="{{ route('vacancies.show', $vacancy->id) }}" class="btn-view-details">View Details</a>
+                            @if($vacancy->status === 'completed')
+                                <a class="btn-view-details disabled" tabindex="-1" aria-disabled="true">View Details</a>
+                            @else
+                                <a href="{{ route('vacancies.show', $vacancy->id) }}" class="btn-view-details">View Details</a>
+                            @endif
                         </div>
                     </div>
                 @endforeach

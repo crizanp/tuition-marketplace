@@ -112,6 +112,26 @@ body {
     padding: 30px;
 }
 
+/* Completed ribbon */
+.main-card { position: relative; }
+.main-card.completed { filter: brightness(0.6); }
+.completed-ribbon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-6deg);
+    background: rgba(255,255,255,0.92);
+    color: rgba(0,0,0,0.85);
+    font-weight: 900;
+    padding: 8px 140px;
+    font-size: 1.1rem;
+    pointer-events: none;
+    text-transform: uppercase;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    border-radius: 6px;
+    letter-spacing: 1px;
+}
+
 .quick-info {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -614,7 +634,10 @@ body {
         <div class="row">
             <!-- Main Vacancy Details -->
             <div class="col-lg-8">
-                <div class="main-card">
+                <div class="main-card {{ $vacancy->status === 'completed' ? 'completed' : '' }}">
+                    @if($vacancy->status === 'completed')
+                        <div class="completed-ribbon">COMPLETED</div>
+                    @endif
                     <div class="card-header">
                         <h3 class="mb-0">Vacancy Details</h3>
                     </div>
@@ -725,15 +748,35 @@ body {
                             <h4 class="section-title">
                                 <i class="fas fa-user"></i>Student Information
                             </h4>
-                            <div class="student-info">
-                                <div class="student-avatar">
-                                    <i class="fas fa-user fa-2x"></i>
+                            @if($vacancy->student)
+                                <div class="student-info">
+                                    <div class="student-avatar">
+                                        @if(!empty($vacancy->student->profile_picture))
+                                            @php
+                                                $pp = $vacancy->student->profile_picture;
+                                                $ppUrl = preg_match('/^https?:\/\//', $pp) ? $pp : asset('storage/' . ltrim($pp, '/'));
+                                            @endphp
+                                            <img src="{{ $ppUrl }}" alt="avatar" style="width:70px;height:70px;border-radius:50%;object-fit:cover;" />
+                                        @else
+                                            <i class="fas fa-user fa-2x"></i>
+                                        @endif
+                                    </div>
+                                    <div class="student-details">
+                                        <h5>{{ $vacancy->student->name }}</h5>
+                                        <div class="posted-time">Posted {{ $vacancy->approved_at->diffForHumans() }}</div>
+                                    </div>
                                 </div>
-                                <div class="student-details">
-                                    <h5>{{ $vacancy->student->name }}</h5>
-                                    <div class="posted-time">Posted {{ $vacancy->approved_at->diffForHumans() }}</div>
+                            @else
+                                <div class="student-info">
+                                    <div class="student-avatar">
+                                        <i class="fas fa-user fa-2x"></i>
+                                    </div>
+                                    <div class="student-details">
+                                        <h5>Posted by Admin</h5>
+                                        <div class="posted-time">Posted {{ $vacancy->approved_at->diffForHumans() }}</div>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

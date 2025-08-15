@@ -14,7 +14,8 @@ class VacancyController extends Controller
      */
     public function index(Request $request)
     {
-        $query = StudentVacancy::approved()->with(['student', 'applications'])->withCount('applications');
+    // Include both approved and completed (filled) vacancies in public listings
+    $query = StudentVacancy::whereIn('status', ['approved', 'completed'])->with(['student', 'applications'])->withCount('applications');
         
         // Search functionality
         if ($request->has('search') && $request->search !== '') {
@@ -58,8 +59,8 @@ class VacancyController extends Controller
         $vacancies = $query->orderBy('created_at', 'desc')->paginate(12);
         
         // Get filter options
-        $subjects = StudentVacancy::approved()->distinct('subject')->pluck('subject')->filter()->sort();
-        $gradeLevels = StudentVacancy::approved()->distinct('grade_level')->pluck('grade_level')->filter()->sort();
+    $subjects = StudentVacancy::whereIn('status', ['approved', 'completed'])->distinct('subject')->pluck('subject')->filter()->sort();
+    $gradeLevels = StudentVacancy::whereIn('status', ['approved', 'completed'])->distinct('grade_level')->pluck('grade_level')->filter()->sort();
         
         return view('vacancies.index', compact('vacancies', 'subjects', 'gradeLevels'));
     }
@@ -69,7 +70,8 @@ class VacancyController extends Controller
      */
     public function show($id)
     {
-        $vacancy = StudentVacancy::approved()
+    // allow viewing only approved vacancies (completed/filled should not show detail)
+    $vacancy = StudentVacancy::approved()
             ->with(['student', 'applications' => function($query) {
                 $query->approved()->with('tutor');
             }])
@@ -100,7 +102,8 @@ class VacancyController extends Controller
         }
         
         $tutor = Auth::guard('tutor')->user();
-        $vacancy = StudentVacancy::approved()->findOrFail($id);
+    // only approved vacancies can be applied to
+    $vacancy = StudentVacancy::approved()->findOrFail($id);
         
         // Check if tutor has KYC approved
         if (!$tutor->kyc || $tutor->kyc->status !== 'approved') {
@@ -161,7 +164,8 @@ class VacancyController extends Controller
      */
     public function search(Request $request)
     {
-        $query = StudentVacancy::approved()->with(['student']);
+    // include approved and completed vacancies in search results
+    $query = StudentVacancy::whereIn('status', ['approved', 'completed'])->with(['student']);
         
         if ($request->has('q') && $request->q !== '') {
             $search = $request->q;

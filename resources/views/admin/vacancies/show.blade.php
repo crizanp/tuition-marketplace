@@ -189,42 +189,49 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        @if(!empty($vacancy->student->profile_picture))
-                            @php
-                                $pp = $vacancy->student->profile_picture;
-                                $imgUrl = preg_match('/^https?:\/\//', $pp) ? $pp : asset('storage/' . ltrim($pp, '/'));
-                            @endphp
-                            <img src="{{ $imgUrl }}" alt="Profile" class="avatar-img rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;border:1px solid rgba(255,255,255,0.04);">
-                        @else
-                            <div class="avatar-circle bg-primary text-white me-3">
-                                {{ strtoupper(substr($vacancy->student->name, 0, 2)) }}
+                    @if($vacancy->student)
+                        <div class="d-flex align-items-center mb-3">
+                            @if(!empty($vacancy->student->profile_picture))
+                                @php
+                                    $pp = $vacancy->student->profile_picture;
+                                    $imgUrl = preg_match('/^https?:\/\//', $pp) ? $pp : asset('storage/' . ltrim($pp, '/'));
+                                @endphp
+                                <img src="{{ $imgUrl }}" alt="Profile" class="avatar-img rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;border:1px solid rgba(255,255,255,0.04);">
+                            @else
+                                <div class="avatar-circle bg-primary text-white me-3">
+                                    {{ strtoupper(substr($vacancy->student->name, 0, 2)) }}
+                                </div>
+                            @endif
+                            <div>
+                                <h6 class="mb-1">{{ $vacancy->student->name }}</h6>
+                                <small class="text-muted">{{ $vacancy->student->email }}</small>
+                            </div>
+                        </div>
+                        
+                        @if(!empty($vacancy->student->phone))
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-phone text-success me-2"></i>
+                                <span>{{ $vacancy->student->phone }}</span>
                             </div>
                         @endif
-                        <div>
-                            <h6 class="mb-1">{{ $vacancy->student->name }}</h6>
-                            <small class="text-muted">{{ $vacancy->student->email }}</small>
-                        </div>
-                    </div>
-                    
-                    @if($vacancy->student->phone)
+                        
                         <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-phone text-success me-2"></i>
-                            <span>{{ $vacancy->student->phone }}</span>
+                            <i class="fas fa-calendar text-info me-2"></i>
+                            <span>Joined {{ $vacancy->student->created_at->format('M Y') }}</span>
+                        </div>
+                        
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-envelope text-warning me-2"></i>
+                            <span class="badge bg-{{ $vacancy->student->email_verified_at ? 'success' : 'warning' }}">
+                                {{ $vacancy->student->email_verified_at ? 'Verified' : 'Unverified' }}
+                            </span>
+                        </div>
+                    @else
+                        <div class="text-center text-muted py-3">
+                            <p class="mb-1">Student information not available.</p>
+                            <small class="d-block">This vacancy may have been created by an admin or the student account was removed.</small>
                         </div>
                     @endif
-                    
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-calendar text-info me-2"></i>
-                        <span>Joined {{ $vacancy->student->created_at->format('M Y') }}</span>
-                    </div>
-                    
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-envelope text-warning me-2"></i>
-                        <span class="badge bg-{{ $vacancy->student->email_verified_at ? 'success' : 'warning' }}">
-                            {{ $vacancy->student->email_verified_at ? 'Verified' : 'Unverified' }}
-                        </span>
-                    </div>
                 </div>
             </div>
 
@@ -260,16 +267,39 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('admin.vacancy-applications.index', ['vacancy' => $vacancy->id]) }}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-users me-2"></i>View Applications
-                        </a>
-                        <a href="mailto:{{ $vacancy->student->email }}" class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-envelope me-2"></i>Contact Student
-                        </a>
-                        @if($vacancy->status === 'approved')
-                            <button class="btn btn-outline-warning btn-sm" onclick="confirm('Are you sure you want to hide this vacancy?')">
-                                <i class="fas fa-eye-slash me-2"></i>Hide Vacancy
+                        @if($vacancy->student)
+                            <a href="{{ route('admin.vacancy-applications.index', ['vacancy' => $vacancy->id]) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-users me-2"></i>View Applications
+                            </a>
+                            <a href="mailto:{{ $vacancy->student->email }}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-envelope me-2"></i>Contact Student
+                            </a>
+                        @else
+                            <button class="btn btn-outline-primary btn-sm" disabled>
+                                <i class="fas fa-users me-2"></i>View Applications
                             </button>
+                            <button class="btn btn-outline-info btn-sm" disabled>
+                                <i class="fas fa-envelope me-2"></i>Contact Student
+                            </button>
+                        @endif
+                        @if($vacancy->status === 'approved')
+                            <form action="{{ route('admin.vacancies.status', $vacancy->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="status" value="filled">
+                                <button type="submit" class="btn btn-outline-primary btn-sm" onclick="return confirm('Mark this vacancy as filled?')">
+                                    <i class="fas fa-flag me-2"></i>Mark as Filled
+                                </button>
+                            </form>
+                        @elseif($vacancy->status === 'completed')
+                            <form action="{{ route('admin.vacancies.status', $vacancy->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="status" value="pending">
+                                <button type="submit" class="btn btn-outline-success btn-sm" onclick="return confirm('Reopen this vacancy (set to pending)?')">
+                                    <i class="fas fa-undo me-2"></i>Reopen Vacancy
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </div>
