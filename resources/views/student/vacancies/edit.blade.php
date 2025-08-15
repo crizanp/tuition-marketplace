@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-@section('navbar')
-    @include('partials.student-navbar')
-@endsection
-
 @section('content')
 <div class="container py-5">
     <div class="row">
@@ -302,30 +298,188 @@
 </div>
 
 <style>
-.form-section {
-    background: #f8f9fa;
-    padding: 20px;
+/* Color Variables */
+:root {
+    --orange: #ff6a00;
+    --black: #000000;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --border-light: #e9ecef;
+    --text-muted: #6c757d;
+    --success-green: #28a745;
+    --danger-red: #dc3545;
+    --info-blue: #17a2b8;
+}
+
+/* Base Styling */
+body {
+    background-color: var(--white);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--black);
+}
+
+.container {
+    background-color: var(--white);
+}
+
+/* Card Styling */
+.card {
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.card-header.bg-warning {
+    background-color: var(--orange) !important;
+    color: var(--white);
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.card-header h4 {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Alert Styling */
+.alert {
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: none;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.alert-heading {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Form Section Styling */
+.form-section {
+    background-color: var(--light-gray);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
 }
 
 .section-title {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f39c12;
+    color: var(--black);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--orange);
+    display: flex;
+    align-items: center;
 }
 
+.section-title i {
+    color: var(--orange);
+}
+
+/* Form Controls */
+.form-label {
+    color: var(--black);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+    border: 2px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
+    background-color: var(--white);
+    color: var(--black);
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 106, 0, 0.15);
+    outline: none;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Small Text */
+.text-muted {
+    color: var(--text-muted) !important;
+    font-size: 0.85rem;
+}
+
+.text-danger {
+    color: var(--danger-red) !important;
+}
+
+/* Checkbox and Radio Styling */
 .days-selector, .time-slots {
-    background: white;
-    padding: 15px;
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
+    background-color: var(--white);
+    border: 2px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.form-check {
+    margin-bottom: 0.75rem;
+}
+
+.form-check-input {
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: 0.1em;
+    border: 2px solid #ced4da;
+    border-radius: 4px;
 }
 
 .form-check-input:checked {
-    background-color: #f39c12;
-    border-color: #f39c12;
+    background-color: var(--orange);
+    border-color: var(--orange);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 106, 0, 0.15);
+}
+
+.form-check-label {
+    color: var(--black);
+    font-weight: 400;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.form-check-inline {
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Requirements Section */
+.requirements-section {
+    background-color: var(--white);
+    border: 2px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1.25rem;
 }
 
 .requirement-item {
@@ -333,8 +487,192 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.input-group {
+    margin-bottom: 0.5rem;
+}
+
+.input-group .form-control {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}
+
+/* Button Styling */
+.btn {
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border-width: 2px;
+}
+
+.btn-warning {
+    background-color: var(--orange);
+    border-color: var(--orange);
+    color: var(--white);
+}
+
+.btn-warning:hover, .btn-warning:focus {
+    background-color: #e55a00;
+    border-color: #e55a00;
+    color: var(--white);
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    border-color: var(--orange);
+    color: var(--orange);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--orange);
+    border-color: var(--orange);
+    color: var(--white);
+}
+
+.btn-outline-secondary {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+    background-color: var(--text-muted);
+    border-color: var(--text-muted);
+    color: var(--white);
+}
+
+.btn-outline-danger {
+    border-color: var(--danger-red);
+    color: var(--danger-red);
+    background-color: transparent;
+}
+
+.btn-outline-danger:hover, .btn-outline-danger:focus {
+    background-color: var(--danger-red);
+    border-color: var(--danger-red);
+    color: var(--white);
+}
+
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+/* Button Groups */
+.d-flex.gap-2 {
+    gap: 0.75rem;
+}
+
+/* Focus States for Accessibility */
+.btn:focus, .form-control:focus, .form-check-input:focus {
+    outline: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .form-section {
+        padding: 1.25rem;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+    }
+    
+    .form-check-inline {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 0.75rem;
+    }
+    
+    .d-flex.justify-content-end {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .d-flex.justify-content-end .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .card-header {
+        padding: 1.25rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .form-section {
+        padding: 1rem;
+    }
+}
+
+/* Professional Enhancements */
+.form-control::placeholder {
+    color: #adb5bd;
+    opacity: 1;
+}
+
+.card-header p {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+/* Clean Typography */
+h4, h5, h6 {
+    line-height: 1.3;
+}
+
+ul li {
+    margin-bottom: 0.25rem;
+}
+
+/* Address Field Animation */
+#address_field {
+    transition: all 0.3s ease;
+}
+
+/* Professional Spacing */
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.py-5 {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
 }
 </style>
 

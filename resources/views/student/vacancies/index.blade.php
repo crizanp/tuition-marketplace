@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-@section('navbar')
-    @include('partials.student-navbar')
-@endsection
-
 @section('content')
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -207,47 +203,334 @@
 </div>
 
 <style>
-.vacancy-item {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
+/* Color Variables */
+:root {
+    --orange: #ff6a00;
+    --black: #000000;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --border-light: #e9ecef;
+    --text-muted: #6c757d;
 }
 
-.vacancy-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+/* Base Styling */
+body {
+    background-color: var(--white);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.vacancy-info .info-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 14px;
+.container {
+    background-color: var(--white);
 }
 
-.schedule-info {
-    background: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: 6px;
+/* Header Styling */
+h2 {
+    color: var(--black);
+    font-weight: 600;
+    font-size: 1.75rem;
+}
+
+/* Primary Button */
+.btn-primary {
+    background-color: var(--orange);
+    border-color: var(--orange);
+    color: var(--white);
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #e55a00;
+    border-color: #e55a00;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 106, 0, 0.3);
+}
+
+/* Alert Styling */
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+    border-radius: 8px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+    border-radius: 8px;
+}
+
+/* Filter Tabs Card */
+.card {
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Navigation Pills */
+.nav-pills {
+    gap: 0.5rem;
 }
 
 .nav-pills .nav-link {
-    color: #6c757d;
-    background: none;
-    border: 1px solid #dee2e6;
-    margin-right: 10px;
-    margin-bottom: 5px;
+    background-color: var(--white);
+    color: var(--text-muted);
+    border: 2px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #fff5f0;
+    border-color: var(--orange);
+    color: var(--orange);
 }
 
 .nav-pills .nav-link.active {
-    background: #3498db;
-    border-color: #3498db;
-    color: white;
+    background-color: var(--orange);
+    border-color: var(--orange);
+    color: var(--white);
 }
 
-.nav-pills .nav-link:hover:not(.active) {
-    background: #f8f9fa;
-    border-color: #3498db;
-    color: #3498db;
+/* Vacancy Cards */
+.vacancy-card .card {
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    background-color: var(--white);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.vacancy-card .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--orange);
+}
+
+/* Card Content */
+.card-title {
+    color: var(--black);
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.3;
+}
+
+.card-text {
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* Vacancy Info Items */
+.vacancy-info .info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--black);
+}
+
+.vacancy-info .info-item i {
+    color: var(--orange);
+    width: 18px;
+    text-align: center;
+}
+
+/* Status Badges */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+}
+
+.badge.bg-warning {
+    background-color: var(--orange) !important;
+    color: var(--white);
+}
+
+.badge.bg-success {
+    background-color: #198754 !important;
+    color: var(--white);
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: var(--white);
+}
+
+/* Schedule Info */
+.schedule-info {
+    background-color: var(--light-gray);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+.schedule-info small {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Card Footer */
+.card-footer {
+    background-color: var(--light-gray);
+    border-top: 1px solid var(--border-light);
+    padding: 1rem 1.5rem;
+}
+
+/* Action Buttons */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary {
+    border-color: var(--orange);
+    color: var(--orange);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--orange);
+    border-color: var(--orange);
+    color: var(--white);
+}
+
+.btn-outline-secondary {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--text-muted);
+    border-color: var(--text-muted);
+    color: var(--white);
+}
+
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+    background-color: transparent;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: var(--white);
+}
+
+/* Empty State */
+.text-center i {
+    color: var(--text-muted);
+}
+
+.text-center h4 {
+    color: var(--black);
+    font-weight: 600;
+}
+
+.text-center p {
+    color: var(--text-muted);
+}
+
+/* Utility Classes */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-pills {
+        flex-wrap: wrap;
+    }
+    
+    .nav-pills .nav-link {
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.8rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .d-flex.gap-2 {
+        gap: 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch !important;
+    }
+}
+
+/* Professional Enhancements */
+.card {
+    position: relative;
+}
+
+.position-absolute.top-0.end-0 {
+    z-index: 10;
+}
+
+.vacancy-footer small {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* Smooth Animations */
+* {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Focus States for Accessibility */
+.btn:focus,
+.nav-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 106, 0, 0.25);
+    outline: none;
+}
+
+/* Clean Typography */
+body {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--black);
+}
+
+/* Professional Spacing */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.py-5 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
 }
 </style>
 

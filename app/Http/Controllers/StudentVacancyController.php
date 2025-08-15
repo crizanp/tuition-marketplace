@@ -45,31 +45,50 @@ class StudentVacancyController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'subject' => 'required|string|max:100',
+            'subject_other' => 'required_if:subject,other|nullable|string|max:100',
             'grade_level' => 'required|string|max:50',
+            'grade_level_other' => 'required_if:grade_level,other|nullable|string|max:50',
             'budget_min' => 'required|numeric|min:0',
             'budget_max' => 'required|numeric|min:0|gte:budget_min',
             'schedule_days' => 'required|array|min:1',
             'schedule_days.*' => 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'schedule_times' => 'required|array|min:1',
-            'duration_hours' => 'required|integer|min:1|max:8',
+            // allow fractional durations (e.g., 1.5) when user specifies Other
+            'duration_hours' => 'required',
+            'duration_hours_other' => 'required_if:duration_hours,other|nullable|numeric|min:0.25|max:8',
             'location_type' => 'required|in:online,home,tutor_place,flexible',
             'address' => 'required_if:location_type,home|nullable|string',
             'urgency' => 'required|in:low,medium,high',
             'requirements' => 'nullable|array',
             'requirements.*' => 'string|max:255',
         ]);
+        // Normalize fields if 'other' was selected
+        $subject = $request->subject;
+        if ($subject === 'other' && $request->filled('subject_other')) {
+            $subject = $request->subject_other;
+        }
+
+        $grade = $request->grade_level;
+        if ($grade === 'other' && $request->filled('grade_level_other')) {
+            $grade = $request->grade_level_other;
+        }
+
+        $duration = $request->duration_hours;
+        if ($duration === 'other' && $request->filled('duration_hours_other')) {
+            $duration = $request->duration_hours_other;
+        }
 
         StudentVacancy::create([
             'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
-            'subject' => $request->subject,
-            'grade_level' => $request->grade_level,
+            'subject' => $subject,
+            'grade_level' => $grade,
             'budget_min' => $request->budget_min,
             'budget_max' => $request->budget_max,
             'schedule_days' => $request->schedule_days,
             'schedule_times' => $request->schedule_times,
-            'duration_hours' => $request->duration_hours,
+            'duration_hours' => $duration,
             'location_type' => $request->location_type,
             'address' => $request->address,
             'urgency' => $request->urgency,
@@ -79,7 +98,8 @@ class StudentVacancyController extends Controller
 
         return redirect()
             ->route('student.vacancies.index')
-            ->with('success', 'Vacancy posted successfully! It will be reviewed by our admin team.');
+            ->with('success', 'Vacancy posted successfully! It will be reviewed by our admin team.')
+            ->with('vacancy_posted', true);
     }
 
     /**
@@ -136,30 +156,48 @@ class StudentVacancyController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'subject' => 'required|string|max:100',
+            'subject_other' => 'required_if:subject,other|nullable|string|max:100',
             'grade_level' => 'required|string|max:50',
+            'grade_level_other' => 'required_if:grade_level,other|nullable|string|max:50',
             'budget_min' => 'required|numeric|min:0',
             'budget_max' => 'required|numeric|min:0|gte:budget_min',
             'schedule_days' => 'required|array|min:1',
             'schedule_days.*' => 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'schedule_times' => 'required|array|min:1',
-            'duration_hours' => 'required|integer|min:1|max:8',
+            'duration_hours' => 'required',
+            'duration_hours_other' => 'required_if:duration_hours,other|nullable|numeric|min:0.25|max:8',
             'location_type' => 'required|in:online,home,tutor_place,flexible',
             'address' => 'required_if:location_type,home|nullable|string',
             'urgency' => 'required|in:low,medium,high',
             'requirements' => 'nullable|array',
             'requirements.*' => 'string|max:255',
         ]);
+        // Normalize fields if 'other' was selected
+        $subject = $request->subject;
+        if ($subject === 'other' && $request->filled('subject_other')) {
+            $subject = $request->subject_other;
+        }
+
+        $grade = $request->grade_level;
+        if ($grade === 'other' && $request->filled('grade_level_other')) {
+            $grade = $request->grade_level_other;
+        }
+
+        $duration = $request->duration_hours;
+        if ($duration === 'other' && $request->filled('duration_hours_other')) {
+            $duration = $request->duration_hours_other;
+        }
 
         $vacancy->update([
             'title' => $request->title,
             'description' => $request->description,
-            'subject' => $request->subject,
-            'grade_level' => $request->grade_level,
+            'subject' => $subject,
+            'grade_level' => $grade,
             'budget_min' => $request->budget_min,
             'budget_max' => $request->budget_max,
             'schedule_days' => $request->schedule_days,
             'schedule_times' => $request->schedule_times,
-            'duration_hours' => $request->duration_hours,
+            'duration_hours' => $duration,
             'location_type' => $request->location_type,
             'address' => $request->address,
             'urgency' => $request->urgency,
@@ -171,7 +209,8 @@ class StudentVacancyController extends Controller
 
         return redirect()
             ->route('student.vacancies.show', $vacancy)
-            ->with('success', 'Vacancy updated successfully! It will be reviewed again by our admin team.');
+            ->with('success', 'Vacancy updated successfully! It will be reviewed again by our admin team.')
+            ->with('vacancy_posted', true);
     }
 
     /**

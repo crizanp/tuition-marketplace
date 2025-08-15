@@ -27,5 +27,21 @@
 
     @include('components.footer')
     @stack('scripts')
+    @if(session('vacancy_posted'))
+        <script>
+            try {
+                // Clear any vacancy draft keys created per-user
+                const prefix = 'vacancy_draft_';
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith(prefix)) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not clear vacancy draft from localStorage', err);
+            }
+        </script>
+    @endif
 </body>
 </html>
