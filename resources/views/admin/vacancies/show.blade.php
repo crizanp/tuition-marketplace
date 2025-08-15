@@ -267,17 +267,15 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
+                        <a href="{{ route('admin.vacancy-applications.index', ['vacancy' => $vacancy->id]) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-users me-2"></i>View Applications
+                        </a>
+
                         @if($vacancy->student)
-                            <a href="{{ route('admin.vacancy-applications.index', ['vacancy' => $vacancy->id]) }}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-users me-2"></i>View Applications
-                            </a>
                             <a href="mailto:{{ $vacancy->student->email }}" class="btn btn-outline-info btn-sm">
                                 <i class="fas fa-envelope me-2"></i>Contact Student
                             </a>
                         @else
-                            <button class="btn btn-outline-primary btn-sm" disabled>
-                                <i class="fas fa-users me-2"></i>View Applications
-                            </button>
                             <button class="btn btn-outline-info btn-sm" disabled>
                                 <i class="fas fa-envelope me-2"></i>Contact Student
                             </button>

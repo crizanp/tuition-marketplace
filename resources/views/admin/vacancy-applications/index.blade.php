@@ -1,205 +1,162 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 
-@section('title', 'Vacancy Applications Management')
+@section('title', 'Vacancy Applications')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-file-alt me-2"></i>Vacancy Applications Management
-        </h1>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="{{ route('admin.vacancy-applications.export') }}" class="btn btn-success btn-sm">
+            <h3 class="mb-0 text-white"><i class="fas fa-file-alt me-2 text-info"></i>Vacancy Applications</h3>
+            <small class="text-muted">Manage tutor applications for student vacancies</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.vacancy-applications.export') }}" class="btn btn-dark btn-outline-success">
                 <i class="fas fa-download me-1"></i>Export CSV
             </a>
         </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Top stats -->
     <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Applications</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $applications->where('status', 'pending')->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-gray-300"></i>
-                        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card p-3 h-100">
+                <div class="d-flex align-items-start">
+                    <div class="me-3 icon-wrap bg-warning text-dark"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <div class="muted">Pending</div>
+                        <div class="h5 mb-0">{{ $applications->where('status','pending')->count() }}</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Approved Applications</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $applications->where('status', 'approved')->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check fa-2x text-gray-300"></i>
-                        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card p-3 h-100">
+                <div class="d-flex align-items-start">
+                    <div class="me-3 icon-wrap bg-success text-dark"><i class="fas fa-check"></i></div>
+                    <div>
+                        <div class="muted">Approved</div>
+                        <div class="h5 mb-0">{{ $applications->where('status','approved')->count() }}</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Rejected Applications</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $applications->where('status', 'rejected')->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-times fa-2x text-gray-300"></i>
-                        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card p-3 h-100">
+                <div class="d-flex align-items-start">
+                    <div class="me-3 icon-wrap bg-danger text-white"><i class="fas fa-times"></i></div>
+                    <div>
+                        <div class="muted">Rejected</div>
+                        <div class="h5 mb-0">{{ $applications->where('status','rejected')->count() }}</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Applications</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $applications->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-file-alt fa-2x text-gray-300"></i>
-                        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card p-3 h-100">
+                <div class="d-flex align-items-start">
+                    <div class="me-3 icon-wrap bg-info text-white"><i class="fas fa-file-alt"></i></div>
+                    <div>
+                        <div class="muted">Total</div>
+                        <div class="h5 mb-0">{{ $applications->count() }}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
-        </div>
+    <!-- Filters & Export -->
+    <div class="card dark-card mb-4">
         <div class="card-body">
-            <form method="GET" class="row">
-                <div class="col-md-3 mb-3">
-                    <label for="search" class="form-label">Search</label>
-                    <input type="text" class="form-control" id="search" name="search" 
-                           value="{{ request('search') }}" placeholder="Search applications...">
+            <form method="GET" class="row gy-2 gx-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Search</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-dark" placeholder="Search by tutor, vacancy, email...">
                 </div>
-                <div class="col-md-2 mb-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-control" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                <div class="col-md-2">
+                    <label class="form-label text-muted">Status</label>
+                    <select name="status" class="form-select form-select-dark">
+                        <option value="">All</option>
+                        <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="approved" {{ request('status')=='approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="rejected" {{ request('status')=='rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
                 </div>
-                <div class="col-md-2 mb-3">
-                    <label for="subject" class="form-label">Subject</label>
-                    <select class="form-control" id="subject" name="subject">
+                <div class="col-md-3">
+                    <label class="form-label text-muted">Subject</label>
+                    <select name="subject" class="form-select form-select-dark">
                         <option value="">All Subjects</option>
                         @foreach($subjects as $subject)
-                            <option value="{{ $subject }}" {{ request('subject') == $subject ? 'selected' : '' }}>
-                                {{ $subject }}
-                            </option>
+                            <option value="{{ $subject }}" {{ request('subject') == $subject ? 'selected' : '' }}>{{ $subject }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search me-1"></i>Filter
-                        </button>
-                        <a href="{{ route('admin.vacancy-applications.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-refresh me-1"></i>Reset
-                        </a>
-                    </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button class="btn btn-primary w-100" type="submit"><i class="fas fa-search me-1"></i>Filter</button>
+                    <a href="{{ route('admin.vacancy-applications.index') }}" class="btn btn-outline-secondary w-100">Reset</a>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Bulk Actions -->
+    <!-- Bulk actions for pending -->
     @if(request('status') == 'pending')
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-warning">Bulk Actions for Pending Applications</h6>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('admin.vacancy-applications.bulkUpdate') }}" method="POST">
+    <div class="card dark-card mb-4">
+        <div class="card-body d-flex flex-wrap align-items-center gap-3">
+            <form action="{{ route('admin.vacancy-applications.bulkUpdate') }}" method="POST" class="d-flex gap-2 align-items-center">
                 @csrf
-                <div class="row">
-                    <div class="col-md-4">
-                        <select name="action" class="form-control" required>
-                            <option value="">Select Action</option>
-                            <option value="approve">Approve Selected</option>
-                            <option value="reject">Reject Selected</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <button type="submit" class="btn btn-warning">Apply to Selected</button>
-                    </div>
-                </div>
-                <div id="selected-applications"></div>
+                <select name="action" class="form-select form-select-dark" required>
+                    <option value="">Bulk action</option>
+                    <option value="approve">Approve selected</option>
+                    <option value="reject">Reject selected</option>
+                </select>
+                <button class="btn btn-warning">Apply</button>
+                <div id="selected-applications" style="display:none"></div>
             </form>
+            <div class="ms-auto text-muted">Select rows to apply bulk actions</div>
         </div>
     </div>
     @endif
 
-    <!-- Applications Table -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Applications List</h6>
-        </div>
-        <div class="card-body">
+    <!-- Table -->
+    <div class="card dark-card mb-4">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead class="thead-dark">
                         <tr>
                             @if(request('status') == 'pending')
-                                <th><input type="checkbox" id="select-all"></th>
+                                <th style="width:40px"><input type="checkbox" id="select-all"></th>
                             @endif
                             <th>Tutor</th>
                             <th>Vacancy</th>
                             <th>Subject</th>
-                            <th>Proposed Rate</th>
+                            <th>Rate</th>
                             <th>Experience</th>
                             <th>Status</th>
                             <th>Applied</th>
-                            <th>Actions</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($applications as $application)
                             <tr>
                                 @if(request('status') == 'pending')
-                                    <td>
-                                        <input type="checkbox" class="application-checkbox" 
-                                               name="application_ids[]" value="{{ $application->id }}">
-                                    </td>
+                                    <td><input type="checkbox" class="application-checkbox" value="{{ $application->id }}"></td>
                                 @endif
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="me-2">
-                                            <i class="fas fa-user-graduate text-primary"></i>
+                                <td style="min-width:180px">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar-sm bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-user-graduate"></i>
                                         </div>
                                         <div>
-                                            <strong>{{ $application->tutor->name ?? 'N/A' }}</strong><br>
-                                            <small class="text-muted">{{ $application->tutor->email ?? 'N/A' }}</small>
+                                            <div class="fw-bold">{{ $application->tutor->name ?? 'N/A' }}</div>
+                                            <div class="text-muted small">{{ $application->tutor->email ?? 'N/A' }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <strong>{{ $application->vacancy->title ?? 'N/A' }}</strong><br>
-                                    <small class="text-muted">by {{ $application->vacancy->student->name ?? 'N/A' }}</small>
+                                    <div class="fw-bold">{{ $application->vacancy->title ?? 'N/A' }}</div>
+                                    <div class="text-muted small">by {{ $application->vacancy->student->name ?? 'Posted by Admin' }}</div>
                                 </td>
                                 <td>{{ $application->vacancy->subject ?? 'N/A' }}</td>
                                 <td>
@@ -209,124 +166,135 @@
                                         <span class="text-muted">To discuss</span>
                                     @endif
                                 </td>
-                                <td>{{ $application->experience_years }} years</td>
+                                <td>{{ $application->experience_years }} yrs</td>
                                 <td>
                                     @if($application->status == 'pending')
-                                        <span class="badge badge-warning">Pending</span>
+                                        <span class="badge bg-warning text-dark">Pending</span>
                                     @elseif($application->status == 'approved')
-                                        <span class="badge badge-success">Approved</span>
+                                        <span class="badge bg-success">Approved</span>
                                     @else
-                                        <span class="badge badge-danger">Rejected</span>
+                                        <span class="badge bg-danger">Rejected</span>
                                     @endif
                                 </td>
                                 <td>{{ $application->applied_at->format('M d, Y') }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('admin.vacancy-applications.show', $application) }}" class="btn btn-info btn-sm">
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a href="{{ route('admin.vacancy-applications.show', $application) }}" class="btn btn-sm btn-outline-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         @if($application->status == 'pending')
-                                        <form action="{{ route('admin.vacancy-applications.approve', $application) }}" method="POST" style="display: inline;">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this application?')">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $application->id }}">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                                            <form action="{{ route('admin.vacancy-applications.approve', $application) }}" method="POST" style="display:inline">
+                                                @csrf
+                                                <button class="btn btn-sm btn-success" onclick="return confirm('Approve this application?')"><i class="fas fa-check"></i></button>
+                                            </form>
+                                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $application->id }}"><i class="fas fa-times"></i></button>
                                         @endif
-                                        <form action="{{ route('admin.vacancy-applications.destroy', $application) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('admin.vacancy-applications.destroy', $application) }}" method="POST" style="display:inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Are you sure you want to delete this application?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="return confirm('Delete application?')"><i class="fas fa-trash"></i></button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
 
-                            <!-- Reject Modal -->
                             @if($application->status == 'pending')
-                            <div class="modal fade" id="rejectModal{{ $application->id }}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <form action="{{ route('admin.vacancy-applications.reject', $application) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Reject Application</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label for="reason{{ $application->id }}" class="form-label">Reason for rejection</label>
-                                                    <textarea class="form-control" id="reason{{ $application->id }}" name="reason" 
-                                                              rows="3" required placeholder="Provide a reason for rejecting this application..."></textarea>
+                                <!-- Reject Modal -->
+                                <div class="modal fade" id="rejectModal{{ $application->id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content bg-dark text-white border-secondary">
+                                            <form action="{{ route('admin.vacancy-applications.reject', $application) }}" method="POST">
+                                                @csrf
+                                                <div class="modal-header border-bottom-0">
+                                                    <h5 class="modal-title">Reject Application</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                 </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-danger">Reject Application</button>
-                                            </div>
-                                        </form>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label for="reason{{ $application->id }}" class="form-label">Reason</label>
+                                                        <textarea id="reason{{ $application->id }}" name="reason" class="form-control form-control-dark" rows="4" required placeholder="Provide reason for rejection"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-top-0">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-danger">Reject</button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             @endif
+
                         @empty
                             <tr>
-                                <td colspan="{{ request('status') == 'pending' ? '9' : '8' }}" class="text-center">
-                                    <div class="py-4">
-                                        <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
-                                        <p class="text-gray-500">No applications found.</p>
-                                    </div>
+                                <td colspan="9" class="text-center py-5 text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                                    <div>No applications found.</div>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination -->
-            @if($applications->hasPages())
-                <div class="d-flex justify-content-center">
-                    {{ $applications->withQueryString()->links() }}
-                </div>
-            @endif
         </div>
     </div>
+
+    <!-- Pagination -->
+    @if($applications->hasPages())
+        <div class="d-flex justify-content-center">
+            {{ $applications->withQueryString()->links() }}
+        </div>
+    @endif
+
 </div>
 
+@push('styles')
+<style>
+    :root{
+        --dm-bg: #0b0f14;
+        --dm-panel: #0f1720;
+        --muted: #9aa4af;
+        --accent: #ff7a00;
+        --border: rgba(255,255,255,0.06);
+    }
+    .dark-card{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid var(--border); border-radius:12px; }
+    body .stat-card{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:10px; border:1px solid var(--border); }
+    .muted{ color: var(--muted); }
+    .icon-wrap{ width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px }
+    .avatar-sm{ width:40px;height:40px;border-radius:50%; }
+    .form-control-dark, .form-select-dark{ background: #0b1116; border:1px solid var(--border); color: #e6eef7 }
+    .form-control-dark::placeholder{ color: #6f7a82 }
+    .table-dark thead.thead-dark th{ background: transparent; border-bottom:1px solid var(--border); color:#e5eef7 }
+    .table-dark tbody td{ border-color: rgba(255,255,255,0.03); color:#dbe9f2 }
+    .btn-outline-info{ color:#7fd3ff;border-color: rgba(127,211,255,0.12) }
+    .btn-outline-info:hover{ background:#07202a }
+    .badge{ font-weight:600 }
+    .btn-close-white{ filter: invert(1); }
+</style>
+@endpush
+
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Select all functionality
-    const selectAllCheckbox = document.getElementById('select-all');
-    const applicationCheckboxes = document.querySelectorAll('.application-checkbox');
-    const selectedApplicationsDiv = document.getElementById('selected-applications');
+document.addEventListener('DOMContentLoaded', function(){
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.application-checkbox');
+    const selectedDiv = document.getElementById('selected-applications');
 
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            applicationCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-            updateSelectedApplications();
-        });
-
-        applicationCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateSelectedApplications);
-        });
+    function updateSelected(){
+        if(!selectedDiv) return;
+        const vals = Array.from(checkboxes).filter(cb=>cb.checked).map(cb=>cb.value);
+        selectedDiv.innerHTML = vals.map(v=>`<input type="hidden" name="application_ids[]" value="${v}">`).join('');
     }
 
-    function updateSelectedApplications() {
-        const selected = Array.from(applicationCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value);
-        
-        selectedApplicationsDiv.innerHTML = selected
-            .map(id => `<input type="hidden" name="application_ids[]" value="${id}">`)
-            .join('');
+    if(selectAll){
+        selectAll.addEventListener('change', function(){
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateSelected();
+        });
+        checkboxes.forEach(cb => cb.addEventListener('change', updateSelected));
     }
 });
 </script>
+@endpush
+
 @endsection

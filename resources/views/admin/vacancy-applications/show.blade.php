@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 
 @section('title', 'Vacancy Application Details')
 
@@ -52,7 +52,7 @@
                     <!-- Application Details -->
                     <div class="mb-4">
                         <h5>Cover Letter</h5>
-                        <div class="border p-3 bg-light rounded">
+                        <div class="border p-3 bg-dark rounded">
                             {{ $application->cover_letter }}
                         </div>
                     </div>
@@ -107,12 +107,19 @@
                     </div>
 
                     <div class="mb-3">
-                        <strong>Student:</strong> {{ $application->vacancy->student->name }}
+                        <strong>Student:</strong>
+                        @if($application->vacancy && $application->vacancy->student)
+                            {{ $application->vacancy->student->name }}
+                        @else
+                            <span class="text-muted">Posted by Admin</span>
+                        @endif
                     </div>
 
-                    <a href="{{ route('admin.vacancies.show', $application->vacancy->id) }}" class="btn btn-info btn-sm">
-                        <i class="fas fa-eye me-1"></i>View Full Vacancy
-                    </a>
+                    @if($application->vacancy)
+                        <a href="{{ route('admin.vacancies.show', $application->vacancy->id) }}" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye me-1"></i>View Full Vacancy
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -125,10 +132,10 @@
                     <h6 class="m-0 font-weight-bold text-primary">Tutor Information</h6>
                 </div>
                 <div class="card-body">
+                    @php $tutor = $application->tutor ?? null; @endphp
                     <div class="text-center mb-3">
-                        @if($application->tutor->kyc && $application->tutor->kyc->profile_photo)
-                            <img src="{{ asset('storage/' . $application->tutor->kyc->profile_photo) }}" 
-                                 alt="Profile Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                        @if($tutor && $tutor->kyc && $tutor->kyc->profile_photo)
+                            <img src="{{ asset('storage/' . $tutor->kyc->profile_photo) }}" alt="Profile Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
                         @else
                             <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                                 <i class="fas fa-user fa-2x"></i>
@@ -137,45 +144,47 @@
                     </div>
                     
                     <div class="text-center mb-3">
-                        <h5>{{ $application->tutor->name }}</h5>
-                        <p class="text-muted">{{ $application->tutor->email }}</p>
-                        @if($application->tutor->phone)
-                            <p class="text-muted">{{ $application->tutor->phone }}</p>
+                        <h5>{{ $tutor->name ?? 'N/A' }}</h5>
+                        <p class="text-muted">{{ $tutor->email ?? 'N/A' }}</p>
+                        @if(!empty($tutor->phone))
+                            <p class="text-muted">{{ $tutor->phone }}</p>
                         @endif
                     </div>
 
                     <div class="mb-3">
                         <strong>Status:</strong>
-                        @if($application->tutor->status == 'active')
+                        @if($tutor && $tutor->status == 'active')
                             <span class="badge badge-success">Active</span>
-                        @elseif($application->tutor->status == 'pending')
+                        @elseif($tutor && $tutor->status == 'pending')
                             <span class="badge badge-warning">Pending</span>
                         @else
-                            <span class="badge badge-danger">{{ ucfirst($application->tutor->status) }}</span>
+                            <span class="badge badge-danger">{{ ucfirst($tutor->status ?? 'N/A') }}</span>
                         @endif
                     </div>
 
-                    @if($application->tutor->kyc)
+                    @if($tutor && $tutor->kyc)
                         <div class="mb-3">
                             <strong>KYC Status:</strong>
-                            @if($application->tutor->kyc->status == 'approved')
+                            @if($tutor->kyc->status == 'approved')
                                 <span class="badge badge-success">Approved</span>
-                            @elseif($application->tutor->kyc->status == 'pending')
+                            @elseif($tutor->kyc->status == 'pending')
                                 <span class="badge badge-warning">Pending</span>
                             @else
-                                <span class="badge badge-danger">{{ ucfirst($application->tutor->kyc->status) }}</span>
+                                <span class="badge badge-danger">{{ ucfirst($tutor->kyc->status) }}</span>
                             @endif
                         </div>
                     @endif
 
                     <div class="mb-3">
-                        <strong>Jobs Posted:</strong> {{ $application->tutor->jobs->count() }}<br>
-                        <strong>Applications:</strong> {{ $application->tutor->vacancyApplications->count() }}
+                        <strong>Jobs Posted:</strong> {{ $tutor ? $tutor->jobs->count() : 0 }}<br>
+                        <strong>Applications:</strong> {{ $tutor ? $tutor->vacancyApplications->count() : 0 }}
                     </div>
 
-                    <a href="{{ route('admin.tutors.show', $application->tutor->id) }}" class="btn btn-info btn-sm w-100">
-                        <i class="fas fa-user me-1"></i>View Tutor Profile
-                    </a>
+                    @if($tutor)
+                        <a href="{{ route('admin.tutors.show', $tutor->id) }}" class="btn btn-info btn-sm w-100">
+                            <i class="fas fa-user me-1"></i>View Tutor Profile
+                        </a>
+                    @endif
                 </div>
             </div>
 
@@ -206,7 +215,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Update Status</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.vacancy-applications.updateStatus', $application) }}" method="POST">
+                    <form action="{{ route('admin.vacancy-applications.status', $application->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         
