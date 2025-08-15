@@ -71,7 +71,7 @@
                                     {{ ucfirst($student->status ?? 'active') }}
                                 </span>
                             </td>
-                            <td>{{ $student->studentVacancies->count() }}</td>
+                            <td>{{ $student->vacancies_count ?? ($student->studentVacancies ? $student->studentVacancies->count() : 0) }}</td>
                             <td>{{ $student->created_at->format('M d, Y') }}</td>
                             <td>
                                 <div class="btn-group" role="group">

@@ -23,21 +23,32 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
     <style>
+        :root{
+            --bg: #070707; /* page background */
+            --panel: #0f0f10; /* cards, sidebar */
+            --muted: #bdbdbd; /* secondary text */
+            --accent: #ff7a00; /* orange accent */
+            --border: #1a1a1a;
+            --glass: rgba(255,255,255,0.03);
+        }
+
         body {
             font-family: 'Figtree', sans-serif;
-            background-color: #f8f9fc;
+            background-color: var(--bg);
+            color: #fff;
         }
-        
+
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
             width: 250px;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 0 35px 0 rgba(154, 161, 171, 0.15);
+            background: var(--panel);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.6);
             z-index: 1000;
             transition: all 0.3s ease;
+            border-right: 1px solid var(--border);
         }
 
         .sidebar.collapsed {
@@ -45,16 +56,17 @@
         }
 
         .sidebar-brand {
-            padding: 1.5rem;
+            padding: 1.25rem 1rem;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
         }
 
         .sidebar-brand h3 {
-            color: white;
+            color: #fff;
             font-weight: 700;
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
+            letter-spacing: 0.2px;
         }
 
         .sidebar.collapsed .sidebar-brand h3 {
@@ -62,156 +74,121 @@
         }
 
         .sidebar-nav {
-            padding: 1rem 0;
+            padding: 0.75rem 0;
         }
 
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
+        .nav-item { margin-bottom: 0.35rem; }
 
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 0.65rem 1.25rem;
+            color: var(--muted);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
             border-left: 3px solid transparent;
+            border-radius: 6px;
         }
 
         .nav-link:hover, .nav-link.active {
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
-            border-left-color: white;
+            color: #fff;
+            background: rgba(255,255,255,0.02);
+            border-left-color: var(--accent);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.5) inset;
         }
 
-        .nav-link i {
-            margin-right: 0.75rem;
-            width: 20px;
-            text-align: center;
-        }
+        .nav-link i { margin-right: 0.75rem; width: 20px; text-align: center; color: var(--muted); }
 
-        .sidebar.collapsed .nav-link span {
-            display: none;
-        }
+        .sidebar.collapsed .nav-link span { display: none; }
 
-        .main-content {
-            margin-left: 250px;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
-
-        .main-content.expanded {
-            margin-left: 80px;
-        }
+        .main-content { margin-left: 250px; min-height: 100vh; transition: all 0.3s ease; }
+        .main-content.expanded { margin-left: 80px; }
 
         .topbar {
-            background: white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            padding: 1rem 2rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+            padding: 1rem 1.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            color: #fff;
+            border-bottom: 1px solid var(--border);
         }
 
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: #5a5c69;
-            cursor: pointer;
-        }
+        .sidebar-toggle { background: none; border: none; font-size: 1.2rem; color: #fff; cursor: pointer; }
 
-        .admin-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+        .admin-info { display: flex; align-items: center; gap: 0.8rem; }
 
         .admin-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #ff9a3a);
+            display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700;
         }
 
-        .content-wrapper {
-            padding: 2rem;
-        }
+        .content-wrapper { padding: 1.75rem; }
 
         .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
         }
 
         .card-header {
-            background: white;
-            border-bottom: 1px solid #e3e6f0;
-            border-radius: 15px 15px 0 0 !important;
-            padding: 1.5rem;
+            background: transparent;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1rem 1.25rem;
+            color: #fff;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--accent);
+            color: #000;
             border: none;
             border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(255,122,0,0.12);
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #5a6fd8, #6a4190);
-            transform: translateY(-1px);
-        }
+        .btn-primary:hover { filter: brightness(0.95); transform: translateY(-1px); }
 
-        .table {
-            border-radius: 10px;
-            overflow: hidden;
-        }
+        .table { border-radius: 8px; overflow: hidden; color: #fff; }
 
         .table thead th {
-            background: #f8f9fc;
-            border-bottom: 1px solid #e3e6f0;
-            font-weight: 600;
-            color: #5a5c69;
+            background: #0b0b0c;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-weight: 600; color: var(--muted);
         }
 
-        .badge {
-            border-radius: 6px;
-            font-weight: 500;
+        .table tbody td { border-color: rgba(255,255,255,0.02); }
+
+        .badge { border-radius: 6px; font-weight: 600; }
+
+        .badge-status {
+            background: rgba(255,255,255,0.03);
+            color: var(--muted);
+            border: 1px solid rgba(255,255,255,0.03);
         }
 
         .form-control {
-            border: 1px solid #d1d3e2;
-            border-radius: 8px;
-            padding: 0.75rem;
+            background: #0a0a0b; color: #fff; border: 1px solid #222; border-radius: 8px; padding: 0.6rem 0.75rem;
         }
+
+        .form-control::placeholder { color: rgba(255,255,255,0.35); }
 
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(255,122,0,0.08);
+            outline: none;
         }
 
+        .text-muted { color: var(--muted) !important; }
+
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .main-content.expanded {
-                margin-left: 0;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .main-content.expanded { margin-left: 0; }
         }
     </style>
 </head>
@@ -220,7 +197,7 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <h3><i class="fas fa-graduation-cap"></i> <span>TutorAdmin</span></h3>
+            <h3><i class="fas fa-graduation-cap"></i> <span>GyanHub Admin</span></h3>
         </div>
         
         <nav class="sidebar-nav">
