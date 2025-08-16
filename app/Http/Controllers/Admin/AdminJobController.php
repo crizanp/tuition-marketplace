@@ -79,11 +79,28 @@ class AdminJobController extends Controller
         ]);
         
         $job = TutorJob::findOrFail($id);
-        $job->update([
+        $data = [
             'status' => $request->status,
-            'admin_notes' => $request->reason,
             'admin_updated_at' => now()
-        ]);
+        ];
+
+        // Only update/append admin notes when a reason is provided.
+        if ($request->filled('reason')) {
+            $actor = auth()->user()->name ?? 'Admin';
+            $timestamp = now()->format('Y-m-d H:i');
+            $entry = "[{$actor} @ {$timestamp}] " . trim($request->reason);
+
+            $existing = $job->admin_notes ? trim($job->admin_notes) : '';
+            if ($existing !== '') {
+                $newNotes = $existing . "\n\n" . $entry;
+            } else {
+                $newNotes = $entry;
+            }
+
+            $data['admin_notes'] = $newNotes;
+        }
+
+        $job->update($data);
         
         return redirect()->route('admin.jobs.show', $id)
             ->with('success', 'Job status updated successfully.');

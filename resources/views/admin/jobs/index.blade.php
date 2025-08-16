@@ -103,8 +103,23 @@
                             <td>{{ $job->id }}</td>
                             <td>{{ $job->title }}</td>
                             <td>{{ $job->tutor->name ?? 'N/A' }}</td>
-                            <td>{{ $job->subject }}</td>
-                            <td>${{ number_format($job->price, 2) }}/hr</td>
+                            @php
+                                // Normalize subjects (handle array, null or JSON string stored)
+                                $subjects = $job->subjects;
+                                if (is_string($subjects)) {
+                                    $decoded = json_decode($subjects, true);
+                                    $subjects = is_array($decoded) ? $decoded : [];
+                                }
+                                $subjects = $subjects ?? [];
+                            @endphp
+                            <td>{{ count($subjects) ? implode(', ', array_slice($subjects, 0, 3)) : '—' }}</td>
+                            <td>
+                                @if(isset($job->hourly_rate) || $job->hourly_rate === 0)
+                                    ${{ number_format((float)$job->hourly_rate, 2) }}/hr
+                                @else
+                                    —
+                                @endif
+                            </td>
                             <td>
                                 <span class="badge badge-{{ $job->status == 'active' ? 'success' : ($job->status == 'expired' ? 'danger' : 'secondary') }}">
                                     {{ ucfirst($job->status ?? 'active') }}
