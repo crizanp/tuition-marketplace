@@ -226,6 +226,13 @@
                         <span>Jobs</span>
                     </a>
                 </li>
+                <!-- KYC Applications -->
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.kyc.*') ? 'active' : '' }}" href="{{ route('admin.kyc.index') }}">
+                        <i class="fas fa-id-card"></i>
+                        <span>KYC Applications</span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.vacancies.*') ? 'active' : '' }}" href="{{ route('admin.vacancies.index') }}">
                         <i class="fas fa-list-alt"></i>

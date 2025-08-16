@@ -41,16 +41,18 @@ class AdminKycController extends Controller
     public function approve(Request $request, $id)
     {
         $kyc = TutorKyc::findOrFail($id);
-        
+        // Approve (allow re-approving after rejection)
         $kyc->update([
             'status' => 'approved',
             'reviewed_at' => now(),
             'rejection_reason' => null
         ]);
-        
+
         // Update tutor status to active
-        $kyc->tutor->update(['status' => 'active']);
-        
+        if ($kyc->tutor) {
+            $kyc->tutor->update(['status' => 'active']);
+        }
+
         return redirect()->route('admin.kyc.show', $id)->with('success', 'KYC application approved successfully.');
     }
     
@@ -61,13 +63,18 @@ class AdminKycController extends Controller
         ]);
         
         $kyc = TutorKyc::findOrFail($id);
-        
+        // Reject (allow rejecting even after approval)
         $kyc->update([
             'status' => 'rejected',
             'reviewed_at' => now(),
             'rejection_reason' => $request->rejection_reason
         ]);
-        
+
+        // Optionally set tutor to inactive when rejected
+        if ($kyc->tutor) {
+            $kyc->tutor->update(['status' => 'inactive']);
+        }
+
         return redirect()->route('admin.kyc.show', $id)->with('success', 'KYC application rejected.');
     }
 }

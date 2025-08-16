@@ -129,74 +129,7 @@
                 </div>
             </div>
 
-            <!-- Action Cards -->
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <h4 class="action-title">Manage Students</h4>
-                        <p class="action-description">View and manage all registered students</p>
-                        <a href="/admin/students" class="btn btn-primary">View Students</a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <h4 class="action-title">Manage Tutors</h4>
-                        <p class="action-description">Approve, manage and monitor tutors</p>
-                        <a href="/admin/tutors" class="btn btn-primary">View Tutors</a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h4 class="action-title">KYC Verification</h4>
-                        <p class="action-description">Review and approve tutor KYC documents</p>
-                        <a href="/admin/kyc" class="btn btn-primary">Review KYC</a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-                        <h4 class="action-title">Analytics</h4>
-                        <p class="action-description">View platform analytics and reports</p>
-                        <a href="/admin/analytics" class="btn btn-primary">View Analytics</a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-cog"></i>
-                        </div>
-                        <h4 class="action-title">Settings</h4>
-                        <p class="action-description">Configure platform settings</p>
-                        <a href="/admin/settings" class="btn btn-primary">Settings</a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <h4 class="action-title">Messages</h4>
-                        <p class="action-description">Manage platform communications</p>
-                        <a href="/admin/messages" class="btn btn-primary">Messages</a>
-                    </div>
-                </div>
-            </div>
+           
             <!-- Quick Actions & Management -->
             <div class="row mb-5">
                 <div class="col-lg-6 mb-4">
@@ -214,6 +147,11 @@
                                 <i class="fas fa-chalkboard-teacher"></i>
                                 Manage Tutors
                                 <span class="badge badge-success">{{ $stats['total_tutors'] ?? 0 }}</span>
+                            </a>
+                            <a href="/admin/kyc" class="management-link">
+                                <i class="fas fa-id-card"></i>
+                                Review KYC
+                                <span class="badge badge-warning">{{ $stats['pending_kyc'] ?? 0 }}</span>
                             </a>
                             @if($stats['pending_tutors'] > 0)
                             <a href="{{ route('admin.tutors.index', ['status' => 'pending']) }}" class="management-link urgent">
@@ -318,29 +256,32 @@
                 </div>
             </div>
 
+</div>style>
 <style>
+    /* Dark/Black theme overrides */
     .admin-dashboard {
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #000; /* pure black */
+        color: #e6eef6;
     }
 
     .dashboard-header {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(8px);
         padding: 2rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
 
     .dashboard-title {
-        color: white;
+        color: #f5f7fb;
         font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 2px 12px rgba(0,0,0,0.9);
     }
 
     .dashboard-subtitle {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(230, 238, 255, 0.7);
         font-size: 1.1rem;
         margin: 0;
         margin-top: 0.5rem;
@@ -351,20 +292,21 @@
     }
 
     .stats-card {
-        background: white;
+        background: #0b0b0b;
         border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
         transition: all 0.3s ease;
         height: 100%;
         display: flex;
         align-items: center;
         gap: 1.5rem;
+        border: 1px solid rgba(255,255,255,0.03);
     }
 
     .stats-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
     }
 
     .stats-icon {
@@ -380,19 +322,19 @@
     }
 
     .stats-primary .stats-icon {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg,#3a3f8a,#5b3e87);
     }
 
     .stats-success .stats-icon {
-        background: linear-gradient(135deg, #11998e, #38ef7d);
+        background: linear-gradient(135deg,#0f8b73,#1fbf9c);
     }
 
     .stats-warning .stats-icon {
-        background: linear-gradient(135deg, #f093fb, #f5576c);
+        background: linear-gradient(135deg,#ab5fbf,#e3496b);
     }
 
     .stats-info .stats-icon {
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        background: linear-gradient(135deg,#1f78a3,#00c6ff);
     }
 
     .stats-content {
@@ -403,39 +345,41 @@
         font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
-        color: #2c3e50;
+        color: #f1f6fb;
     }
 
     .stats-label {
         font-size: 1rem;
-        color: #7f8c8d;
+        color: rgba(230,230,240,0.6);
         margin: 0;
         font-weight: 500;
     }
 
     .action-card {
-        background: white;
+        background: #0b0b0b;
         border-radius: 20px;
         padding: 2rem;
         text-align: center;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         transition: all 0.3s ease;
         height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        border: 1px solid rgba(255,255,255,0.03);
+        color: #e6eef6;
     }
 
     .action-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
     }
 
     .action-icon {
         width: 80px;
         height: 80px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #33384f, #4a2f55);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -447,52 +391,56 @@
     .action-title {
         font-size: 1.5rem;
         font-weight: 600;
-        color: #2c3e50;
+        color: #f1f6fb;
         margin-bottom: 1rem;
     }
 
     .action-description {
-        color: #7f8c8d;
+        color: rgba(230,230,240,0.65);
         margin-bottom: 2rem;
         line-height: 1.6;
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg,#3a3f8a,#5b3e87);
         border: none;
         border-radius: 10px;
         padding: 0.75rem 2rem;
         font-weight: 600;
         transition: all 0.3s ease;
+        color: #fff;
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 10px 20px rgba(58,63,138,0.3);
     }
 
     .btn-outline-light {
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.08);
         border-radius: 10px;
         transition: all 0.3s ease;
+        color: #e9eef6;
     }
 
     .btn-outline-light:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.12);
         transform: translateY(-2px);
     }
 
     .management-panel, .activity-panel {
-        background: white;
+        background: #0b0b0b;
         border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         height: 100%;
+        border: 1px solid rgba(255,255,255,0.03);
+        color: #e9eef6;
     }
 
     .management-title, .activity-title {
-        color: #2c3e50;
+        color: #f1f6fb;
         font-size: 1.3rem;
         font-weight: 600;
         margin-bottom: 1.5rem;
@@ -512,34 +460,35 @@
         align-items: center;
         justify-content: space-between;
         padding: 1rem;
-        border: 2px solid #e9ecef;
+        border: 2px solid rgba(255,255,255,0.03);
         border-radius: 10px;
         text-decoration: none;
-        color: #2c3e50;
+        color: #e9eef6;
         transition: all 0.3s ease;
+        background: rgba(255,255,255,0.01);
     }
 
     .management-link:hover {
-        border-color: #667eea;
-        background: rgba(102, 126, 234, 0.05);
+        border-color: rgba(58,63,138,0.8);
+        background: rgba(58,63,138,0.06);
         text-decoration: none;
-        color: #667eea;
+        color: #f5f7fb;
         transform: translateX(5px);
     }
 
     .management-link.urgent {
-        border-color: #f39c12;
-        background: rgba(243, 156, 18, 0.05);
+        border-color: rgba(243, 156, 18, 0.9);
+        background: rgba(243, 156, 18, 0.04);
         animation: pulse 2s infinite;
     }
 
     .management-link.urgent:hover {
         border-color: #e67e22;
-        background: rgba(230, 126, 34, 0.1);
+        background: rgba(230, 126, 34, 0.08);
     }
 
     @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4); }
+        0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.12); }
         70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
         100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
     }
@@ -554,12 +503,12 @@
         align-items: center;
         justify-content: space-between;
         padding: 1rem;
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
         transition: all 0.3s ease;
     }
 
     .activity-item:hover {
-        background: rgba(102, 126, 234, 0.05);
+        background: rgba(58,63,138,0.04);
     }
 
     .activity-item:last-child {
@@ -571,20 +520,20 @@
     }
 
     .activity-content strong {
-        color: #2c3e50;
+        color: #f1f6fb;
         display: block;
         margin-bottom: 0.25rem;
     }
 
     .activity-meta {
-        color: #7f8c8d;
+        color: rgba(230,230,240,0.6);
         font-size: 0.9rem;
         display: block;
         margin-bottom: 0.25rem;
     }
 
     .activity-time {
-        color: #bdc3c7;
+        color: rgba(190,200,215,0.7);
         font-size: 0.8rem;
     }
 
@@ -595,7 +544,7 @@
 
     .no-activity {
         text-align: center;
-        color: #7f8c8d;
+        color: rgba(200,200,210,0.6);
         font-style: italic;
         padding: 2rem;
     }
@@ -604,12 +553,14 @@
         font-size: 0.75rem;
         padding: 0.375rem 0.75rem;
         border-radius: 6px;
+        color: #fff;
     }
 
-    .badge-primary { background: linear-gradient(135deg, #667eea, #764ba2); }
-    .badge-success { background: linear-gradient(135deg, #11998e, #38ef7d); }
-    .badge-warning { background: linear-gradient(135deg, #f093fb, #f5576c); }
-    .badge-info { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .badge-primary { background: linear-gradient(135deg,#3a3f8a,#5b3e87); }
+    .badge-success { background: linear-gradient(135deg,#0f8b73,#1fbf9c); }
+    .badge-warning { background: linear-gradient(135deg,#ab5fbf,#e3496b); }
+    .badge-info { background: linear-gradient(135deg,#1f78a3,#00c6ff); }
+
     @media (max-width: 768px) {
         .dashboard-title {
             font-size: 2rem;
@@ -653,31 +604,6 @@
             margin-left: 0;
         }
     }
-        .dashboard-title {
-            font-size: 2rem;
-        }
 
-        .stats-card {
-            flex-direction: column;
-            text-align: center;
-            gap: 1rem;
-        }
-
-        .stats-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
-
-        .stats-number {
-            font-size: 2rem;
-        }
-
-        .action-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
-    }
 </style>
 @endsection

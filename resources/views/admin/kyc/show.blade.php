@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
 <div class="container py-5">
@@ -14,6 +14,12 @@
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            @if(session('warning'))
+                <div class="alert alert-warning">{{ session('warning') }}</div>
+            @endif
 
             <div class="row">
                 <!-- KYC Status Card -->
@@ -23,27 +29,43 @@
                             <h5 class="mb-0">Application Status</h5>
                         </div>
                         <div class="card-body text-center">
-                            <span class="badge badge-{{ $kyc->status === 'approved' ? 'success' : ($kyc->status === 'rejected' ? 'danger' : 'warning') }} fs-6 mb-3">
-                                {{ ucfirst($kyc->status) }}
-                            </span>
-                            
+                            <div class="mb-2">
+                                <span class="badge badge-{{ $kyc->status === 'approved' ? 'success' : ($kyc->status === 'rejected' ? 'danger' : 'warning') }} fs-6">{{ ucfirst($kyc->status) }}</span>
+                            </div>
+
                             <p class="mb-2"><strong>Submitted:</strong> {{ $kyc->submitted_at->format('F j, Y \a\t g:i A') }}</p>
-                            
+
                             @if($kyc->reviewed_at)
                                 <p class="mb-3"><strong>Reviewed:</strong> {{ $kyc->reviewed_at->format('F j, Y \a\t g:i A') }}</p>
                             @endif
 
-                            @if($kyc->status === 'pending')
-                                <div class="action-buttons">
+                            {{-- Action buttons: pending => both; approved => show Reject; rejected => show Approve --}}
+                            <div class="action-buttons">
+                                @if($kyc->status === 'pending')
                                     <button type="button" class="btn btn-success btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#approveModal">
                                         <i class="fas fa-check"></i> Approve
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
                                         <i class="fas fa-times"></i> Reject
                                     </button>
-                                </div>
-                            @elseif($kyc->status === 'rejected' && $kyc->rejection_reason)
-                                <div class="alert alert-danger">
+                                @elseif($kyc->status === 'approved')
+                                    {{-- Show reject option for an already approved application --}}
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                @elseif($kyc->status === 'rejected')
+                                    {{-- Provide approve action to re-approve rejected applications --}}
+                                    <form method="POST" action="{{ route('admin.kyc.approve', $kyc->id) }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm mb-2">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            @if($kyc->status === 'rejected' && $kyc->rejection_reason)
+                                <div class="alert alert-danger mt-3">
                                     <strong>Rejection Reason:</strong><br>
                                     {{ $kyc->rejection_reason }}
                                 </div>
@@ -219,12 +241,13 @@
 <style>
 .detail-group {
     margin-bottom: 15px;
+    color:white;
 }
 
 .detail-group label {
     display: block;
     font-weight: 600;
-    color: #6c757d;
+    color: #bec5cbff;
     font-size: 12px;
     text-transform: uppercase;
     margin-bottom: 5px;
@@ -232,7 +255,7 @@
 
 .detail-group p {
     margin: 0;
-    color: #2c3e50;
+    color: #fefeffff;
     font-weight: 500;
 }
 
@@ -284,6 +307,36 @@
 
 .badge-danger {
     background-color: #e74c3c !important;
+}
+
+/* Modal header styling for approve/reject modals */
+#approveModal .modal-header,
+#rejectModal .modal-header {
+    background: linear-gradient(90deg, #111827 0%, #0b1220 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding: 1rem 1.25rem;
+}
+
+#approveModal .modal-title,
+#rejectModal .modal-title {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+/* Ensure close button is visible on dark header */
+#approveModal .btn-close,
+#rejectModal .btn-close {
+    filter: invert(1) hue-rotate(180deg) brightness(1.2);
+    opacity: 0.95;
+}
+
+/* Match modal content to dark theme */
+#approveModal .modal-content,
+#rejectModal .modal-content {
+    background: #071018;
+    color: #e6eef6;
+    border: 1px solid rgba(255,255,255,0.03);
 }
 </style>
 @endsection
