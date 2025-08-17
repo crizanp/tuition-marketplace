@@ -355,5 +355,6 @@
     </script>
 
     @yield('scripts')
+    @yield('modals')
 </body>
 </html>

@@ -74,11 +74,21 @@ class AdminStudentController extends Controller
         ]);
         
         $student = User::findOrFail($id);
-        $student->update([
-            'status' => $request->status,
-            'status_reason' => $request->reason,
+        $newStatus = $request->status;
+        $updateData = [
+            'status' => $newStatus,
             'status_updated_at' => now()
-        ]);
+        ];
+
+        // If activating, clear the prior reason to keep audit concise.
+        if ($newStatus === 'active') {
+            $updateData['status_reason'] = null;
+        } else {
+            // store provided reason (may be null)
+            $updateData['status_reason'] = $request->reason ?? null;
+        }
+
+        $student->update($updateData);
         
         return redirect()->route('admin.students.show', $id)
             ->with('success', 'Student status updated successfully.');

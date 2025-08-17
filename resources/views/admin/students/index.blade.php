@@ -79,20 +79,16 @@
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     @if($student->status !== 'suspended')
-                                    <form action="{{ route('admin.students.status', $student) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="suspended">
-                                        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Are you sure you want to suspend this student?')">
-                                            <i class="fas fa-ban"></i>
-                                        </button>
-                                    </form>
+                                    <!-- Suspend button opens modal to collect reason -->
+                                    <button type="button" class="btn btn-warning btn-sm btn-suspend" data-id="{{ $student->id }}" data-name="{{ $student->name }}" title="Suspend">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
                                     @else
                                     <form action="{{ route('admin.students.status', $student) }}" method="POST" style="display: inline;">
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" name="status" value="active">
-                                        <button type="submit" class="btn btn-success btn-sm">
+                                        <button type="submit" class="btn btn-success btn-sm" title="Reactivate">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </form>
@@ -135,4 +131,63 @@
     });
 </script>
 @endif
+@endsection
+
+@section('modals')
+<!-- Suspend Student Modal (dark themed) -->
+<style>
+    /* Modal dark theme matching admin panel */
+    .admin-modal { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid var(--border); color:#fff; }
+    .admin-modal .modal-header, .admin-modal .modal-footer { border-color: rgba(255,255,255,0.03); }
+    .admin-modal .modal-title { color: #fff; }
+    .admin-modal .form-label { color: var(--muted); }
+    .admin-modal .form-control { background: #0a0a0b; color: #fff; border: 1px solid #222; }
+    .admin-modal .btn-secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--muted); }
+    .admin-modal .btn-danger { background: #c0392b; border: none; color: #fff; }
+    .btn-close-white { filter: invert(1) grayscale(1) brightness(2); }
+</style>
+
+<div class="modal fade" id="suspendModal" tabindex="-1" aria-labelledby="suspendModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="suspendForm" method="POST" action="">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="status" value="suspended">
+            <div class="modal-content admin-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="suspendModalLabel">Suspend Student</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="suspendModalStudent"></p>
+                    <div class="mb-3">
+                        <label for="suspendReason" class="form-label">Reason (required)</label>
+                        <textarea name="reason" id="suspendReason" class="form-control" rows="3" placeholder="Enter reason for suspension" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Suspend</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+        const modal = new bootstrap.Modal(document.getElementById('suspendModal'));
+        document.querySelectorAll('.btn-suspend').forEach(btn => {
+                btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        const name = btn.getAttribute('data-name');
+                        const form = document.getElementById('suspendForm');
+                        form.action = '/admin/students/' + id + '/status';
+                        document.getElementById('suspendModalStudent').textContent = 'Suspend ' + name + '? This action can be reverted.';
+                        document.getElementById('suspendReason').value = '';
+                        modal.show();
+                });
+        });
+});
+</script>
 @endsection

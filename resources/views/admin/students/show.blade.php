@@ -59,6 +59,12 @@
                         <span class="profile-key">Status:</span>
                         <div class="profile-value">
                             <span class="badge badge-status">{{ ucfirst($student->status ?? 'active') }}</span>
+                            @if(!empty($student->status_reason))
+                                <div class="small text-muted mt-1">Reason: {{ $student->status_reason }}</div>
+                            @endif
+                            @if(!empty($student->status_updated_at))
+                                <div class="small text-muted">Updated: {{ optional($student->status_updated_at)->format('M d, Y H:i') }}</div>
+                            @endif
                         </div>
                     </div>
 
