@@ -46,7 +46,7 @@ class AdminStudentController extends Controller
     /**
      * Display the specified student
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $student = User::with([
             'vacancies' => function($query) {
@@ -59,6 +59,33 @@ class AdminStudentController extends Controller
                 $q->orderBy('created_at', 'desc')->with(['tutor', 'job']);
             }
         ])->findOrFail($id);
+        
+        // If this is an AJAX request for modal, return JSON
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'id' => $student->id,
+                'name' => $student->name,
+                'email' => $student->email,
+                'phone' => $student->phone,
+                'profile_picture' => $student->profile_picture ? asset('storage/' . $student->profile_picture) : null,
+                'bio' => $student->bio,
+                'grade_level' => $student->grade_level,
+                'qualification' => $student->qualification,
+                'institution' => $student->institution,
+                'location_district' => $student->location_district,
+                'location_place' => $student->location_place,
+                'whatsapp' => $student->whatsapp,
+                'preferred_subjects' => $student->preferred_subjects,
+                'status' => $student->status,
+                'status_reason' => $student->status_reason,
+                'profile_completion' => $student->profileCompletionPercentage(),
+                'vacancies_count' => $student->vacancies->count(),
+                'ratings_count' => $student->ratings->count(),
+                'average_rating' => $student->ratings->avg('rating'),
+                'created_at' => $student->created_at->format('M d, Y'),
+                'email_verified_at' => $student->email_verified_at ? $student->email_verified_at->format('M d, Y H:i') : null,
+            ]);
+        }
         
         return view('admin.students.show', compact('student'));
     }

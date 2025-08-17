@@ -130,18 +130,22 @@
                             <td>{{ $message->created_at->format('M d, Y H:i') }}</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <button class="btn btn-info btn-sm" onclick="showMessage({{ $message->id }})">
+                                    <button class="btn btn-info btn-sm" onclick="showMessage({{ $message->id }})" title="Quick view">
                                         <i class="fas fa-eye"></i>
                                     </button>
+                                    <a href="{{ route('admin.messages.show', $message) }}" class="btn btn-outline-primary btn-sm ml-1" title="Open page">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
                                     @if(!$message->admin_response)
                                     <button class="btn btn-success btn-sm" onclick="respondToMessage({{ $message->id }})">
                                         <i class="fas fa-reply"></i>
                                     </button>
                                     @endif
                                     @if(!$message->is_read)
-                                    <form action="{{ route('admin.messages.markRead', $message) }}" method="POST" style="display: inline;">
+                                    <form action="{{ route('admin.messages.bulkUpdate') }}" method="POST" style="display: inline;">
                                         @csrf
-                                        @method('PATCH')
+                                        <input type="hidden" name="action" value="mark_read">
+                                        <input type="hidden" name="message_ids[]" value="{{ $message->id }}">
                                         <button type="submit" class="btn btn-warning btn-sm">
                                             <i class="fas fa-envelope-open"></i>
                                         </button>
@@ -170,18 +174,25 @@
     </div>
 </div>
 
-<!-- Message Detail Modal -->
+<!-- Message Detail Modal (dark) -->
 <div class="modal fade" id="messageModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content bg-dark text-white" style="border-radius:6px;">
+            <div class="modal-header border-0">
                 <h5 class="modal-title">Message Details</h5>
-                <button type="button" class="close" data-dismiss="modal">
+                <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <div class="modal-body" id="messageContent">
                 <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer border-0 bg-transparent">
+                <a href="#" id="openStudentProfile" class="btn btn-outline-light btn-sm mr-1" target="_blank" style="display:none;">Open Student</a>
+                <a href="#" id="openTutorProfile" class="btn btn-outline-light btn-sm mr-1" target="_blank" style="display:none;">Open Tutor</a>
+                <a href="#" id="openJob" class="btn btn-outline-light btn-sm mr-1" target="_blank" style="display:none;">Open Job</a>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                <button type="button" id="respondFromModalBtn" class="btn btn-primary btn-sm" style="display:none;">Respond</button>
             </div>
         </div>
     </div>
@@ -248,23 +259,59 @@ function showMessage(messageId) {
     fetch(`/admin/messages/${messageId}`)
         .then(response => response.json())
         .then(data => {
+            const adminResp = data.admin_response ? `\n                            <hr>\n                            <h6>Admin Response:</h6>\n                            <p class=\"text-info\">${data.admin_response}</p>\n                            <small class=\"text-muted\">Responded at: ${data.responded_at}</small>` : '';
+            const studentBlock = data.student ? `
+                <div class=\"d-flex align-items-start mb-2\">\n                    <div style=\"width:64px;height:64px;overflow:hidden;border-radius:6px;background:#222;margin-right:12px;display:flex;align-items:center;justify-content:center;\">\n                        ${data.student.profile_picture ? `<img src=\"${data.student.profile_picture}\" style=\"width:100%;height:100%;object-fit:cover;\"/>` : `<i class=\"fas fa-user text-secondary\" style=\"font-size:24px;\"></i>`}\n                    </div>\n                    <div>\n                        <div class=\"text-white\"><strong>${data.student.name}</strong> <small class=\"text-muted\">(${data.student.email})</small></div>\n                        <div class=\"text-muted\">${data.student.grade_level ? `Grade: ${data.student.grade_level}` : ''} ${data.student.location_place ? `• ${data.student.location_place}` : ''}</div>\n                        ${data.student.bio ? `<div class=\"mt-1 text-light small\">${data.student.bio}</div>` : ''}\n                    </div>\n                </div>` : '';
+
+            const tutorBlock = data.tutor ? `
+                <div class=\"d-flex align-items-start mb-2\">\n                    <div style=\"width:64px;height:64px;overflow:hidden;border-radius:6px;background:#222;margin-right:12px;display:flex;align-items:center;justify-content:center;\">\n                        <i class=\"fas fa-chalkboard-teacher text-secondary\" style=\"font-size:24px;\"></i>\n                    </div>\n                    <div>\n                        <div class=\"text-white\"><strong>${data.tutor.name}</strong></div>\n                        <div class=\"text-muted\">${data.tutor.hourly_rate ? 'Rate: ' + data.tutor.hourly_rate : ''} ${data.tutor.subjects ? '• ' + (Array.isArray(data.tutor.subjects) ? data.tutor.subjects.join(', ') : data.tutor.subjects) : ''}</div>\n                        ${data.tutor.bio ? `<div class=\"mt-1 text-light small\">${data.tutor.bio}</div>` : ''}\n                    </div>\n                </div>` : '';
+
             document.getElementById('messageContent').innerHTML = `
-                <div class="card">
-                    <div class="card-header">
-                        <h6>From: ${data.name} (${data.email})</h6>
-                        <small class="text-muted">Subject: ${data.subject}</small>
-                    </div>
-                    <div class="card-body">
-                        <p>${data.message}</p>
-                        ${data.admin_response ? `
-                            <hr>
-                            <h6>Admin Response:</h6>
-                            <p class="text-primary">${data.admin_response}</p>
-                            <small class="text-muted">Responded at: ${data.responded_at}</small>
-                        ` : ''}
-                    </div>
+                <div>
+                    <h6>From: ${data.name} (${data.email})</h6>
+                    <p class=\"text-muted\">Subject: ${data.subject} — <small>${data.created_at}</small></p>
+                    <div class=\"mb-3\">${studentBlock}${tutorBlock}${jobBlock}</div>
+                    <div class=\"p-3 bg-secondary text-white rounded\">${data.message}</div>
+                    ${adminResp}
                 </div>
             `;
+
+            // Setup action buttons
+            if (data.student && data.student.profile_url) {
+                const btn = document.getElementById('openStudentProfile');
+                btn.href = data.student.profile_url;
+                btn.style.display = 'inline-block';
+            } else {
+                document.getElementById('openStudentProfile').style.display = 'none';
+            }
+
+            if (data.tutor && data.tutor.profile_url) {
+                const btn = document.getElementById('openTutorProfile');
+                btn.href = data.tutor.profile_url;
+                btn.style.display = 'inline-block';
+            } else {
+                document.getElementById('openTutorProfile').style.display = 'none';
+            }
+
+            if (data.job && data.job.url) {
+                const btn = document.getElementById('openJob');
+                btn.href = data.job.url;
+                btn.style.display = 'inline-block';
+            } else {
+                document.getElementById('openJob').style.display = 'none';
+            }
+
+            // Show respond button if not responded yet
+            const respondBtn = document.getElementById('respondFromModalBtn');
+            if (!data.admin_response) {
+                respondBtn.style.display = 'inline-block';
+                respondBtn.onclick = function() {
+                    respondToMessage(messageId);
+                }
+            } else {
+                respondBtn.style.display = 'none';
+            }
+
             $('#messageModal').modal('show');
         });
 }

@@ -13,7 +13,7 @@ class AdminMessageController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ContactMessage::with(['job', 'tutor', 'student']);
+        $query = ContactMessage::with(['job', 'tutor.kyc', 'student']);
         
         // Search functionality
         if ($request->has('search') && $request->search !== '') {
@@ -58,15 +58,73 @@ class AdminMessageController extends Controller
     /**
      * Display the specified message
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $message = ContactMessage::with(['job', 'tutor', 'student'])->findOrFail($id);
-        
+        $message = ContactMessage::with(['job', 'tutor.kyc', 'student'])->findOrFail($id);
+
         // Mark as read if not already
         if ($message->status === 'unread') {
             $message->markAsRead();
         }
-        
+
+        // If the request expects JSON (AJAX from the index page), return JSON payload
+        if ($request->wantsJson() || $request->ajax() || str_contains($request->header('Accept', ''), 'application/json')) {
+            // Build quick related data
+            $studentData = null;
+            if ($message->student) {
+                $studentData = [
+                    'id' => $message->student->id,
+                    'name' => $message->student->name,
+                    'email' => $message->student->email,
+                    'profile_url' => route('admin.students.show', $message->student->id),
+                    'profile_picture' => $message->student->profile_picture ? asset('storage/' . $message->student->profile_picture) : null,
+                    'bio' => $message->student->bio ?? null,
+                    'grade_level' => $message->student->grade_level ?? null,
+                    'location_place' => $message->student->location_place ?? null,
+                ];
+            }
+
+            $tutorData = null;
+            if ($message->tutor) {
+                $tutorData = [
+                    'id' => $message->tutor->id,
+                    'name' => $message->tutor->name,
+                    'profile_url' => route('admin.tutors.show', $message->tutor->id),
+                    'profile_picture' => ($message->tutor->kyc && $message->tutor->kyc->profile_photo) ? asset('storage/' . $message->tutor->kyc->profile_photo) : null,
+                    'hourly_rate' => $message->tutor->hourly_rate ?? null,
+                    'subjects' => $message->tutor->subjects ?? null,
+                    'bio' => optional($message->tutor->profile)->bio ?? $message->tutor->bio ?? null,
+                ];
+            }
+
+            $jobData = null;
+            if ($message->tutor_job_id) {
+                $job = $message->job;
+                $jobData = [
+                    'id' => $message->tutor_job_id,
+                    'title' => $job ? $job->title : ('Job #' . $message->tutor_job_id),
+                    'url' => $job ? route('admin.jobs.show', $message->tutor_job_id) : null,
+                ];
+            }
+
+            return response()->json([
+                'id' => $message->id,
+                'name' => $message->name,
+                'email' => $message->email,
+                'phone' => $message->phone,
+                'subject' => $message->subject,
+                'message' => $message->message,
+                'type' => $message->type,
+                'is_read' => $message->status === 'read',
+                'admin_response' => $message->admin_response,
+                'responded_at' => $message->responded_at ? $message->responded_at->format('M d, Y H:i') : null,
+                'job' => $jobData,
+                'tutor' => $tutorData,
+                'student' => $studentData,
+                'created_at' => $message->created_at->format('M d, Y H:i'),
+            ]);
+        }
+
         return view('admin.messages.show', compact('message'));
     }
     

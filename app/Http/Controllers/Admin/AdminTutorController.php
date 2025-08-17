@@ -49,7 +49,7 @@ class AdminTutorController extends Controller
     /**
      * Display the specified tutor
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $tutor = Tutor::with([
             'kyc', 
@@ -65,6 +65,47 @@ class AdminTutorController extends Controller
             'ratings.job',
             'vacancyApplications.vacancy'
         ])->findOrFail($id);
+        
+        // If this is an AJAX request for modal, return JSON
+        if ($request->wantsJson() || $request->ajax()) {
+            $kycData = null;
+            if ($tutor->kyc) {
+                $kycData = [
+                    'status' => $tutor->kyc->status,
+                    'document_type' => $tutor->kyc->document_type,
+                    'document_number' => $tutor->kyc->document_number,
+                    'verified_at' => $tutor->kyc->verified_at ? $tutor->kyc->verified_at->format('M d, Y H:i') : null,
+                ];
+            }
+            
+            return response()->json([
+                'id' => $tutor->id,
+                'name' => $tutor->name,
+                'email' => $tutor->email,
+                'phone' => $tutor->phone,
+                'bio' => $tutor->bio,
+                'subjects' => $tutor->subjects,
+                'hourly_rate' => $tutor->hourly_rate,
+                'profile_picture' => ($tutor->kyc && $tutor->kyc->profile_photo) ? asset('storage/' . $tutor->kyc->profile_photo) : null,
+                'status' => $tutor->status,
+                'status_reason' => $tutor->status_reason,
+                'profile' => $tutor->profile ? [
+                    'bio' => $tutor->profile->bio,
+                    'skills' => $tutor->profile->skills,
+                    'education' => $tutor->profile->education,
+                    'languages' => $tutor->profile->languages,
+                    'total_students' => $tutor->profile->total_students,
+                    'total_hours' => $tutor->profile->total_hours,
+                    'completion_percentage' => $tutor->profile->getCompletionPercentage(),
+                ] : null,
+                'kyc' => $kycData,
+                'jobs_count' => $tutor->jobs->count(),
+                'ratings_count' => $tutor->ratings->count(),
+                'average_rating' => $tutor->ratings->avg('rating'),
+                'created_at' => $tutor->created_at->format('M d, Y'),
+                'email_verified_at' => $tutor->email_verified_at ? $tutor->email_verified_at->format('M d, Y H:i') : null,
+            ]);
+        }
         
         return view('admin.tutors.show', compact('tutor'));
     }
