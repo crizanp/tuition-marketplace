@@ -42,8 +42,14 @@ class AdminJobController extends Controller
         if ($request->has('featured')) {
             $query->where('is_featured', true);
         }
+
+        // Filter by tutor id (when coming from a tutor's "View Jobs" link)
+        if ($request->has('tutor') && $request->tutor !== '') {
+            $query->where('tutor_id', $request->tutor);
+        }
         
-        $jobs = $query->orderBy('created_at', 'desc')->paginate(15);
+        // Preserve query string for pagination (so tutor filter, search, etc. stay in links)
+        $jobs = $query->orderBy('created_at', 'desc')->paginate(15)->appends($request->except('page'));
         
         // Get unique subjects for filter (since subjects is JSON, we need to process it differently)
         $allJobs = TutorJob::select('subjects')->get();
@@ -55,7 +61,8 @@ class AdminJobController extends Controller
         }
         $subjects = $subjects->unique()->filter()->sort()->values();
         
-        return view('admin.jobs.index', compact('jobs', 'subjects'));
+    $selectedTutor = $request->tutor ?? null;
+    return view('admin.jobs.index', compact('jobs', 'subjects', 'selectedTutor'));
     }
     
     /**

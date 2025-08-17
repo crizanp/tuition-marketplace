@@ -148,4 +148,19 @@ class Tutor extends Authenticatable implements MustVerifyEmail
     {
         return $this->status === 'banned';
     }
+
+    /**
+     * Average rating accessor (returns rounded value or null)
+     */
+    public function getAverageRatingAttribute()
+    {
+        // Prefer eager-loaded aggregate if present
+        $avg = $this->ratings_avg_rating ?? null;
+
+        if ($avg === null) {
+            $avg = $this->ratings()->avg('rating');
+        }
+
+        return $avg ? round($avg, 1) : null;
+    }
 }

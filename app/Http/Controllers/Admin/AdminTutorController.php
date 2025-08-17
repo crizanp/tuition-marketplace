@@ -38,7 +38,8 @@ class AdminTutorController extends Controller
             });
         }
         
-        $tutors = $query->withCount(['jobs', 'ratings'])
+        $tutors = $query->withCount(['jobs'])
+            ->withAvg('ratings', 'rating')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
         
@@ -56,12 +57,56 @@ class AdminTutorController extends Controller
             'jobs' => function($query) {
                 $query->orderBy('created_at', 'desc');
             },
+            // eager-load the user who left each rating and the job it was for
             'ratings' => function($query) {
                 $query->orderBy('created_at', 'desc');
-            }
+            },
+            'ratings.user',
+            'ratings.job',
+            'vacancyApplications.vacancy'
         ])->findOrFail($id);
         
         return view('admin.tutors.show', compact('tutor'));
+    }
+    
+    /**
+     * Display the detailed profile of a tutor (admin-only view)
+     */
+    public function showProfile($id)
+    {
+        $tutor = Tutor::with([
+            'kyc', 
+            'profile', 
+            'jobs' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'ratings' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'ratings.user',
+            'ratings.job',
+            'vacancyApplications.vacancy'
+        ])->findOrFail($id);
+        
+        return view('admin.tutors.profile', compact('tutor'));
+    }
+
+    /**
+     * Delete a rating left for a tutor (admin)
+     */
+    public function destroyRating($id, $ratingId)
+    {
+        $tutor = Tutor::findOrFail($id);
+
+        $rating = $tutor->ratings()->where('id', $ratingId)->first();
+
+        if (! $rating) {
+            return redirect()->route('admin.tutors.show', $id)->with('error', 'Rating not found.');
+        }
+
+        $rating->delete();
+
+        return redirect()->route('admin.tutors.show', $id)->with('success', 'Rating deleted successfully.');
     }
     
     /**

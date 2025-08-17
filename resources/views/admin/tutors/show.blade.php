@@ -61,9 +61,10 @@
                                         @php
                                             $files = [];
                                             if($tutor->kyc->profile_photo ?? false) $files['Profile Photo'] = $tutor->kyc->profile_photo;
-                                            if($tutor->kyc->id_front ?? false) $files['ID Front'] = $tutor->kyc->id_front;
-                                            if($tutor->kyc->id_back ?? false) $files['ID Back'] = $tutor->kyc->id_back;
-                                            if($tutor->kyc->other_documents ?? false) $files['Other'] = $tutor->kyc->other_documents;
+                                            if($tutor->kyc->citizenship_front ?? false) $files['Citizenship Front'] = $tutor->kyc->citizenship_front;
+                                            if($tutor->kyc->citizenship_back ?? false) $files['Citizenship Back'] = $tutor->kyc->citizenship_back;
+                                            if($tutor->kyc->qualification_proof ?? false) $files['Qualification Proof'] = $tutor->kyc->qualification_proof;
+                                            if($tutor->kyc->certificate_file ?? false) $files['Certificate'] = $tutor->kyc->certificate_file;
                                         @endphp
 
                                         @if(count($files))
@@ -116,7 +117,12 @@
                             <h6 class="mb-2">Profile & Activity</h6>
                             <div><strong>Jobs Posted:</strong> {{ $tutor ? $tutor->jobs->count() : 0 }}</div>
                             <div class="mt-2"><strong>Applications:</strong> {{ $tutor ? $tutor->vacancyApplications->count() : 0 }}</div>
-                            <div class="mt-2"><strong>Ratings:</strong> {{ $tutor ? $tutor->ratings->count() : 0 }}</div>
+                            <div class="mt-2"><strong>Ratings:</strong> {{ $tutor ? $tutor->ratings->count() : 0 }}
+                                @if($tutor && $tutor->ratings->count() > 0)
+                                    @php $avgRating = $tutor->ratings->avg('rating'); @endphp
+                                    <span class="badge bg-warning text-dark ms-2">{{ number_format($avgRating, 1) }}/5</span>
+                                @endif
+                            </div>
 
                             <hr>
                             <h6 class="mb-2">Full Profile</h6>
@@ -130,11 +136,20 @@
                             <div><strong>Skills:</strong></div>
                             <div class="text-muted mb-2">@if($profile && ($profile->skills ?? false)) @php $skills = is_array($profile->skills) ? implode(', ', $profile->skills) : $profile->skills; @endphp {{ $skills }} @else N/A @endif</div>
 
-                            <div><strong>Experience:</strong></div>
-                            <div class="text-muted mb-2">{{ $profile->experience ?? 'N/A' }}</div>
+                            <div><strong>Qualification:</strong></div>
+                            <div class="text-muted mb-2">
+                                @if($tutor->kyc && $tutor->kyc->qualification)
+                                    {{ $tutor->kyc->qualification }}
+                                @elseif($profile && ($profile->education ?? false))
+                                    @php $edu = is_array($profile->education) ? implode(', ', $profile->education) : $profile->education; @endphp 
+                                    {{ $edu }}
+                                @else
+                                    N/A
+                                @endif
+                            </div>
 
                             <div class="mt-3">
-                                <a href="{{ route('tutor.profile.public', $tutor->id) }}" class="btn btn-sm btn-outline-primary">View Full Profile</a>
+                                <a href="{{ route('admin.tutors.profile', $tutor->id) }}" class="btn btn-sm btn-outline-primary">View Full Profile</a>
                                 <a href="{{ route('admin.jobs.index', ['tutor' => $tutor->id]) }}" class="btn btn-sm btn-outline-secondary">View Jobs</a>
                             </div>
                         </div>
@@ -162,6 +177,80 @@
                     @endif
                 </div>
             </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Ratings & Reviews</h6>
+                        @if($tutor && $tutor->ratings->count())
+                            <div class="text-end">
+                                @php
+                                    $avgRating = $tutor->ratings->avg('rating');
+                                    $totalRatings = $tutor->ratings->count();
+                                @endphp
+                                <div class="fw-bold">{{ number_format($avgRating, 1) }}/5</div>
+                                <div class="small text-muted">{{ $totalRatings }} rating{{ $totalRatings != 1 ? 's' : '' }}</div>
+                            </div>
+                        @endif
+                    </div>
+                    @if($tutor && $tutor->ratings->count())
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Job</th>
+                                        <th>Rating</th>
+                                        <th>Review</th>
+                                        <th>Date</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($tutor->ratings as $rating)
+                                        <tr>
+                                            <td>
+                                                @if($rating->user)
+                                                    <div class="fw-bold">{{ $rating->user->name }}</div>
+                                                    <div class="small text-muted">{{ $rating->user->email }}</div>
+                                                @else
+                                                    <div class="text-muted">Student account removed</div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($rating->job)
+                                                    <div class="fw-bold">{{ $rating->job->title }}</div>
+                                                    <div class="small text-muted">
+                                                        @if($rating->job->subjects && is_array($rating->job->subjects))
+                                                            {{ implode(', ', array_slice($rating->job->subjects, 0, 2)) }}
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <div class="text-muted">Job removed</div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ $rating->rating }}/5</span>
+                                            </td>
+                                            <td class="small text-wrap" style="max-width:300px">{{ $rating->review ?? '-' }}</td>
+                                            <td class="small text-muted">{{ optional($rating->created_at)->format('M d, Y') }}</td>
+                                            <td class="text-end">
+                                                <form action="{{ route('admin.tutors.ratings.destroy', [$tutor->id, $rating->id]) }}" method="POST" onsubmit="return confirm('Delete this rating?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-muted">No ratings yet.</div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-4">
@@ -169,7 +258,15 @@
                 <div class="card-body">
                     <h6 class="mb-3">Contact</h6>
                     <div><strong>Phone:</strong> {{ $tutor->phone ?? 'N/A' }}</div>
-                    <div class="mt-2"><strong>City:</strong> {{ $tutor->city ?? optional($tutor->profile)->city ?? 'N/A' }}</div>
+                    <div class="mt-2"><strong>Location:</strong> 
+                        @if($tutor->kyc && $tutor->kyc->exact_location)
+                            {{ $tutor->kyc->exact_location }}
+                        @elseif($tutor->profile && $tutor->profile->city)
+                            {{ $tutor->profile->city }}
+                        @else
+                            N/A
+                        @endif
+                    </div>
                     <div class="mt-3">
                         @if($tutor && $tutor->email)
                             <a href="mailto:{{ $tutor->email }}" class="btn btn-outline-info w-100">Email Tutor</a>

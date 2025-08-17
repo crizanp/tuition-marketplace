@@ -108,15 +108,15 @@
                                 </span>
                             </td>
                             <td>
-                                @if($tutor->tutorKyc)
-                                <span class="badge badge-{{ $tutor->tutorKyc->status == 'approved' ? 'success' : ($tutor->tutorKyc->status == 'pending' ? 'warning' : 'danger') }}">
-                                    {{ ucfirst($tutor->tutorKyc->status) }}
+                                @if($tutor->kyc)
+                                <span class="badge badge-{{ $tutor->kyc->status == 'approved' ? 'success' : ($tutor->kyc->status == 'pending' ? 'warning' : 'danger') }}">
+                                    {{ ucfirst($tutor->kyc->status) }}
                                 </span>
                                 @else
                                 <span class="badge badge-secondary">Not Submitted</span>
                                 @endif
                             </td>
-                            <td>{{ $tutor->tutorJobs->count() }}</td>
+                            <td>{{ $tutor->jobs_count ?? $tutor->tutorJobs->count() }}</td>
                             <td>
                                 @if($tutor->average_rating)
                                 {{ number_format($tutor->average_rating, 1) }}/5

@@ -48,9 +48,17 @@ class AdminStudentController extends Controller
      */
     public function show($id)
     {
-        $student = User::with(['vacancies' => function($query) {
-            $query->orderBy('created_at', 'desc');
-        }])->findOrFail($id);
+        $student = User::with([
+            'vacancies' => function($query) {
+                $query->orderBy('created_at', 'desc')->with(['applications' => function($q) {
+                    $q->orderBy('applied_at', 'desc')->with('tutor');
+                }]);
+            },
+            // Ratings given by this student
+            'ratings' => function($q) {
+                $q->orderBy('created_at', 'desc')->with(['tutor', 'job']);
+            }
+        ])->findOrFail($id);
         
         return view('admin.students.show', compact('student'));
     }

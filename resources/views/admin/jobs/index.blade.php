@@ -19,6 +19,9 @@
         <div class="card-body">
             <form method="GET" action="{{ route('admin.jobs.index') }}">
                 <div class="row">
+                    @if(!empty($selectedTutor))
+                        <input type="hidden" name="tutor" value="{{ $selectedTutor }}">
+                    @endif
                     <div class="col-md-3">
                         <select name="status" class="form-control">
                             <option value="">All Status</option>
@@ -76,7 +79,11 @@
     <!-- Jobs Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Jobs List</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Jobs List
+                @if(!empty($selectedTutor))
+                    <small class="text-muted"> — Showing jobs for tutor #{{ $selectedTutor }}</small>
+                @endif
+            </h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">

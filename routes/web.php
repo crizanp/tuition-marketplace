@@ -106,8 +106,11 @@ Route::prefix('admin')->group(function () {
         Route::prefix('tutors')->group(function () {
             Route::get('/', [AdminTutorController::class, 'index'])->name('admin.tutors.index');
             Route::get('/{id}', [AdminTutorController::class, 'show'])->name('admin.tutors.show');
+            Route::get('/{id}/profile', [AdminTutorController::class, 'showProfile'])->name('admin.tutors.profile');
             Route::put('/{id}/status', [AdminTutorController::class, 'updateStatus'])->name('admin.tutors.status');
             Route::post('/{id}/approve', [AdminTutorController::class, 'approve'])->name('admin.tutors.approve');
+            // Delete a rating for a tutor
+            Route::delete('/{id}/ratings/{ratingId}', [AdminTutorController::class, 'destroyRating'])->name('admin.tutors.ratings.destroy');
             Route::post('/bulk-update', [AdminTutorController::class, 'bulkUpdate'])->name('admin.tutors.bulkUpdate');
             Route::delete('/{id}', [AdminTutorController::class, 'destroy'])->name('admin.tutors.destroy');
             Route::get('/export/csv', [AdminTutorController::class, 'export'])->name('admin.tutors.export');
