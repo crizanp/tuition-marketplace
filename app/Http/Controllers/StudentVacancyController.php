@@ -25,8 +25,15 @@ class StudentVacancyController extends Controller
      */
     public function create()
     {
-        // Only allow students with verified profiles (80% completion) to post vacancies
+        // Prevent suspended/banned users from posting vacancies
         $user = Auth::user();
+        if ($user && isset($user->status) && $user->status !== 'active') {
+            return redirect()
+                ->route('student.dashboard')
+                ->with('error', 'Your account has been suspended. Please contact support to reactivate your account.');
+        }
+
+        // Only allow students with verified profiles (80% completion) to post vacancies
         if (!$user || !method_exists($user, 'isProfileVerified') || !$user->isProfileVerified()) {
             return redirect()
                 ->route('student.dashboard')
@@ -41,6 +48,14 @@ class StudentVacancyController extends Controller
      */
     public function store(Request $request)
     {
+        // Prevent suspended/banned users from posting vacancies
+        $user = Auth::user();
+        if (!$user || (isset($user->status) && $user->status !== 'active')) {
+            return redirect()
+                ->route('student.dashboard')
+                ->with('error', 'Your account has been suspended. Please contact support to reactivate your account.');
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',

@@ -197,6 +197,11 @@ class JobController extends Controller
 
         // Check if user is authenticated and has already sent a message for this job
         if (auth()->check()) {
+            // Prevent suspended/banned students from sending inquiries
+            $u = auth()->user();
+            if (isset($u->status) && $u->status !== 'active') {
+                return redirect()->back()->with('error', 'Your account has been suspended. You cannot contact tutors.');
+            }
             $existingMessage = ContactMessage::where('student_id', auth()->id())
                 ->where('job_id', $job->id)
                 ->first();
@@ -282,7 +287,13 @@ class JobController extends Controller
     {
         try {
             $user = auth()->user();
-            
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Please login to manage wishlist'], 401);
+            }
+            // Prevent suspended/banned users from wishlisting
+            if (isset($user->status) && $user->status !== 'active') {
+                return response()->json(['success' => false, 'message' => 'Your account has been suspended. You cannot manage wishlist.'], 403);
+            }
             // Check if job is already in wishlist
             $wishlistItem = $user->wishlist()->where('tutor_job_id', $job->id)->first();
             
@@ -333,6 +344,12 @@ class JobController extends Controller
     {
         if (!auth()->check()) {
             return redirect()->route('student.login')->with('error', 'Please login to submit a rating.');
+        }
+
+        // Prevent suspended/banned students from submitting ratings
+        $u = auth()->user();
+        if (isset($u->status) && $u->status !== 'active') {
+            return redirect()->back()->with('error', 'Your account has been suspended. You cannot submit ratings.');
         }
 
         $request->validate([

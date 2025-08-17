@@ -20,6 +20,17 @@
         @else
             @include('partials.unified-navbar')
         @endif
+        @if(auth()->check() && isset(auth()->user()->status) && auth()->user()->status === 'suspended')
+            <div class="alert alert-warning text-center mb-0" role="alert" style="border-radius:0;">
+                Your account has been suspended. Please
+                @if (\Illuminate\Support\Facades\Route::has('contact'))
+                    <a href="{{ route('contact') }}">contact support</a>
+                @else
+                    <a href="{{ url('/contact') }}">contact support</a>
+                @endif
+                to reactivate your account.
+            </div>
+        @endif
         @yield('content')
     </main>
     
